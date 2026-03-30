@@ -126,19 +126,25 @@
             font-family: 'Nunito', sans-serif; text-align: center;
             border: 2px solid white;
         }
-        .price-marker {
-            background: var(--white); color: var(--text);
-            font-weight: 700; font-size: 13px; padding: 4px 10px;
-            border-radius: 20px; box-shadow: var(--shadow);
-            border: 2px solid var(--white); white-space: nowrap;
-            transition: all 0.2s; cursor: pointer;
-            font-family: 'Nunito', sans-serif;
+
+        /* ─── SORT BAR ─── */
+        .sort-bar {
+            display: flex; gap: 8px; padding: 12px 24px;
+            border-bottom: 1px solid var(--border-light);
+            background: var(--white); flex-shrink: 0;
         }
-        .price-marker:hover, .price-marker.active {
-            background: var(--text); color: white;
-            border-color: var(--text); transform: scale(1.1);
-            z-index: 999 !important;
+        .sort-btn {
+            padding: 6px 14px; border-radius: 20px;
+            border: 1.5px solid var(--border); background: white;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            font-family: inherit; color: var(--text);
+            transition: all 0.2s; display: flex; align-items: center; gap: 4px;
         }
+        .sort-btn:hover { border-color: var(--text); }
+        .sort-btn.active {
+            background: var(--text); color: white; border-color: var(--text);
+        }
+        .sort-btn svg { width: 12px; height: 12px; }
 
         /* ─── LISTINGS PANEL ─── */
         .listings-panel {
@@ -378,6 +384,22 @@
                 <h2>Condos near ABAC</h2>
                 <span id="listingCount">Loading...</span>
             </div>
+            <div class="sort-bar">
+                <button class="sort-btn active" onclick="sortListings('default')">
+                    All
+                </button>
+                <button class="sort-btn" onclick="sortListings('price-low')">
+                    Price
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+                </button>
+                <button class="sort-btn" onclick="sortListings('price-high')">
+                    Price
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <button class="sort-btn" onclick="sortListings('distance')">
+                    Nearest
+                </button>
+            </div>
             <div class="listings-scroll" id="listingsContainer">
                 <!-- Filled by JS -->
             </div>
@@ -564,35 +586,25 @@
     }
 
     function updateMapMarkers(listings) {
-        // Clear old markers and lines
+        // Clear old markers
         markers.forEach(m => m.setMap(null));
-        distanceLines.forEach(l => l.setMap(null));
         markers = [];
-        distanceLines = [];
 
         listings.forEach(l => {
             if (!l.lat || !l.lng) return;
             const pos = { lat: Number(l.lat), lng: Number(l.lng) };
 
-            // Price label marker
+            // Clean dot marker
             const marker = new google.maps.Marker({
                 position: pos,
                 map: map,
-                label: {
-                    text: `฿${Number(l.price).toLocaleString()}`,
-                    color: '#222',
-                    fontWeight: '700',
-                    fontSize: '12px',
-                    fontFamily: 'Nunito, sans-serif'
-                },
                 icon: {
                     path: google.maps.SymbolPath.CIRCLE,
-                    fillColor: 'white',
+                    fillColor: '#FF5A5F',
                     fillOpacity: 1,
-                    strokeColor: '#ddd',
+                    strokeColor: 'white',
                     strokeWeight: 2,
-                    scale: 0,
-                    labelOrigin: new google.maps.Point(0, 0)
+                    scale: 8
                 },
                 title: l.title,
                 zIndex: 100
@@ -616,35 +628,23 @@
                 `);
                 infoWindow.open(map, marker);
 
-                // Scroll to card
                 const card = document.querySelector('.listing-card[data-id="' + l.id + '"]');
                 if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
             });
 
-            // Distance line from campus to condo
-            const line = new google.maps.Polyline({
-                path: [ABAC, pos],
-                geodesic: true,
-                strokeColor: '#FF5A5F',
-                strokeOpacity: 0.3,
-                strokeWeight: 2,
-                map: map
-            });
-
             // Highlight on hover
             marker.addListener('mouseover', () => {
-                line.setOptions({ strokeOpacity: 0.8, strokeWeight: 3 });
+                marker.setIcon({ ...marker.getIcon(), fillColor: '#222', scale: 10 });
                 const el = document.querySelector('.listing-card[data-id="' + l.id + '"]');
                 if (el) el.style.background = '#FFF5F5';
             });
             marker.addListener('mouseout', () => {
-                line.setOptions({ strokeOpacity: 0.3, strokeWeight: 2 });
+                marker.setIcon({ ...marker.getIcon(), fillColor: '#FF5A5F', scale: 8 });
                 const el = document.querySelector('.listing-card[data-id="' + l.id + '"]');
                 if (el) el.style.background = '';
             });
 
             markers.push(marker);
-            distanceLines.push(line);
         });
     }
 
@@ -772,6 +772,8 @@
     // ══════════════════════════════════════
     // LISTINGS
     // ══════════════════════════════════════
+    let allListings = [];
+
     async function loadListings() {
         try {
             const { data, error } = await sb
@@ -781,6 +783,7 @@
 
             if (error) throw error;
 
+            allListings = data;
             document.getElementById('listingCount').textContent = `${data.length} listings`;
             renderListings(data);
             updateMapMarkers(data);
@@ -790,6 +793,28 @@
             document.getElementById('listingsContainer').innerHTML =
                 '<div class="empty-state"><p>Failed to load listings. Check console.</p></div>';
         }
+    }
+
+    function sortListings(mode) {
+        // Update active button
+        document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        let sorted = [...allListings];
+        if (mode === 'price-low') {
+            sorted.sort((a, b) => a.price - b.price);
+        } else if (mode === 'price-high') {
+            sorted.sort((a, b) => b.price - a.price);
+        } else if (mode === 'distance') {
+            sorted.sort((a, b) => {
+                const dA = getDistance(ABAC, { lat: Number(a.lat), lng: Number(a.lng) });
+                const dB = getDistance(ABAC, { lat: Number(b.lat), lng: Number(b.lng) });
+                const numA = parseFloat(dA);
+                const numB = parseFloat(dB);
+                return numA - numB;
+            });
+        }
+        renderListings(sorted);
     }
 
     function renderListings(listings) {
