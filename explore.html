@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explore | UniCondo</title>
+    <title>Explore Map | UniCondo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBfbugmOoOnX9f_wL8RzgttgqP76J6g-gY&callback=initMap" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,9 +25,11 @@
             --shadow: 0 2px 8px rgba(0,0,0,0.1);
             --shadow-lg: 0 6px 20px rgba(0,0,0,0.15);
         }
+        html, body { height: 100%; overflow: hidden; }
         body {
             font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg); color: var(--text);
+            display: flex; flex-direction: column;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -34,7 +37,8 @@
         .header {
             background: var(--gradient);
             padding: 0 24px;
-            position: sticky; top: 0; z-index: 100;
+            flex-shrink: 0;
+            z-index: 100;
         }
         .header-inner {
             max-width: 1400px; margin: 0 auto;
@@ -53,7 +57,31 @@
             font-size: 14px; font-weight: 600; padding: 8px 14px;
             border-radius: 8px; transition: all 0.2s;
         }
-        .nav a:hover, .nav a.active { background: rgba(255,255,255,0.2); color: white; }
+        .nav a:hover { background: rgba(255,255,255,0.15); color: white; }
+        .header-search {
+            flex: 1; max-width: 420px;
+            display: flex; align-items: center;
+            background: rgba(255,255,255,0.2); border-radius: 24px;
+            padding: 6px 6px 6px 16px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.25);
+            transition: all 0.2s;
+        }
+        .header-search:focus-within {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.4);
+        }
+        .header-search input {
+            flex: 1; background: none; border: none; outline: none;
+            color: white; font-size: 14px; font-family: inherit;
+        }
+        .header-search input::placeholder { color: rgba(255,255,255,0.7); }
+        .header-search button {
+            background: white; border: none; width: 32px; height: 32px;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; flex-shrink: 0;
+        }
+        .header-search button svg { width: 14px; height: 14px; color: var(--coral); }
         .header-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
         .header-auth-btn {
             background: white; color: var(--coral); border: none;
@@ -77,126 +105,114 @@
             background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
             color: white; padding: 6px 14px; border-radius: 16px; font-size: 12px;
             font-weight: 600; cursor: pointer; font-family: inherit;
+            transition: background 0.2s;
         }
         .header-logout:hover { background: rgba(255,255,255,0.3); }
 
-        /* ─── SEARCH HERO ─── */
-        .search-hero {
-            background: var(--white);
+        /* ─── MAIN LAYOUT ─── */
+        .main {
+            flex: 1; display: flex; overflow: hidden;
+        }
+
+        /* ─── MAP PANEL ─── */
+        .map-panel {
+            width: 45%; position: relative;
+        }
+        #map { width: 100%; height: 100%; }
+        .campus-label {
+            background: #1a73e8; color: white; font-weight: 700;
+            font-size: 12px; padding: 5px 10px; border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3); white-space: nowrap;
+            font-family: 'Nunito', sans-serif; text-align: center;
+            border: 2px solid white;
+        }
+
+        /* ─── SORT BAR ─── */
+        .sort-bar {
+            display: flex; gap: 8px; padding: 12px 24px;
             border-bottom: 1px solid var(--border-light);
-            padding: 32px 24px;
+            background: var(--white); flex-shrink: 0;
         }
-        .search-hero-inner {
-            max-width: 1200px; margin: 0 auto;
-        }
-        .search-hero h1 {
-            font-size: 28px; font-weight: 800; margin-bottom: 6px;
-        }
-        .search-hero p {
-            color: var(--text-light); font-size: 15px; margin-bottom: 20px;
-        }
-        .search-bar {
-            display: flex; gap: 10px; align-items: center;
-        }
-        .search-bar input {
-            flex: 1; padding: 13px 18px; border: 1.5px solid var(--border);
-            border-radius: 10px; font-size: 15px; font-family: inherit;
-            outline: none; transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
-        }
-        .search-bar input:focus {
-            border-color: var(--coral);
-            box-shadow: 0 0 0 4px rgba(255,90,95,0.12);
-            transform: scale(1.01);
-        }
-        .filter-pills {
-            display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap;
-        }
-        .filter-pill {
-            padding: 7px 16px; border-radius: 20px;
+        .sort-btn {
+            padding: 6px 14px; border-radius: 20px;
             border: 1.5px solid var(--border); background: white;
             font-size: 13px; font-weight: 600; cursor: pointer;
             font-family: inherit; color: var(--text);
-            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); display: flex; align-items: center; gap: 4px;
         }
-        .filter-pill:hover { border-color: var(--text); transform: translateY(-1px); }
-        .filter-pill:active { transform: scale(0.95); }
-        .filter-pill.active {
+        .sort-btn:hover { border-color: var(--text); transform: translateY(-1px); }
+        .sort-btn:active { transform: scale(0.95); }
+        .sort-btn.active {
             background: var(--text); color: white; border-color: var(--text);
-            animation: pillBounce 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: sortBounce 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        @keyframes pillBounce {
-            0% { transform: scale(0.9); }
-            50% { transform: scale(1.08); }
-            100% { transform: scale(1); }
-        }
+        .sort-btn svg { width: 12px; height: 12px; }
+        @keyframes sortBounce { 0% { transform: scale(0.9); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
 
-        /* ─── GRID ─── */
-        .grid-section {
-            max-width: 1200px; margin: 0 auto;
-            padding: 24px;
+        /* ─── LISTINGS PANEL ─── */
+        .listings-panel {
+            width: 55%; display: flex; flex-direction: column;
+            border-left: 1px solid var(--border-light);
+            background: var(--white);
         }
-        .grid-meta {
+        .listings-header {
+            padding: 16px 24px; border-bottom: 1px solid var(--border-light);
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px;
+            background: var(--white); flex-shrink: 0;
         }
-        .grid-meta h2 { font-size: 18px; font-weight: 800; }
-        .grid-meta span { font-size: 13px; color: var(--text-light); font-weight: 600; }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
+        .listings-header h2 { font-size: 18px; font-weight: 800; }
+        .listings-header span { font-size: 13px; color: var(--text-light); font-weight: 600; }
+        .listings-scroll {
+            flex: 1; overflow-y: auto; padding: 16px 24px;
+        }
+        .listings-scroll::-webkit-scrollbar { width: 6px; }
+        .listings-scroll::-webkit-scrollbar-thumb {
+            background: var(--border); border-radius: 3px;
         }
 
-        /* ─── CARD ─── */
-        .card {
-            background: var(--white); border-radius: 14px;
-            overflow: hidden; cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
+        /* ─── LISTING CARD ─── */
+        .listing-card {
+            display: flex; gap: 16px; padding: 16px 0;
+            border-bottom: 1px solid var(--border-light);
+            cursor: pointer; transition: background 0.2s, transform 0.2s;
             position: relative;
         }
-        .card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.15); }
-        .card:active { transform: translateY(-2px) scale(0.98); }
-        .card-img-wrap { overflow: hidden; }
-        .card-img {
-            width: 100%; height: 200px; object-fit: cover;
+        .listing-card:hover { background: #FAFAFA; margin: 0 -24px; padding: 16px 24px; transform: translateX(4px); }
+        .listing-card:active { transform: scale(0.99); }
+        .listing-card:last-child { border-bottom: none; }
+        .listing-img {
+            width: 200px; height: 140px; border-radius: 10px;
+            object-fit: cover; flex-shrink: 0;
             background: #E8E8E8;
-            transition: transform 0.4s ease;
         }
-        .card:hover .card-img { transform: scale(1.06); }
-        .card-body { padding: 14px 16px 16px; }
-        .card-top {
-            display: flex; justify-content: space-between; align-items: flex-start;
-            margin-bottom: 2px;
+        .listing-info { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+        .listing-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .listing-title { font-size: 16px; font-weight: 700; color: var(--text); }
+        .listing-rating {
+            display: flex; align-items: center; gap: 4px;
+            font-size: 14px; font-weight: 600; flex-shrink: 0;
         }
-        .card-title { font-size: 16px; font-weight: 700; }
-        .card-rating {
-            display: flex; align-items: center; gap: 3px;
-            font-size: 13px; font-weight: 600; flex-shrink: 0;
+        .listing-rating svg { width: 14px; height: 14px; color: var(--coral); }
+        .listing-distance { font-size: 14px; color: var(--text-light); }
+        .listing-details { font-size: 14px; color: var(--text-light); }
+        .listing-price { font-size: 16px; font-weight: 800; margin-top: 4px; }
+        .listing-price span { font-weight: 500; font-size: 14px; color: var(--text-light); }
+        .listing-badge {
+            display: inline-block; background: var(--coral);
+            color: white; font-size: 11px; font-weight: 700;
+            padding: 3px 8px; border-radius: 4px; margin-bottom: 4px;
         }
-        .card-rating svg { width: 13px; height: 13px; color: var(--coral); }
-        .card-distance { font-size: 14px; color: var(--text-light); }
-        .card-details { font-size: 13px; color: var(--text-light); margin-top: 2px; }
-        .card-price { font-size: 16px; font-weight: 800; margin-top: 6px; }
-        .card-price span { font-weight: 500; font-size: 14px; color: var(--text-light); }
-        .card-badge {
-            position: absolute; top: 12px; left: 12px;
-            background: var(--white); color: var(--text);
-            font-size: 12px; font-weight: 700;
-            padding: 5px 10px; border-radius: 6px;
-            box-shadow: var(--shadow);
-        }
-        .card-delete {
-            position: absolute; top: 12px; right: 12px;
+        .listing-delete {
+            position: absolute; top: 16px; right: 0;
             background: white; border: 1px solid var(--border);
-            color: var(--coral); font-size: 11px; font-weight: 700;
+            color: var(--coral); font-size: 12px; font-weight: 600;
             padding: 4px 10px; border-radius: 6px; cursor: pointer;
-            font-family: inherit; display: none;
-            box-shadow: var(--shadow);
+            font-family: inherit; display: none; transition: all 0.2s;
         }
-        .card-delete.show { display: block; }
-        .card-delete:hover { background: var(--coral); color: white; border-color: var(--coral); }
+        .listing-delete.show { display: block; }
+        .listing-delete:hover { background: var(--coral); color: white; border-color: var(--coral); }
 
-        /* ─── POST FAB ─── */
+        /* ─── POST LISTING BUTTON ─── */
         .post-btn {
             position: fixed; bottom: 24px; right: 24px;
             background: var(--gradient); color: white; border: none;
@@ -269,7 +285,11 @@
             text-align: center; margin-top: 16px; font-size: 14px;
             color: var(--text-light);
         }
-        .auth-switch a { color: var(--coral); font-weight: 700; text-decoration: none; cursor: pointer; }
+        .auth-switch a {
+            color: var(--coral); font-weight: 700;
+            text-decoration: none; cursor: pointer;
+        }
+        .auth-switch a:hover { text-decoration: underline; }
         .auth-divider {
             display: flex; align-items: center; gap: 12px;
             margin: 18px 0; color: var(--text-light); font-size: 13px;
@@ -282,7 +302,8 @@
             border: 1.5px solid var(--border); border-radius: 8px;
             font-size: 14px; font-weight: 600; cursor: pointer;
             font-family: inherit; display: flex; align-items: center;
-            justify-content: center; gap: 10px; transition: all 0.2s; color: var(--text);
+            justify-content: center; gap: 10px; transition: all 0.2s;
+            color: var(--text);
         }
         .btn-google:hover { background: #f8f8f8; border-color: #bbb; }
         .btn-google svg { width: 18px; height: 18px; }
@@ -303,44 +324,67 @@
         }
         .toast.show { opacity: 1; }
 
-        .empty-state { text-align: center; padding: 60px 24px; color: var(--text-light); }
+        /* ─── EMPTY STATE ─── */
+        .empty-state {
+            text-align: center; padding: 48px 24px; color: var(--text-light);
+        }
         .empty-state p { font-size: 15px; margin-top: 8px; }
 
-        /* ─── FOOTER ─── */
-        .footer {
-            text-align: center; padding: 32px 24px;
-            color: var(--text-light); font-size: 13px;
-            border-top: 1px solid var(--border-light); margin-top: 40px;
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 900px) {
+            html, body { height: auto; overflow: auto; }
+            body { display: block; }
+            .main { flex-direction: column; overflow: visible; height: auto; flex: none; }
+            .map-panel { width: 100%; height: 280px; flex-shrink: 0; }
+            .listings-panel {
+                width: 100%; min-height: 0; overflow: visible;
+                border-left: none; border-top: 1px solid var(--border-light);
+            }
+            .listings-scroll {
+                overflow: visible; flex: none;
+                padding: 12px 16px;
+            }
+            .listings-header { padding: 12px 16px; }
+            .listings-header h2 { font-size: 16px; }
+            .sort-bar { padding: 10px 16px; overflow-x: auto; flex-wrap: nowrap; }
+            .sort-btn { white-space: nowrap; flex-shrink: 0; font-size: 12px; padding: 5px 12px; }
+            .nav { display: none; }
+            .header-search { max-width: 240px; }
+            .header-inner { gap: 16px; }
+            .listing-card { padding: 12px 0; gap: 12px; }
+            .listing-card:hover { margin: 0; padding: 12px 0; background: none; }
+            .listing-img { width: 140px; height: 100px; border-radius: 8px; }
+            .listing-title { font-size: 15px; }
+            .listing-price { font-size: 15px; }
+            .post-btn { bottom: 16px; right: 16px; padding: 12px 18px; font-size: 14px; border-radius: 24px; }
         }
-        .footer a { color: var(--coral); text-decoration: none; font-weight: 600; }
-
-        /* ─── SCROLL ANIMATIONS ─── */
-        .fade-up {
-            opacity: 0; transform: translateY(24px);
-            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        @media (max-width: 600px) {
+            .header-search { display: none; }
+            .header-inner { height: 56px; padding: 0 12px; }
+            .logo-text { font-size: 18px; }
+            .map-panel { height: 220px; }
+            .listing-card { flex-direction: column; gap: 10px; }
+            .listing-img { width: 100%; height: 180px; border-radius: 10px; }
+            .listings-scroll { padding: 10px 14px; }
+            .listings-header { padding: 10px 14px; }
+            .sort-bar { padding: 8px 14px; gap: 6px; }
+            .listing-info { gap: 3px; }
+            .listing-title { font-size: 15px; }
+            .listing-distance { font-size: 13px; }
+            .listing-details { font-size: 13px; }
+            .listing-price { font-size: 16px; margin-top: 2px; }
+            .post-btn { bottom: 12px; right: 12px; }
+            .modal { margin: 12px; padding: 24px; border-radius: 14px; }
         }
-        .fade-up.visible { opacity: 1; transform: translateY(0); }
-
-        /* ─── SKELETON LOADING ─── */
-        .skeleton-card {
-            background: var(--white); border-radius: 14px; overflow: hidden;
-        }
-        .skeleton-img {
-            width: 100%; height: 200px; background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
-            background-size: 200% 100%; animation: shimmer 1.5s infinite;
-        }
-        .skeleton-body { padding: 14px 16px 16px; }
-        .skeleton-line {
-            height: 12px; border-radius: 6px; margin-bottom: 8px;
-            background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
-            background-size: 200% 100%; animation: shimmer 1.5s infinite;
-        }
-        .skeleton-line.w60 { width: 60%; }
-        .skeleton-line.w80 { width: 80%; }
-        .skeleton-line.w40 { width: 40%; height: 16px; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-        /* ─── FORM FEEDBACK ─── */
+        /* ─── MICRO INTERACTIONS ─── */
+        .listing-img { transition: transform 0.4s ease; }
+        .listing-card:hover .listing-img { transform: scale(1.03); border-radius: 10px; }
+        .header-search input { transition: border-color 0.3s, box-shadow 0.3s; }
+        .header-search input:focus { box-shadow: 0 0 0 3px rgba(255,90,95,0.15); }
+        .post-btn { transition: transform 0.2s, box-shadow 0.2s; }
+        .post-btn:active { transform: scale(0.95); }
+        .btn-submit { transition: transform 0.15s, opacity 0.2s; }
+        .btn-submit:active { transform: scale(0.97); }
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-6px); }
@@ -363,12 +407,6 @@
             100% { height: 18px; width: 10px; opacity: 1; }
         }
 
-        /* ─── BUTTON PRESS ─── */
-        .btn-submit { transition: transform 0.15s, opacity 0.2s; }
-        .btn-submit:active { transform: scale(0.97); }
-        .header-auth-btn, .header-logout, .post-btn { transition: transform 0.15s, box-shadow 0.2s; }
-        .header-auth-btn:active, .header-logout:active, .post-btn:active { transform: scale(0.95); }
-
         /* ─── DETAIL MODAL ─── */
         .detail-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.55);
@@ -385,72 +423,30 @@
             from { opacity: 0; transform: translateY(30px) scale(0.95); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .detail-img {
-            width: 100%; height: 280px; object-fit: cover;
-            border-radius: 18px 18px 0 0; background: #e8e8e8;
-        }
+        .detail-img { width: 100%; height: 280px; object-fit: cover; border-radius: 18px 18px 0 0; background: #e8e8e8; }
         .detail-close {
             position: absolute; top: 16px; right: 16px;
             background: white; border: none; width: 36px; height: 36px;
             border-radius: 50%; font-size: 18px; cursor: pointer;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: flex;
-            align-items: center; justify-content: center;
-            transition: transform 0.2s; z-index: 2;
+            align-items: center; justify-content: center; transition: transform 0.2s; z-index: 2;
         }
         .detail-close:hover { transform: scale(1.1); }
         .detail-body { padding: 24px; }
-        .detail-badge {
-            display: inline-block; background: var(--coral); color: white;
-            font-size: 11px; font-weight: 700; padding: 4px 10px;
-            border-radius: 6px; margin-bottom: 8px;
-        }
+        .detail-badge { display: inline-block; background: var(--coral); color: white; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; margin-bottom: 8px; }
         .detail-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
         .detail-location { font-size: 15px; color: var(--text-light); margin-bottom: 12px; }
-        .detail-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-top: 1px solid var(--border-light);
-        }
+        .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid var(--border-light); }
         .detail-label { font-size: 14px; color: var(--text-light); font-weight: 600; }
         .detail-value { font-size: 14px; font-weight: 700; }
-        .detail-price-big {
-            font-size: 26px; font-weight: 800; color: var(--coral); margin: 16px 0 4px;
-        }
+        .detail-price-big { font-size: 26px; font-weight: 800; color: var(--coral); margin: 16px 0 4px; }
         .detail-price-big span { font-size: 15px; font-weight: 500; color: var(--text-light); }
         .detail-actions { display: flex; gap: 10px; margin-top: 16px; }
-        .detail-btn {
-            flex: 1; padding: 13px; border-radius: 10px; font-size: 15px;
-            font-weight: 700; cursor: pointer; font-family: inherit;
-            text-align: center; text-decoration: none; transition: all 0.2s;
-        }
+        .detail-btn { flex: 1; padding: 13px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; text-align: center; text-decoration: none; transition: all 0.2s; }
         .detail-btn:active { transform: scale(0.97); }
         .detail-btn-primary { background: var(--gradient); color: white; border: none; }
         .detail-btn-secondary { background: white; color: var(--text); border: 1.5px solid var(--border); }
         .detail-btn-secondary:hover { border-color: var(--text); }
-        @media (max-width: 600px) {
-            .detail-modal { margin: 8px; max-height: 95vh; border-radius: 14px; }
-            .detail-img { height: 220px; border-radius: 14px 14px 0 0; }
-            .detail-body { padding: 18px; }
-            .detail-title { font-size: 19px; }
-            .detail-price-big { font-size: 22px; }
-        }
-
-        /* ─── RESPONSIVE ─── */
-        @media (max-width: 900px) {
-            .nav { display: none; }
-            .search-hero h1 { font-size: 22px; }
-            .grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
-        }
-        @media (max-width: 600px) {
-            .header-inner { height: 56px; }
-            .search-hero { padding: 20px 16px; }
-            .search-hero h1 { font-size: 20px; }
-            .search-bar input { padding: 11px 14px; font-size: 14px; }
-            .grid-section { padding: 16px; }
-            .grid { grid-template-columns: 1fr; gap: 16px; }
-            .card-img { height: 200px; }
-            .modal { margin: 12px; padding: 24px; border-radius: 14px; }
-            .post-btn { bottom: 12px; right: 12px; }
-        }
     </style>
 </head>
 <body>
@@ -467,41 +463,55 @@
                 <a href="explore.html" class="active">Explore</a>
                 <a href="about.html">About</a>
             </nav>
-            <div class="header-right" id="headerRight"></div>
+            <div class="header-search">
+                <input type="text" placeholder="Search by university, area, or condo name..." id="searchInput">
+                <button>
+                    <svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="header-right" id="headerRight">
+                <!-- Filled by JS -->
+            </div>
         </div>
     </header>
 
-    <!-- SEARCH HERO -->
-    <div class="search-hero">
-        <div class="search-hero-inner">
-            <h1>Explore Student Housing</h1>
-            <p>Browse all condos and apartments near ABAC and beyond</p>
-            <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Search by name, area, or price..." oninput="handleSearch()">
+    <!-- MAIN LAYOUT -->
+    <div class="main">
+        <!-- MAP -->
+        <div class="map-panel">
+            <div id="map"></div>
+        </div>
+        <!-- LISTINGS -->
+        <div class="listings-panel">
+            <div class="listings-header">
+                <h2>Condos near ABAC</h2>
+                <span id="listingCount">Loading...</span>
             </div>
-            <div class="filter-pills">
-                <button class="filter-pill active" onclick="filterCategory('all', this)">All</button>
-                <button class="filter-pill" onclick="filterCategory('walking', this)">🚶 Walking distance</button>
-                <button class="filter-pill" onclick="filterCategory('ride', this)">🛵 Short ride</button>
-                <button class="filter-pill" onclick="filterCategory('budget', this)">💰 Budget</button>
-                <button class="filter-pill" onclick="sortBy('price-low', this)">Price ↑</button>
-                <button class="filter-pill" onclick="sortBy('price-high', this)">Price ↓</button>
+            <div class="sort-bar">
+                <button class="sort-btn active" onclick="sortListings('default')">
+                    All
+                </button>
+                <button class="sort-btn" onclick="sortListings('price-low')">
+                    Price
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+                </button>
+                <button class="sort-btn" onclick="sortListings('price-high')">
+                    Price
+                    <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <button class="sort-btn" onclick="sortListings('distance')">
+                    Nearest
+                </button>
+            </div>
+            <div class="listings-scroll" id="listingsContainer">
+                <!-- Filled by JS -->
             </div>
         </div>
     </div>
 
-    <!-- GRID -->
-    <div class="grid-section">
-        <div class="grid-meta">
-            <h2 id="gridTitle">All listings</h2>
-            <span id="gridCount">Loading...</span>
-        </div>
-        <div class="grid" id="gridContainer">
-            <!-- Filled by JS -->
-        </div>
-    </div>
-
-    <!-- POST FAB -->
+    <!-- POST LISTING FAB -->
     <button class="post-btn" id="postBtn" onclick="openModal('listing')">
         <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" d="M12 5v14m-7-7h14"/>
@@ -597,6 +607,7 @@
         </div>
     </div>
 
+    <!-- TOAST -->
     <!-- DETAIL MODAL -->
     <div class="detail-overlay" id="detailOverlay">
         <div class="detail-modal" style="position:relative;">
@@ -606,51 +617,204 @@
         </div>
     </div>
 
-    <!-- TOAST -->
     <div class="toast" id="toast"></div>
 
-    <!-- FOOTER -->
-    <div class="footer">
-        <p>© 2026 UniCondo · <a href="index.html">Back to Map</a></p>
-    </div>
-
     <script>
+    // ══════════════════════════════════════
+    // SUPABASE INIT
+    // ══════════════════════════════════════
     const SUPA_URL = 'https://pekqhcxbhtgfsqtiunic.supabase.co';
     const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBla3FoY3hiaHRnZnNxdGl1bmljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkxMjMsImV4cCI6MjA5MDQzNTEyM30.YlEBAX2Oh5CKsSeVCS-UZq93np58xUUP0RlddISLgFY';
 
-    let sb, currentUser = null, isSignUp = false, allListings = [], activeCategory = 'all';
+    let sb, currentUser = null, isSignUp = false, map, markers = [], distanceLines = [], infoWindow = null;
+    const ABAC = { lat: 13.6116, lng: 100.8370 };
 
     try {
         sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
-    } catch(e) { console.error('Supabase init failed:', e); }
+        console.log('✅ Supabase connected');
+    } catch (e) {
+        console.error('❌ Supabase init failed:', e);
+    }
 
-    // ── AUTH ──
+    // ══════════════════════════════════════
+    // GOOGLE MAP INIT
+    // ══════════════════════════════════════
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: ABAC,
+            zoom: 14,
+            mapTypeControl: true,
+            mapTypeControlOptions: {
+                style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                position: google.maps.ControlPosition.TOP_RIGHT,
+                mapTypeIds: ['roadmap', 'satellite', 'hybrid']
+            },
+            streetViewControl: true,
+            fullscreenControl: true,
+            zoomControl: true,
+            styles: [
+                { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
+                { featureType: 'poi.park', elementType: 'labels', stylers: [{ visibility: 'off' }] }
+            ]
+        });
+
+        infoWindow = new google.maps.InfoWindow();
+
+        // ABAC Campus marker
+        new google.maps.Marker({
+            position: ABAC,
+            map: map,
+            icon: {
+                url: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#1a73e8" stroke="white" stroke-width="3"/><text x="20" y="24" text-anchor="middle" fill="white" font-size="16" font-weight="bold" font-family="sans-serif">🎓</text></svg>'),
+                scaledSize: new google.maps.Size(44, 44),
+                anchor: new google.maps.Point(22, 22)
+            },
+            title: 'ABAC - Assumption University',
+            zIndex: 999
+        });
+
+        // Campus label overlay
+        const campusLabel = new google.maps.Marker({
+            position: { lat: ABAC.lat + 0.0025, lng: ABAC.lng },
+            map: map,
+            icon: {
+                url: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>'),
+                scaledSize: new google.maps.Size(1, 1)
+            },
+            label: {
+                text: '🎓 ABAC Campus',
+                color: '#1a73e8',
+                fontWeight: '800',
+                fontSize: '13px',
+                fontFamily: 'Nunito, sans-serif'
+            },
+            zIndex: 998
+        });
+
+        console.log('✅ Google Map initialized');
+
+        // If Supabase is already loaded, render markers
+        if (typeof sb !== 'undefined') {
+            boot();
+        }
+    }
+
+    function updateMapMarkers(listings) {
+        // Clear old markers
+        markers.forEach(m => m.setMap(null));
+        markers = [];
+
+        listings.forEach(l => {
+            if (!l.lat || !l.lng) return;
+            const pos = { lat: Number(l.lat), lng: Number(l.lng) };
+
+            // Clean dot marker
+            const marker = new google.maps.Marker({
+                position: pos,
+                map: map,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: '#FF5A5F',
+                    fillOpacity: 1,
+                    strokeColor: 'white',
+                    strokeWeight: 2,
+                    scale: 8
+                },
+                title: l.title,
+                zIndex: 100
+            });
+
+            // Info window on click
+            marker.addListener('click', () => {
+                const dist = getDistance(ABAC, pos);
+                infoWindow.setContent(`
+                    <div style="font-family:Nunito,sans-serif; padding:4px; min-width:200px;">
+                        <strong style="font-size:15px;">${l.title}</strong><br>
+                        <span style="color:#717171;">${l.distance}</span><br>
+                        <span style="color:#717171;">${l.details}</span><br>
+                        <strong style="font-size:15px; color:#FF5A5F;">฿${Number(l.price).toLocaleString()}</strong><span style="color:#717171;"> /month</span><br>
+                        <span style="font-size:12px; color:#1a73e8;">📏 ~${dist} from ABAC</span><br>
+                        <a href="https://www.google.com/maps/dir/${ABAC.lat},${ABAC.lng}/${pos.lat},${pos.lng}" target="_blank"
+                           style="color:#1a73e8; font-size:13px; font-weight:600; text-decoration:none;">
+                           🧭 Get Directions →
+                        </a>
+                    </div>
+                `);
+                infoWindow.open(map, marker);
+
+                const card = document.querySelector('.listing-card[data-id="' + l.id + '"]');
+                if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+
+            // Highlight on hover
+            marker.addListener('mouseover', () => {
+                marker.setIcon({ ...marker.getIcon(), fillColor: '#222', scale: 10 });
+                const el = document.querySelector('.listing-card[data-id="' + l.id + '"]');
+                if (el) el.style.background = '#FFF5F5';
+            });
+            marker.addListener('mouseout', () => {
+                marker.setIcon({ ...marker.getIcon(), fillColor: '#FF5A5F', scale: 8 });
+                const el = document.querySelector('.listing-card[data-id="' + l.id + '"]');
+                if (el) el.style.background = '';
+            });
+
+            markers.push(marker);
+        });
+    }
+
+    // Calculate distance between two lat/lng points
+    function getDistance(p1, p2) {
+        const R = 6371;
+        const dLat = (p2.lat - p1.lat) * Math.PI / 180;
+        const dLng = (p2.lng - p1.lng) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(p1.lat * Math.PI / 180) * Math.cos(p2.lat * Math.PI / 180) *
+            Math.sin(dLng/2) * Math.sin(dLng/2);
+        const d = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return d < 1 ? Math.round(d * 1000) + 'm' : d.toFixed(1) + 'km';
+    }
+
+    // ══════════════════════════════════════
+    // AUTH
+    // ══════════════════════════════════════
     async function initAuth() {
-        const { data: { session } } = await sb.auth.getSession();
-        currentUser = session?.user || null;
-        updateHeaderUI();
-        sb.auth.onAuthStateChange((_, session) => {
+        try {
+            const { data: { session } } = await sb.auth.getSession();
             currentUser = session?.user || null;
             updateHeaderUI();
-            renderGrid(getFiltered());
-        });
+
+            sb.auth.onAuthStateChange((_, session) => {
+                currentUser = session?.user || null;
+                updateHeaderUI();
+                loadListings();
+            });
+            console.log('✅ Auth ready', currentUser ? currentUser.email : '(not logged in)');
+        } catch (e) {
+            console.error('❌ Auth init failed:', e);
+        }
     }
 
     function updateHeaderUI() {
         const el = document.getElementById('headerRight');
         const postBtn = document.getElementById('postBtn');
+
         if (currentUser) {
             el.innerHTML = `
                 <div class="header-user">
                     <div class="header-user-avatar">
-                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.87 0-7 2.24-7 5v1h14v-1c0-2.76-3.13-5-7-5z"/></svg>
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.87 0-7 2.24-7 5v1h14v-1c0-2.76-3.13-5-7-5z"/>
+                        </svg>
                     </div>
                     <a href="profile.html" style="color:white; text-decoration:none; font-weight:600;">${currentUser.email.split('@')[0]}</a>
                 </div>
-                <button class="header-logout" onclick="handleLogout()">Log out</button>`;
+                <button class="header-logout" onclick="handleLogout()">Log out</button>
+            `;
             postBtn.classList.add('show');
         } else {
-            el.innerHTML = `<button class="header-auth-btn" onclick="openModal('auth')">Log in / Sign up</button>`;
+            el.innerHTML = `
+                <button class="header-auth-btn" onclick="openModal('auth')">Log in / Sign up</button>
+            `;
             postBtn.classList.remove('show');
         }
     }
@@ -671,107 +835,136 @@
         const btn = document.getElementById('authBtn');
         const email = document.getElementById('authEmail').value;
         const password = document.getElementById('authPassword').value;
-        btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; clearMsg('authMsg');
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>';
+        clearMsg('authMsg');
+
         try {
             if (isSignUp) {
                 const name = document.getElementById('authName').value;
-                const { error } = await sb.auth.signUp({ email, password, options: { data: { name } } });
+                const { error } = await sb.auth.signUp({
+                    email, password,
+                    options: { data: { name } }
+                });
                 if (error) throw error;
-                showMsg('authMsg', 'Account created!', 'success');
+                showMsg('authMsg', 'Account created! You can now log in.', 'success');
                 setTimeout(() => { isSignUp = true; toggleAuthMode(); }, 1500);
             } else {
                 const { error } = await sb.auth.signInWithPassword({ email, password });
                 if (error) throw error;
-                closeModals(); showToast('Welcome back!');
+                closeModals();
+                showToast('Welcome back!');
             }
-        } catch (err) { showMsg('authMsg', err.message, 'error'); }
-        btn.disabled = false; btn.textContent = isSignUp ? 'Create account' : 'Log in';
+        } catch (err) {
+            showMsg('authMsg', err.message, 'error');
+        }
+
+        btn.disabled = false;
+        btn.textContent = isSignUp ? 'Create account' : 'Log in';
     }
 
     async function handleGoogleLogin() {
         try {
-            const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/explore.html' } });
+            const { error } = await sb.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin + '/explore.html'
+                }
+            });
             if (error) throw error;
-        } catch (err) { showMsg('authMsg', err.message, 'error'); }
+        } catch (err) {
+            showMsg('authMsg', err.message, 'error');
+        }
     }
 
-    async function handleLogout() { await sb.auth.signOut(); showToast('Logged out'); }
-
-    // ── SKELETON ──
-    function showSkeleton() {
-        const c = document.getElementById('gridContainer');
-        c.innerHTML = Array(6).fill(`
-            <div class="skeleton-card">
-                <div class="skeleton-img"></div>
-                <div class="skeleton-body">
-                    <div class="skeleton-line w80"></div>
-                    <div class="skeleton-line w60"></div>
-                    <div class="skeleton-line w40"></div>
-                </div>
-            </div>`).join('');
+    async function handleLogout() {
+        await sb.auth.signOut();
+        showToast('Logged out');
     }
 
-    // ── LISTINGS ──
+    // ══════════════════════════════════════
+    // LISTINGS
+    // ══════════════════════════════════════
+    let allListings = [];
+
     async function loadListings() {
         try {
-            const { data, error } = await sb.from('listings').select('*').order('created_at', { ascending: false });
+            const { data, error } = await sb
+                .from('listings')
+                .select('*')
+                .order('created_at', { ascending: false });
+
             if (error) throw error;
+
             allListings = data;
-            renderGrid(data);
+            document.getElementById('listingCount').textContent = `${data.length} listings`;
+            renderListings(data);
+            updateMapMarkers(data);
+            console.log(`✅ Loaded ${data.length} listings`);
         } catch (e) {
-            console.error('Load failed:', e);
-            document.getElementById('gridContainer').innerHTML = '<div class="empty-state"><p>Failed to load.</p></div>';
+            console.error('❌ Load listings failed:', e);
+            document.getElementById('listingsContainer').innerHTML =
+                '<div class="empty-state"><p>Failed to load listings. Check console.</p></div>';
         }
     }
 
-    function getFiltered() {
-        let list = [...allListings];
-        const q = document.getElementById('searchInput').value.toLowerCase().trim();
-        if (q) list = list.filter(l =>
-            l.title.toLowerCase().includes(q) ||
-            l.distance.toLowerCase().includes(q) ||
-            l.details.toLowerCase().includes(q) ||
-            String(l.price).includes(q)
-        );
-        if (activeCategory !== 'all') list = list.filter(l => l.category === activeCategory);
-        return list;
+    function sortListings(mode) {
+        // Update active button
+        document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        let sorted = [...allListings];
+        if (mode === 'price-low') {
+            sorted.sort((a, b) => a.price - b.price);
+        } else if (mode === 'price-high') {
+            sorted.sort((a, b) => b.price - a.price);
+        } else if (mode === 'distance') {
+            sorted.sort((a, b) => {
+                const dA = getDistance(ABAC, { lat: Number(a.lat), lng: Number(a.lng) });
+                const dB = getDistance(ABAC, { lat: Number(b.lat), lng: Number(b.lng) });
+                const numA = parseFloat(dA);
+                const numB = parseFloat(dB);
+                return numA - numB;
+            });
+        }
+        renderListings(sorted);
     }
 
-    function renderGrid(listings) {
-        const container = document.getElementById('gridContainer');
-        document.getElementById('gridCount').textContent = `${listings.length} listings`;
-
+    function renderListings(listings) {
+        const container = document.getElementById('listingsContainer');
         if (!listings.length) {
-            container.innerHTML = '<div class="empty-state"><p>No listings match your search.</p></div>';
+            container.innerHTML = '<div class="empty-state"><p>No listings yet. Be the first to post!</p></div>';
             return;
         }
-        container.innerHTML = listings.map((l, i) => `
-            <div class="card fade-up" data-id="${l.id}" style="transition-delay: ${i * 50}ms;" onclick="openDetail('${l.id}')">
-                ${l.badge ? `<span class="card-badge">${l.badge}</span>` : ''}
-                <button class="card-delete ${currentUser && currentUser.id === l.user_id ? 'show' : ''}"
-                    onclick="event.stopPropagation(); deleteListing('${l.id}')">Delete</button>
-                <div class="card-img-wrap">
-                    <img class="card-img" src="${l.image_url || ''}" alt="${l.title}"
-                        onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 200%22><rect fill=%22%23e8e8e8%22 width=%22300%22 height=%22200%22/><text x=%22150%22 y=%22105%22 text-anchor=%22middle%22 fill=%22%23bbb%22 font-size=%2216%22>No photo</text></svg>'">
-                </div>
-                <div class="card-body">
-                    <div class="card-top">
-                        <span class="card-title">${l.title}</span>
-                        <span class="card-rating">
+
+        container.innerHTML = listings.map(l => `
+            <div class="listing-card" data-id="${l.id}"
+                onclick="openDetail('${l.id}')"
+                onmouseenter="highlightMarker('${l.id}', true)"
+                onmouseleave="highlightMarker('${l.id}', false)">
+                <img class="listing-img"
+                    src="${l.image_url || ''}"
+                    alt="${l.title}"
+                    onerror="this.style.background='linear-gradient(135deg,#f0f0f0,#e0e0e0)'; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 140%22><rect fill=%22%23e8e8e8%22 width=%22200%22 height=%22140%22/><text x=%22100%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23bbb%22 font-size=%2214%22>No photo</text></svg>'">
+                <div class="listing-info">
+                    ${l.badge ? `<span class="listing-badge">${l.badge}</span>` : ''}
+                    <div class="listing-top">
+                        <span class="listing-title">${l.title}</span>
+                        <span class="listing-rating">
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                             ${Number(l.rating).toFixed(1)}
                         </span>
                     </div>
-                    <div class="card-distance">${l.distance}</div>
-                    <div class="card-details">${l.details}</div>
-                    <div class="card-price">฿${Number(l.price).toLocaleString()} <span>/month</span></div>
+                    <span class="listing-distance">${l.distance}</span>
+                    <span class="listing-details">${l.details}</span>
+                    <div class="listing-price">฿${Number(l.price).toLocaleString()} <span>/month</span></div>
                 </div>
+                <button class="listing-delete ${currentUser && currentUser.id === l.user_id ? 'show' : ''}"
+                    onclick="event.stopPropagation(); deleteListing('${l.id}')">Delete</button>
             </div>
         `).join('');
-        observeFadeIn();
     }
-
-    function handleSearch() { renderGrid(getFiltered()); }
 
     // ── DETAIL MODAL ──
     function openDetail(id) {
@@ -812,28 +1005,21 @@
     function closeDetail() { document.getElementById('detailOverlay').classList.remove('show'); }
     document.getElementById('detailOverlay').addEventListener('click', e => { if (e.target.id === 'detailOverlay') closeDetail(); });
 
-    function filterCategory(cat, el) {
-        activeCategory = cat;
-        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-        el.classList.add('active');
-        renderGrid(getFiltered());
+    function highlightMarker(id, active) {
+        const el = document.querySelector(`.price-marker[data-id="${id}"]`);
+        if (el) el.classList.toggle('active', active);
     }
 
-    function sortBy(mode, el) {
-        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-        el.classList.add('active');
-        let sorted = getFiltered();
-        if (mode === 'price-low') sorted.sort((a, b) => a.price - b.price);
-        else if (mode === 'price-high') sorted.sort((a, b) => b.price - a.price);
-        renderGrid(sorted);
-    }
-
-    // ── CRUD ──
+    // ══════════════════════════════════════
+    // CREATE / DELETE
+    // ══════════════════════════════════════
     async function handleCreateListing(e) {
         e.preventDefault();
         const btn = document.getElementById('listingBtn');
-        const form = document.getElementById('listingForm');
-        btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; clearMsg('listingMsg');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>';
+        clearMsg('listingMsg');
+
         try {
             const listing = {
                 user_id: currentUser.id,
@@ -848,17 +1034,20 @@
                 lat: 13.6116 + (Math.random() - 0.5) * 0.02,
                 lng: 100.8370 + (Math.random() - 0.5) * 0.02,
             };
+
             const { error } = await sb.from('listings').insert([listing]);
             if (error) throw error;
-            // Success checkmark
-            btn.innerHTML = '<div class="success-check"></div>';
-            setTimeout(() => { closeModals(); form.reset(); showToast('Listing posted!'); loadListings(); }, 800);
+
+            closeModals();
+            document.getElementById('listingForm').reset();
+            showToast('Listing posted!');
+            loadListings();
         } catch (err) {
             showMsg('listingMsg', err.message, 'error');
-            form.classList.add('shake');
-            setTimeout(() => form.classList.remove('shake'), 400);
         }
-        btn.disabled = false; btn.textContent = 'Post listing';
+
+        btn.disabled = false;
+        btn.textContent = 'Post listing';
     }
 
     async function deleteListing(id) {
@@ -866,42 +1055,67 @@
         try {
             const { error } = await sb.from('listings').delete().eq('id', id);
             if (error) throw error;
-            showToast('Deleted'); loadListings();
-        } catch (err) { showToast('Error: ' + err.message); }
+            showToast('Listing deleted');
+            loadListings();
+        } catch (err) {
+            showToast('Error: ' + err.message);
+        }
     }
 
-    // ── MODALS & UTILS ──
+    // ══════════════════════════════════════
+    // MODALS & UTILS
+    // ══════════════════════════════════════
     function openModal(type) {
         closeModals();
-        if (type === 'auth') { isSignUp = false; toggleAuthMode(); toggleAuthMode(); document.getElementById('authModal').classList.add('show'); }
-        else if (type === 'listing') { if (!currentUser) { openModal('auth'); return; } document.getElementById('listingModal').classList.add('show'); }
+        if (type === 'auth') {
+            isSignUp = false;
+            toggleAuthMode(); toggleAuthMode();
+            document.getElementById('authModal').classList.add('show');
+        } else if (type === 'listing') {
+            if (!currentUser) { openModal('auth'); return; }
+            document.getElementById('listingModal').classList.add('show');
+        }
     }
-    function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show')); }
-    document.querySelectorAll('.modal-overlay').forEach(o => { o.addEventListener('click', e => { if (e.target === o) closeModals(); }); });
+
+    function closeModals() {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeModals(); });
+    });
 
     function showToast(msg) {
         const t = document.getElementById('toast');
-        t.textContent = msg; t.classList.add('show');
+        t.textContent = msg;
+        t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), 2500);
     }
-    function showMsg(id, text, type) { const el = document.getElementById(id); el.textContent = text; el.className = 'form-msg ' + type; }
-    function clearMsg(id) { const el = document.getElementById(id); el.textContent = ''; el.className = 'form-msg'; }
 
-    // ── SCROLL OBSERVER ──
-    function observeFadeIn() {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
-        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    function showMsg(id, text, type) {
+        const el = document.getElementById(id);
+        el.textContent = text;
+        el.className = 'form-msg ' + type;
     }
 
-    // ── BOOT ──
+    function clearMsg(id) {
+        const el = document.getElementById(id);
+        el.textContent = '';
+        el.className = 'form-msg';
+    }
+
+    // ══════════════════════════════════════
+    // BOOT
+    // ══════════════════════════════════════
     async function boot() {
-        showSkeleton();
+        if (!map) return; // Wait for Google Maps callback
+        console.log('🚀 UniCondo booting...');
         await initAuth();
         await loadListings();
+        console.log('✅ UniCondo ready!');
     }
-    boot();
+
+    // boot() is called by initMap callback from Google Maps script
     </script>
 </body>
 </html>
