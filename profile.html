@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | UniCondo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --coral: #FF5A5F; --coral-dark: #E04E53;
+            --gradient: linear-gradient(135deg, #FF5A5F 0%, #FF8A6C 100%);
+            --bg: #F7F7F7; --white: #FFFFFF; --text: #222222;
+            --text-light: #717171; --border: #DDDDDD;
+            --border-light: #EBEBEB; --radius: 12px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-lg: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg); color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── HEADER ─── */
+        .header { background: var(--gradient); padding: 0 24px; position: sticky; top: 0; z-index: 100; }
+        .header-inner {
+            max-width: 1400px; margin: 0 auto;
+            display: flex; align-items: center; height: 64px; gap: 32px;
+        }
+        .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; color: white; flex-shrink: 0; }
+        .logo svg { width: 28px; height: 28px; }
+        .logo-text { font-weight: 800; font-size: 20px; letter-spacing: -0.3px; }
+        .nav { display: flex; gap: 4px; }
+        .nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 8px; transition: all 0.2s; }
+        .nav a:hover { background: rgba(255,255,255,0.2); color: white; }
+        .header-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+        .header-logout {
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+            color: white; padding: 6px 14px; border-radius: 16px; font-size: 12px;
+            font-weight: 600; cursor: pointer; font-family: inherit;
+        }
+        .header-logout:hover { background: rgba(255,255,255,0.3); }
+        .header-user { display: flex; align-items: center; gap: 8px; color: white; font-size: 13px; font-weight: 600; }
+        .header-user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255,255,255,0.3); display: flex;
+            align-items: center; justify-content: center; border: 2px solid white;
+        }
+        .header-user-avatar svg { width: 16px; height: 16px; color: white; }
+
+        /* ─── MAIN CONTAINER ─── */
+        .container { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+
+        /* ─── PROFILE HERO ─── */
+        .profile-hero {
+            background: var(--white); border-radius: 16px;
+            padding: 32px; margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            display: flex; align-items: center; gap: 24px;
+        }
+        .profile-avatar {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: var(--gradient); display: flex;
+            align-items: center; justify-content: center;
+            font-size: 32px; color: white; font-weight: 800;
+            flex-shrink: 0;
+        }
+        .profile-info h1 { font-size: 24px; font-weight: 800; margin-bottom: 2px; }
+        .profile-info p { color: var(--text-light); font-size: 14px; }
+        .profile-info .joined { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+
+        /* ─── STATS ─── */
+        .stats {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--white); border-radius: 12px;
+            padding: 20px; text-align: center;
+            box-shadow: var(--shadow);
+        }
+        .stat-number { font-size: 28px; font-weight: 800; color: var(--coral); }
+        .stat-label { font-size: 13px; color: var(--text-light); font-weight: 600; margin-top: 4px; }
+
+        /* ─── SECTIONS ─── */
+        .section {
+            background: var(--white); border-radius: 16px;
+            padding: 24px; margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px;
+        }
+        .section-title { font-size: 18px; font-weight: 800; }
+
+        /* ─── MY LISTING ROW ─── */
+        .my-listing {
+            display: flex; gap: 14px; padding: 14px 0;
+            border-bottom: 1px solid var(--border-light);
+            align-items: center;
+        }
+        .my-listing:last-child { border-bottom: none; }
+        .my-listing-img {
+            width: 80px; height: 60px; border-radius: 8px;
+            object-fit: cover; background: #e8e8e8; flex-shrink: 0;
+        }
+        .my-listing-info { flex: 1; }
+        .my-listing-title { font-size: 15px; font-weight: 700; }
+        .my-listing-meta { font-size: 13px; color: var(--text-light); }
+        .my-listing-price { font-size: 15px; font-weight: 800; flex-shrink: 0; }
+        .my-listing-actions { display: flex; gap: 8px; flex-shrink: 0; }
+        .btn-sm {
+            padding: 5px 12px; border-radius: 6px; font-size: 12px;
+            font-weight: 700; cursor: pointer; font-family: inherit;
+            transition: all 0.2s; border: 1px solid var(--border);
+            background: white; color: var(--text);
+        }
+        .btn-sm:hover { border-color: var(--text); }
+        .btn-sm.danger { color: var(--coral); }
+        .btn-sm.danger:hover { background: var(--coral); color: white; border-color: var(--coral); }
+
+        /* ─── SETTINGS ROWS ─── */
+        .setting-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 0; border-bottom: 1px solid var(--border-light);
+        }
+        .setting-row:last-child { border-bottom: none; }
+        .setting-label { font-size: 14px; font-weight: 600; }
+        .setting-value { font-size: 14px; color: var(--text-light); text-align: right; }
+        .setting-btn {
+            padding: 6px 14px; border-radius: 20px; font-size: 12px;
+            font-weight: 700; cursor: pointer; font-family: inherit;
+            transition: all 0.2s; background: white;
+            border: 1.5px solid var(--border); color: var(--text);
+        }
+        .setting-btn:hover { border-color: var(--text); }
+        .setting-btn.danger { color: var(--coral); border-color: var(--coral); }
+        .setting-btn.danger:hover { background: var(--coral); color: white; }
+
+        /* ─── LOGIN PROMPT ─── */
+        .login-prompt {
+            text-align: center; padding: 80px 24px;
+        }
+        .login-prompt h2 { font-size: 24px; margin-bottom: 8px; }
+        .login-prompt p { color: var(--text-light); margin-bottom: 24px; }
+        .login-prompt .btn-login {
+            background: var(--gradient); color: white; border: none;
+            padding: 14px 32px; border-radius: 10px; font-size: 16px;
+            font-weight: 700; cursor: pointer; font-family: inherit;
+        }
+
+        /* ─── TOAST ─── */
+        .toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            background: var(--text); color: white; padding: 12px 24px;
+            border-radius: 8px; font-size: 14px; font-weight: 600;
+            z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 700px) {
+            .nav { display: none; }
+            .profile-hero { flex-direction: column; text-align: center; padding: 24px; }
+            .profile-avatar { width: 64px; height: 64px; font-size: 24px; }
+            .profile-info h1 { font-size: 20px; }
+            .stats { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+            .stat-card { padding: 14px; }
+            .stat-number { font-size: 22px; }
+            .my-listing { flex-wrap: wrap; gap: 10px; }
+            .my-listing-price { width: 100%; text-align: left; }
+            .my-listing-actions { width: 100%; }
+            .container { padding: 16px; }
+            .section { padding: 18px; }
+            .header-inner { height: 56px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16 2L3 14h4v14h7v-9h4v9h7V14h4L16 2z"/></svg>
+                <span class="logo-text">UniCondo</span>
+            </a>
+            <nav class="nav">
+                <a href="explore.html">Explore</a>
+                <a href="#">Find Roommates</a>
+                <a href="#">About</a>
+            </nav>
+            <div class="header-right" id="headerRight"></div>
+        </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="container" id="pageContent">
+        <!-- Filled by JS -->
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+    const SUPA_URL = 'https://pekqhcxbhtgfsqtiunic.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBla3FoY3hiaHRnZnNxdGl1bmljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkxMjMsImV4cCI6MjA5MDQzNTEyM30.YlEBAX2Oh5CKsSeVCS-UZq93np58xUUP0RlddISLgFY';
+
+    let sb, currentUser = null;
+
+    try { sb = window.supabase.createClient(SUPA_URL, SUPA_KEY); } catch(e) {}
+
+    async function boot() {
+        const { data: { session } } = await sb.auth.getSession();
+        currentUser = session?.user || null;
+        updateHeaderUI();
+        if (currentUser) {
+            await loadProfile();
+        } else {
+            showLoginPrompt();
+        }
+        sb.auth.onAuthStateChange((_, session) => {
+            currentUser = session?.user || null;
+            updateHeaderUI();
+            if (currentUser) loadProfile();
+            else showLoginPrompt();
+        });
+    }
+
+    function updateHeaderUI() {
+        const el = document.getElementById('headerRight');
+        if (currentUser) {
+            el.innerHTML = `
+                <div class="header-user">
+                    <div class="header-user-avatar">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.87 0-7 2.24-7 5v1h14v-1c0-2.76-3.13-5-7-5z"/></svg>
+                    </div>
+                    <span style="color:white; font-weight:700;">${currentUser.email.split('@')[0]}</span>
+                </div>
+                <button class="header-logout" onclick="handleLogout()">Log out</button>`;
+        } else {
+            el.innerHTML = `<a href="index.html" style="background:white; color:var(--coral); border:none; padding:8px 18px; border-radius:20px; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none;">Log in</a>`;
+        }
+    }
+
+    function showLoginPrompt() {
+        document.getElementById('pageContent').innerHTML = `
+            <div class="login-prompt">
+                <h2>Welcome to UniCondo</h2>
+                <p>Log in to view your profile and manage your listings</p>
+                <a href="index.html" class="btn-login" style="text-decoration:none; display:inline-block;">Go to Login</a>
+            </div>`;
+    }
+
+    async function loadProfile() {
+        const page = document.getElementById('pageContent');
+        const name = currentUser.user_metadata?.name || currentUser.email.split('@')[0];
+        const initial = name.charAt(0).toUpperCase();
+        const joined = new Date(currentUser.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+
+        // Load user's listings
+        const { data: listings, error } = await sb
+            .from('listings')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .order('created_at', { ascending: false });
+
+        const myListings = listings || [];
+        const totalViews = myListings.length * 42; // placeholder
+
+        page.innerHTML = `
+            <!-- PROFILE HERO -->
+            <div class="profile-hero">
+                <div class="profile-avatar">${initial}</div>
+                <div class="profile-info">
+                    <h1>${name}</h1>
+                    <p>${currentUser.email}</p>
+                    <div class="joined">📅 Joined ${joined}</div>
+                </div>
+            </div>
+
+            <!-- STATS -->
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">${myListings.length}</div>
+                    <div class="stat-label">Listings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalViews}</div>
+                    <div class="stat-label">Total Views</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${myListings.length > 0 ? '⭐' : '—'}</div>
+                    <div class="stat-label">Status</div>
+                </div>
+            </div>
+
+            <!-- MY LISTINGS -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">My Listings</span>
+                    <a href="explore.html" style="color:var(--coral); font-size:13px; font-weight:700; text-decoration:none;">View all →</a>
+                </div>
+                ${myListings.length === 0
+                    ? '<p style="color:var(--text-light); font-size:14px; padding:16px 0;">You haven\'t posted any listings yet.</p>'
+                    : myListings.map(l => `
+                    <div class="my-listing">
+                        <img class="my-listing-img" src="${l.image_url || ''}" alt="${l.title}"
+                            onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 80 60%22><rect fill=%22%23e8e8e8%22 width=%2280%22 height=%2260%22/></svg>'">
+                        <div class="my-listing-info">
+                            <div class="my-listing-title">${l.title}</div>
+                            <div class="my-listing-meta">${l.distance} · ${l.details}</div>
+                        </div>
+                        <div class="my-listing-price">฿${Number(l.price).toLocaleString()}</div>
+                        <div class="my-listing-actions">
+                            <button class="btn-sm danger" onclick="deleteListing('${l.id}')">Delete</button>
+                        </div>
+                    </div>`).join('')
+                }
+            </div>
+
+            <!-- ACCOUNT SETTINGS -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">Account Settings</span>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Email</span>
+                    <span class="setting-value">${currentUser.email}</span>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Display Name</span>
+                    <span class="setting-value">${name}</span>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Auth Provider</span>
+                    <span class="setting-value">${currentUser.app_metadata?.provider || 'email'}</span>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">User ID</span>
+                    <span class="setting-value" style="font-size:11px; font-family:monospace; max-width:200px; overflow:hidden; text-overflow:ellipsis;">${currentUser.id}</span>
+                </div>
+            </div>
+
+            <!-- PREFERENCES -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">Preferences</span>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Email Notifications</span>
+                    <button class="setting-btn" onclick="showToast('Coming soon!')">Configure</button>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Language</span>
+                    <span class="setting-value">English</span>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Currency</span>
+                    <span class="setting-value">฿ THB</span>
+                </div>
+            </div>
+
+            <!-- DANGER ZONE -->
+            <div class="section" style="border: 1.5px solid var(--coral);">
+                <div class="section-header">
+                    <span class="section-title" style="color: var(--coral);">Danger Zone</span>
+                </div>
+                <div class="setting-row">
+                    <div>
+                        <span class="setting-label">Log out</span>
+                        <div style="font-size:12px; color:var(--text-light);">Sign out of your account on this device</div>
+                    </div>
+                    <button class="setting-btn" onclick="handleLogout()">Log out</button>
+                </div>
+                <div class="setting-row">
+                    <div>
+                        <span class="setting-label" style="color:var(--coral);">Delete Account</span>
+                        <div style="font-size:12px; color:var(--text-light);">Permanently delete your account and all data</div>
+                    </div>
+                    <button class="setting-btn danger" onclick="showToast('Contact support to delete your account')">Delete</button>
+                </div>
+            </div>
+        `;
+    }
+
+    async function deleteListing(id) {
+        if (!confirm('Delete this listing?')) return;
+        try {
+            const { error } = await sb.from('listings').delete().eq('id', id);
+            if (error) throw error;
+            showToast('Listing deleted');
+            loadProfile();
+        } catch (err) { showToast('Error: ' + err.message); }
+    }
+
+    async function handleLogout() {
+        await sb.auth.signOut();
+        showToast('Logged out');
+        setTimeout(() => window.location.href = 'index.html', 1000);
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    boot();
+    </script>
+</body>
+</html>
