@@ -27,6 +27,28 @@
         .nav a:hover { background: rgba(255,255,255,0.2); color: white; }
         .nav a.active { background: rgba(255,255,255,0.2); color: white; }
 
+        .header-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+        .header-auth-btn {
+            background: white; color: var(--coral); border: none;
+            padding: 8px 18px; border-radius: 20px; font-size: 13px;
+            font-weight: 700; cursor: pointer; font-family: inherit;
+            text-decoration: none; transition: transform 0.2s;
+        }
+        .header-auth-btn:hover { transform: scale(1.03); }
+        .header-user { display: flex; align-items: center; gap: 8px; color: white; font-size: 13px; font-weight: 600; }
+        .header-user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255,255,255,0.3); display: flex;
+            align-items: center; justify-content: center; border: 2px solid white;
+        }
+        .header-user-avatar svg { width: 16px; height: 16px; color: white; }
+        .header-logout {
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+            color: white; padding: 6px 14px; border-radius: 16px; font-size: 12px;
+            font-weight: 600; cursor: pointer; font-family: inherit;
+        }
+        .header-logout:hover { background: rgba(255,255,255,0.3); }
+
         .hero { background: var(--gradient); padding: 60px 24px 80px; text-align: center; color: white; margin-top: -1px; }
         .hero h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
         .hero p { font-size: 18px; opacity: 0.9; max-width: 600px; margin: 0 auto; }
@@ -86,6 +108,7 @@
                 <a href="explore.html">Explore</a>
                 <a href="about.html" class="active">About</a>
             </nav>
+            <div class="header-right" id="headerRight"></div>
         </div>
     </header>
 
@@ -196,5 +219,42 @@
     <div class="footer">
         <p>© 2026 UniCondo · <a href="index.html">Map</a> · <a href="explore.html">Explore</a> · Made with ❤️ near ABAC</p>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+    const SUPA_URL = 'https://pekqhcxbhtgfsqtiunic.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBla3FoY3hiaHRnZnNxdGl1bmljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkxMjMsImV4cCI6MjA5MDQzNTEyM30.YlEBAX2Oh5CKsSeVCS-UZq93np58xUUP0RlddISLgFY';
+    let sb, currentUser = null;
+    try { sb = window.supabase.createClient(SUPA_URL, SUPA_KEY); } catch(e) {}
+
+    async function boot() {
+        const { data: { session } } = await sb.auth.getSession();
+        currentUser = session?.user || null;
+        updateHeaderUI();
+        sb.auth.onAuthStateChange((_, session) => {
+            currentUser = session?.user || null;
+            updateHeaderUI();
+        });
+    }
+
+    function updateHeaderUI() {
+        const el = document.getElementById('headerRight');
+        if (currentUser) {
+            el.innerHTML = `
+                <div class="header-user">
+                    <div class="header-user-avatar">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.87 0-7 2.24-7 5v1h14v-1c0-2.76-3.13-5-7-5z"/></svg>
+                    </div>
+                    <a href="profile.html" style="color:white; text-decoration:none; font-weight:600;">${currentUser.email.split('@')[0]}</a>
+                </div>
+                <button class="header-logout" onclick="handleLogout()">Log out</button>`;
+        } else {
+            el.innerHTML = `<a href="index.html" class="header-auth-btn">Log in / Sign up</a>`;
+        }
+    }
+
+    async function handleLogout() { await sb.auth.signOut(); window.location.href = 'index.html'; }
+
+    boot();
+    </script>
 </body>
 </html>
