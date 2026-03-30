@@ -123,6 +123,41 @@
         .btn-sm:hover { border-color: var(--text); }
         .btn-sm.danger { color: var(--coral); }
         .btn-sm.danger:hover { background: var(--coral); color: white; border-color: var(--coral); }
+        .btn-sm.edit { color: #2563EB; }
+        .btn-sm.edit:hover { background: #2563EB; color: white; border-color: #2563EB; }
+
+        /* ─── EDIT MODAL ─── */
+        .edit-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            z-index: 500; display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(6px);
+        }
+        .edit-overlay.show { display: flex; }
+        .edit-modal {
+            background: white; border-radius: 16px; width: 100%; max-width: 480px;
+            max-height: 90vh; overflow-y: auto; padding: 28px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            animation: editIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes editIn { from { opacity:0; transform:translateY(20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+        .edit-modal h3 { font-size: 20px; font-weight: 800; margin-bottom: 16px; }
+        .edit-field { margin-bottom: 14px; }
+        .edit-field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+        .edit-field input, .edit-field select {
+            width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+            border-radius: 8px; font-size: 14px; font-family: inherit; outline: none;
+            transition: border-color 0.2s;
+        }
+        .edit-field input:focus, .edit-field select:focus { border-color: var(--coral); }
+        .edit-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .edit-actions button {
+            flex: 1; padding: 12px; border-radius: 10px; font-size: 15px;
+            font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s;
+        }
+        .edit-actions button:active { transform: scale(0.97); }
+        .edit-save { background: var(--gradient); color: white; border: none; }
+        .edit-cancel { background: white; color: var(--text); border: 1.5px solid var(--border); }
+        .edit-msg { font-size: 13px; margin-top: 8px; text-align: center; }
 
         /* ─── SETTINGS ROWS ─── */
         .setting-row {
@@ -166,18 +201,46 @@
         /* ─── RESPONSIVE ─── */
         @media (max-width: 700px) {
             .nav { display: none; }
-            .profile-hero { flex-direction: column; text-align: center; padding: 24px; }
-            .profile-avatar { width: 64px; height: 64px; font-size: 24px; }
-            .profile-info h1 { font-size: 20px; }
-            .stats { grid-template-columns: repeat(3, 1fr); gap: 10px; }
-            .stat-card { padding: 14px; }
-            .stat-number { font-size: 22px; }
-            .my-listing { flex-wrap: wrap; gap: 10px; }
-            .my-listing-price { width: 100%; text-align: left; }
-            .my-listing-actions { width: 100%; }
-            .container { padding: 16px; }
-            .section { padding: 18px; }
-            .header-inner { height: 56px; }
+            .header { padding: 0 12px; }
+            .header-inner { height: 52px; gap: 12px; }
+            .logo svg { width: 22px; height: 22px; }
+            .logo-text { font-size: 17px; }
+            .header-logout { padding: 5px 10px; font-size: 11px; }
+            .header-user-avatar { width: 28px; height: 28px; }
+
+            .container { padding: 12px; }
+            .profile-hero { flex-direction: column; text-align: center; padding: 20px; gap: 14px; border-radius: 14px; margin-bottom: 14px; }
+            .profile-avatar { width: 56px; height: 56px; font-size: 22px; }
+            .profile-info h1 { font-size: 18px; }
+            .profile-info p { font-size: 13px; }
+            .profile-info .joined { font-size: 11px; }
+
+            .stats { gap: 8px; margin-bottom: 14px; }
+            .stat-card { padding: 12px 8px; border-radius: 10px; }
+            .stat-number { font-size: 20px; }
+            .stat-label { font-size: 11px; }
+
+            .section { padding: 16px; border-radius: 14px; margin-bottom: 14px; }
+            .section-title { font-size: 16px; }
+            .my-listing { flex-wrap: wrap; gap: 10px; padding: 12px 0; }
+            .my-listing-img { width: 70px; height: 50px; border-radius: 6px; }
+            .my-listing-title { font-size: 14px; }
+            .my-listing-meta { font-size: 12px; }
+            .my-listing-price { font-size: 14px; width: auto; }
+            .my-listing-actions { width: auto; }
+            .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+            .setting-row { padding: 10px 0; }
+            .setting-label { font-size: 13px; }
+            .setting-value { font-size: 13px; }
+            .setting-btn { padding: 5px 12px; font-size: 11px; }
+
+            .login-prompt { padding: 60px 20px; }
+            .login-prompt h2 { font-size: 20px; }
+            .login-prompt p { font-size: 14px; }
+            .login-prompt .btn-login { padding: 12px 28px; font-size: 15px; }
+
+            .toast { font-size: 13px; padding: 10px 20px; }
         }
     </style>
 </head>
@@ -203,6 +266,57 @@
     </div>
 
     <div class="toast" id="toast"></div>
+
+    <!-- EDIT MODAL -->
+    <div class="edit-overlay" id="editOverlay">
+        <div class="edit-modal">
+            <h3>✏️ Edit Listing</h3>
+            <form id="editForm" onsubmit="saveEdit(event)">
+                <input type="hidden" id="editId">
+                <div class="edit-field">
+                    <label>Title</label>
+                    <input type="text" id="editTitle" required>
+                </div>
+                <div class="edit-field">
+                    <label>Price (฿/month)</label>
+                    <input type="number" id="editPrice" required>
+                </div>
+                <div class="edit-field">
+                    <label>Distance</label>
+                    <input type="text" id="editDistance" required>
+                </div>
+                <div class="edit-field">
+                    <label>Details</label>
+                    <input type="text" id="editDetails" required>
+                </div>
+                <div class="edit-field">
+                    <label>Rating</label>
+                    <input type="number" id="editRating" step="0.1" min="0" max="5">
+                </div>
+                <div class="edit-field">
+                    <label>Phone Number (optional)</label>
+                    <input type="tel" id="editPhone" placeholder="e.g. 085-870-4317">
+                </div>
+                <div class="edit-field">
+                    <label>Category</label>
+                    <select id="editCategory">
+                        <option value="walking">Walking distance</option>
+                        <option value="ride">Short ride</option>
+                        <option value="budget">Budget</option>
+                    </select>
+                </div>
+                <div class="edit-field">
+                    <label>Image URL</label>
+                    <input type="url" id="editImage">
+                </div>
+                <div class="edit-msg" id="editMsg"></div>
+                <div class="edit-actions">
+                    <button type="button" class="edit-cancel" onclick="closeEdit()">Cancel</button>
+                    <button type="submit" class="edit-save" id="editSaveBtn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
     const SUPA_URL = 'https://pekqhcxbhtgfsqtiunic.supabase.co';
@@ -268,6 +382,7 @@
             .order('created_at', { ascending: false });
 
         const myListings = listings || [];
+        allMyListings = myListings;
         const totalViews = myListings.length * 42; // placeholder
 
         page.innerHTML = `
@@ -315,6 +430,7 @@
                         </div>
                         <div class="my-listing-price">฿${Number(l.price).toLocaleString()}</div>
                         <div class="my-listing-actions">
+                            <button class="btn-sm edit" onclick="openEdit('${l.id}')">Edit</button>
                             <button class="btn-sm danger" onclick="deleteListing('${l.id}')">Delete</button>
                         </div>
                     </div>`).join('')
@@ -402,10 +518,63 @@
         setTimeout(() => window.location.href = 'index.html', 1000);
     }
 
+    let allMyListings = [];
+
     function showToast(msg) {
         const t = document.getElementById('toast');
         t.textContent = msg; t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // ── EDIT ──
+    function openEdit(id) {
+        const l = allMyListings.find(x => x.id === id);
+        if (!l) return;
+        document.getElementById('editId').value = l.id;
+        document.getElementById('editTitle').value = l.title;
+        document.getElementById('editPrice').value = l.price;
+        document.getElementById('editDistance').value = l.distance;
+        document.getElementById('editDetails').value = l.details;
+        document.getElementById('editRating').value = l.rating;
+        document.getElementById('editPhone').value = l.phone || '';
+        document.getElementById('editCategory').value = l.category;
+        document.getElementById('editImage').value = l.image_url || '';
+        document.getElementById('editMsg').textContent = '';
+        document.getElementById('editOverlay').classList.add('show');
+    }
+
+    function closeEdit() { document.getElementById('editOverlay').classList.remove('show'); }
+    document.getElementById('editOverlay').addEventListener('click', e => { if (e.target.id === 'editOverlay') closeEdit(); });
+
+    async function saveEdit(e) {
+        e.preventDefault();
+        const btn = document.getElementById('editSaveBtn');
+        const id = document.getElementById('editId').value;
+        btn.disabled = true; btn.textContent = 'Saving...';
+        try {
+            const updates = {
+                title: document.getElementById('editTitle').value,
+                price: parseInt(document.getElementById('editPrice').value),
+                distance: document.getElementById('editDistance').value,
+                details: document.getElementById('editDetails').value,
+                rating: parseFloat(document.getElementById('editRating').value) || 5.0,
+                category: document.getElementById('editCategory').value,
+                image_url: document.getElementById('editImage').value || null,
+            };
+            // Try phone if column exists
+            const phone = document.getElementById('editPhone').value;
+            if (phone) updates.phone = phone;
+
+            const { error } = await sb.from('listings').update(updates).eq('id', id);
+            if (error) throw error;
+            closeEdit();
+            showToast('Listing updated!');
+            loadProfile();
+        } catch (err) {
+            document.getElementById('editMsg').textContent = err.message;
+            document.getElementById('editMsg').style.color = 'var(--coral)';
+        }
+        btn.disabled = false; btn.textContent = 'Save Changes';
     }
 
     boot();

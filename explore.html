@@ -352,29 +352,70 @@
             .header-search { max-width: 240px; }
             .header-inner { gap: 16px; }
             .listing-card { padding: 12px 0; gap: 12px; }
-            .listing-card:hover { margin: 0; padding: 12px 0; background: none; }
+            .listing-card:hover { margin: 0; padding: 12px 0; background: none; transform: none; }
             .listing-img { width: 140px; height: 100px; border-radius: 8px; }
             .listing-title { font-size: 15px; }
             .listing-price { font-size: 15px; }
             .post-btn { bottom: 16px; right: 16px; padding: 12px 18px; font-size: 14px; border-radius: 24px; }
         }
         @media (max-width: 600px) {
+            .header { padding: 0 10px; }
             .header-search { display: none; }
-            .header-inner { height: 56px; padding: 0 12px; }
-            .logo-text { font-size: 18px; }
-            .map-panel { height: 220px; }
-            .listing-card { flex-direction: column; gap: 10px; }
-            .listing-img { width: 100%; height: 180px; border-radius: 10px; }
-            .listings-scroll { padding: 10px 14px; }
-            .listings-header { padding: 10px 14px; }
-            .sort-bar { padding: 8px 14px; gap: 6px; }
-            .listing-info { gap: 3px; }
-            .listing-title { font-size: 15px; }
-            .listing-distance { font-size: 13px; }
-            .listing-details { font-size: 13px; }
-            .listing-price { font-size: 16px; margin-top: 2px; }
-            .post-btn { bottom: 12px; right: 12px; }
-            .modal { margin: 12px; padding: 24px; border-radius: 14px; }
+            .header-inner { height: 52px; padding: 0; gap: 10px; }
+            .logo svg { width: 22px; height: 22px; }
+            .logo-text { font-size: 17px; }
+            .header-auth-btn { padding: 6px 14px; font-size: 12px; }
+            .header-logout { padding: 5px 10px; font-size: 11px; }
+            .header-user-avatar { width: 28px; height: 28px; }
+
+            .map-panel { height: 200px; }
+
+            .listing-card { flex-direction: column; gap: 8px; }
+            .listing-img { width: 100%; height: 170px; border-radius: 10px; }
+            .listings-scroll { padding: 10px 12px; }
+            .listings-header { padding: 10px 12px; }
+            .listings-header h2 { font-size: 15px; }
+            .listings-header span { font-size: 12px; }
+            .sort-bar { padding: 8px 12px; gap: 6px; }
+            .sort-btn { font-size: 11px; padding: 5px 10px; }
+            .listing-info { gap: 2px; }
+            .listing-title { font-size: 14px; }
+            .listing-distance { font-size: 12px; }
+            .listing-details { font-size: 12px; }
+            .listing-price { font-size: 15px; margin-top: 2px; }
+            .listing-badge { font-size: 10px; padding: 2px 6px; }
+
+            .post-btn { bottom: 12px; right: 12px; padding: 10px 16px; font-size: 13px; }
+            .post-btn svg { width: 16px; height: 16px; }
+
+            .modal { margin: 8px; padding: 20px; border-radius: 14px; }
+            .modal-title { font-size: 18px; }
+            .form-group input, .form-group select { padding: 10px 12px; font-size: 13px; }
+            .btn-submit { padding: 12px; font-size: 14px; }
+
+            .toast { font-size: 13px; padding: 10px 20px; }
+
+            /* Detail modal — bottom sheet on mobile */
+            .detail-overlay { align-items: flex-end; }
+            .detail-modal {
+                max-width: 100%; border-radius: 16px 16px 0 0;
+                max-height: 88vh; animation: detailSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+            @keyframes detailSlideUp {
+                from { opacity: 0; transform: translateY(100%); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .detail-img { height: 180px; border-radius: 16px 16px 0 0; }
+            .detail-close { top: 10px; right: 10px; width: 32px; height: 32px; font-size: 16px; }
+            .detail-body { padding: 16px; }
+            .detail-title { font-size: 18px; }
+            .detail-location { font-size: 13px; }
+            .detail-price-big { font-size: 22px; }
+            .detail-price-big span { font-size: 13px; }
+            .detail-row { padding: 10px 0; }
+            .detail-label, .detail-value { font-size: 13px; }
+            .detail-actions { flex-direction: column; gap: 8px; }
+            .detail-btn { padding: 12px; font-size: 14px; }
         }
         /* ─── MICRO INTERACTIONS ─── */
         .listing-img { transition: transform 0.4s ease; }
@@ -992,12 +1033,12 @@
                 <span class="detail-value">${cat[l.category] || l.category}</span>
             </div>
             <div class="detail-actions">
-                <a class="detail-btn detail-btn-primary" href="https://www.google.com/maps/dir/?api=1&destination=${l.lat},${l.lng}" target="_blank">
-                    📍 Get Directions
+                <a class="detail-btn detail-btn-primary" href="listing.html?id=${l.id}">
+                    🔍 View Full Page
                 </a>
-                <button class="detail-btn detail-btn-secondary" onclick="closeDetail()">
-                    Close
-                </button>
+                <a class="detail-btn detail-btn-secondary" href="https://www.google.com/maps/dir/?api=1&destination=${l.lat},${l.lng}" target="_blank" style="text-decoration:none;">
+                    📍 Directions
+                </a>
             </div>
         `;
         document.getElementById('detailOverlay').classList.add('show');

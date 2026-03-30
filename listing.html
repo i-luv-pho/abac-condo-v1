@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listing | UniCondo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --coral: #FF5A5F; --coral-dark: #E04E53;
+            --gradient: linear-gradient(135deg, #FF5A5F 0%, #FF8A6C 100%);
+            --bg: #F7F7F7; --white: #FFFFFF; --text: #222222;
+            --text-light: #717171; --border: #DDDDDD;
+            --border-light: #EBEBEB;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-lg: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg); color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── HEADER ─── */
+        .header { background: var(--gradient); padding: 0 24px; position: sticky; top: 0; z-index: 100; }
+        .header-inner {
+            max-width: 1400px; margin: 0 auto;
+            display: flex; align-items: center; height: 64px; gap: 32px;
+        }
+        .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; color: white; }
+        .logo svg { width: 28px; height: 28px; }
+        .logo-text { font-weight: 800; font-size: 20px; letter-spacing: -0.3px; }
+        .nav { display: flex; gap: 4px; }
+        .nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 8px; transition: all 0.2s; }
+        .nav a:hover { background: rgba(255,255,255,0.2); color: white; }
+        .header-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+        .header-user { display: flex; align-items: center; gap: 8px; color: white; font-size: 13px; font-weight: 600; }
+        .header-user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255,255,255,0.3); display: flex;
+            align-items: center; justify-content: center; border: 2px solid white;
+        }
+        .header-user-avatar svg { width: 16px; height: 16px; color: white; }
+        .header-logout {
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+            color: white; padding: 6px 14px; border-radius: 16px; font-size: 12px;
+            font-weight: 600; cursor: pointer; font-family: inherit;
+        }
+        .header-logout:hover { background: rgba(255,255,255,0.3); }
+        .header-auth-btn {
+            background: white; color: var(--coral); border: none;
+            padding: 8px 18px; border-radius: 20px; font-size: 13px;
+            font-weight: 700; cursor: pointer; text-decoration: none;
+        }
+
+        /* ─── BACK BUTTON ─── */
+        .back-bar {
+            max-width: 1100px; margin: 0 auto; padding: 16px 24px;
+        }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            color: var(--text); font-size: 14px; font-weight: 700;
+            text-decoration: none; padding: 8px 14px; border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .back-btn:hover { background: rgba(0,0,0,0.05); }
+        .back-btn svg { width: 18px; height: 18px; }
+
+        /* ─── LISTING LAYOUT ─── */
+        .listing-page {
+            max-width: 1100px; margin: 0 auto; padding: 0 24px 60px;
+        }
+        .listing-hero-img {
+            width: 100%; height: 400px; object-fit: cover;
+            border-radius: 16px; background: #e8e8e8;
+        }
+        .listing-grid {
+            display: grid; grid-template-columns: 1fr 380px; gap: 40px;
+            margin-top: 24px;
+        }
+
+        /* ─── LEFT COLUMN ─── */
+        .listing-main { min-width: 0; }
+        .listing-badge {
+            display: inline-block; background: var(--coral); color: white;
+            font-size: 12px; font-weight: 700; padding: 4px 12px;
+            border-radius: 6px; margin-bottom: 8px;
+        }
+        .listing-title { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+        .listing-location { font-size: 16px; color: var(--text-light); margin-bottom: 16px; }
+        .listing-meta-row {
+            display: flex; gap: 24px; padding: 16px 0;
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .meta-item { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; }
+        .meta-item span { font-size: 18px; }
+
+        .listing-section { margin-top: 24px; }
+        .listing-section h3 { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
+        .listing-section p { font-size: 15px; color: var(--text-light); line-height: 1.6; }
+
+        /* Map */
+        .listing-map {
+            width: 100%; height: 260px; border-radius: 12px;
+            border: 1px solid var(--border-light); margin-top: 12px;
+        }
+
+        /* ─── RIGHT COLUMN: CONTACT CARD ─── */
+        .contact-card {
+            background: var(--white); border-radius: 16px;
+            padding: 28px; box-shadow: var(--shadow-lg);
+            position: sticky; top: 88px; border: 1px solid var(--border-light);
+        }
+        .contact-price {
+            font-size: 28px; font-weight: 800; margin-bottom: 4px;
+        }
+        .contact-price span { font-size: 16px; font-weight: 500; color: var(--text-light); }
+        .contact-rating {
+            display: flex; align-items: center; gap: 4px;
+            font-size: 14px; font-weight: 600; margin-bottom: 20px;
+        }
+        .contact-rating svg { width: 14px; height: 14px; color: var(--coral); }
+        .contact-divider {
+            height: 1px; background: var(--border-light); margin: 16px 0;
+        }
+        .contact-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; font-size: 14px;
+        }
+        .contact-label { color: var(--text-light); font-weight: 600; }
+        .contact-value { font-weight: 700; }
+
+        /* Phone */
+        .phone-section { margin-top: 20px; }
+        .phone-number {
+            display: flex; align-items: center; gap: 10px;
+            background: #F0FFF4; border: 1.5px solid #C6F6D5;
+            border-radius: 12px; padding: 14px 16px; margin-bottom: 12px;
+        }
+        .phone-icon { font-size: 22px; }
+        .phone-text { font-size: 18px; font-weight: 800; color: #276749; letter-spacing: 0.5px; }
+        .phone-label { font-size: 12px; color: #38A169; font-weight: 600; }
+
+        .btn-call {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 14px; border-radius: 10px;
+            background: #38A169; color: white; border: none;
+            font-size: 16px; font-weight: 700; cursor: pointer;
+            font-family: inherit; transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-call:hover { background: #2F855A; }
+        .btn-call:active { transform: scale(0.97); }
+        .btn-call svg { width: 20px; height: 20px; }
+
+        .btn-directions {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 14px; border-radius: 10px;
+            background: var(--gradient); color: white; border: none;
+            font-size: 16px; font-weight: 700; cursor: pointer;
+            font-family: inherit; transition: all 0.2s;
+            text-decoration: none; margin-top: 10px;
+        }
+        .btn-directions:hover { opacity: 0.9; }
+        .btn-directions:active { transform: scale(0.97); }
+
+        .no-phone {
+            text-align: center; padding: 16px;
+            color: var(--text-light); font-size: 13px;
+            background: var(--bg); border-radius: 10px;
+        }
+
+        /* ─── LOADING ─── */
+        .loading-page {
+            text-align: center; padding: 80px 24px;
+            color: var(--text-light); font-size: 16px;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 900px) {
+            .listing-grid { grid-template-columns: 1fr; gap: 24px; }
+            .listing-hero-img { height: 260px; border-radius: 12px; }
+            .listing-title { font-size: 22px; }
+            .contact-card { position: static; }
+            .nav { display: none; }
+        }
+        @media (max-width: 600px) {
+            .header { padding: 0 12px; }
+            .header-inner { height: 52px; gap: 12px; }
+            .logo svg { width: 22px; height: 22px; }
+            .logo-text { font-size: 17px; }
+            .header-logout { padding: 5px 10px; font-size: 11px; }
+            .header-user-avatar { width: 28px; height: 28px; }
+            .header-auth-btn { padding: 6px 14px; font-size: 12px; }
+
+            .back-bar { padding: 10px 12px; }
+            .back-btn { font-size: 13px; padding: 6px 10px; }
+            .back-btn svg { width: 16px; height: 16px; }
+
+            .listing-page { padding: 0 12px 32px; }
+            .listing-hero-img { height: 200px; border-radius: 10px; }
+            .listing-grid { gap: 16px; margin-top: 16px; }
+            .listing-badge { font-size: 11px; padding: 3px 10px; }
+            .listing-title { font-size: 18px; }
+            .listing-location { font-size: 14px; margin-bottom: 12px; }
+            .listing-meta-row { flex-wrap: wrap; gap: 10px; padding: 12px 0; }
+            .meta-item { font-size: 13px; }
+            .meta-item span { font-size: 16px; }
+
+            .listing-section { margin-top: 18px; }
+            .listing-section h3 { font-size: 16px; margin-bottom: 8px; }
+            .listing-section p { font-size: 14px; }
+            .listing-map { height: 200px; border-radius: 10px; }
+
+            .contact-card { padding: 16px; border-radius: 12px; }
+            .contact-price { font-size: 24px; }
+            .contact-price span { font-size: 14px; }
+            .contact-row { padding: 8px 0; font-size: 13px; }
+            .contact-label { font-size: 13px; }
+            .contact-value { font-size: 13px; }
+
+            .phone-number { padding: 12px 14px; border-radius: 10px; }
+            .phone-text { font-size: 16px; }
+            .btn-call { padding: 12px; font-size: 15px; border-radius: 10px; }
+            .btn-directions { padding: 12px; font-size: 15px; border-radius: 10px; }
+
+            .no-phone { font-size: 12px; padding: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16 2L3 14h4v14h7v-9h4v9h7V14h4L16 2z"/></svg>
+                <span class="logo-text">UniCondo</span>
+            </a>
+            <nav class="nav">
+                <a href="explore.html">Explore</a>
+                <a href="about.html">About</a>
+            </nav>
+            <div class="header-right" id="headerRight"></div>
+        </div>
+    </header>
+
+    <div class="back-bar">
+        <a class="back-btn" onclick="history.back(); return false;" href="index.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back
+        </a>
+    </div>
+
+    <div class="listing-page" id="listingContent">
+        <div class="loading-page">Loading listing...</div>
+    </div>
+
+    <script>
+    const SUPA_URL = 'https://pekqhcxbhtgfsqtiunic.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBla3FoY3hiaHRnZnNxdGl1bmljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkxMjMsImV4cCI6MjA5MDQzNTEyM30.YlEBAX2Oh5CKsSeVCS-UZq93np58xUUP0RlddISLgFY';
+    let sb, currentUser = null;
+    try { sb = window.supabase.createClient(SUPA_URL, SUPA_KEY); } catch(e) {}
+
+    const ABAC_LAT = 13.6116, ABAC_LNG = 100.8370;
+
+    async function boot() {
+        const { data: { session } } = await sb.auth.getSession();
+        currentUser = session?.user || null;
+        updateHeaderUI();
+        sb.auth.onAuthStateChange((_, session) => {
+            currentUser = session?.user || null;
+            updateHeaderUI();
+        });
+        loadListing();
+    }
+
+    function updateHeaderUI() {
+        const el = document.getElementById('headerRight');
+        if (currentUser) {
+            el.innerHTML = `
+                <div class="header-user">
+                    <div class="header-user-avatar">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.87 0-7 2.24-7 5v1h14v-1c0-2.76-3.13-5-7-5z"/></svg>
+                    </div>
+                    <a href="profile.html" style="color:white; text-decoration:none; font-weight:600;">${currentUser.email.split('@')[0]}</a>
+                </div>
+                <button class="header-logout" onclick="handleLogout()">Log out</button>`;
+        } else {
+            el.innerHTML = `<a href="index.html" class="header-auth-btn">Log in / Sign up</a>`;
+        }
+    }
+
+    async function handleLogout() { await sb.auth.signOut(); window.location.href = 'index.html'; }
+
+    async function loadListing() {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        if (!id) { document.getElementById('listingContent').innerHTML = '<div class="loading-page">Listing not found</div>'; return; }
+
+        const { data: l, error } = await sb.from('listings').select('*').eq('id', id).single();
+        if (error || !l) { document.getElementById('listingContent').innerHTML = '<div class="loading-page">Listing not found</div>'; return; }
+
+        document.title = `${l.title} | UniCondo`;
+
+        const cat = { walking: '🚶 Walking', ride: '🛵 Ride', budget: '💰 Budget' };
+        const phone = l.phone || null;
+        const mapSrc = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyBfbugmOoOnX9f_wL8RzgttgqP79J6g-gY&origin=${ABAC_LAT},${ABAC_LNG}&destination=${l.lat},${l.lng}&mode=walking`;
+        const staticMap = `https://maps.googleapis.com/maps/api/staticmap?size=600x260&markers=color:red|${l.lat},${l.lng}&markers=color:blue|label:ABAC|${ABAC_LAT},${ABAC_LNG}&path=color:0xFF5A5F|weight:3|${ABAC_LAT},${ABAC_LNG}|${l.lat},${l.lng}&key=AIzaSyBfbugmOoOnX9f_wL8RzgttgqP76J6g-gY`;
+
+        document.getElementById('listingContent').innerHTML = `
+            <img class="listing-hero-img" src="${l.image_url || ''}" alt="${l.title}"
+                onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1100 400%22><rect fill=%22%23e8e8e8%22 width=%221100%22 height=%22400%22/><text x=%22550%22 y=%22205%22 text-anchor=%22middle%22 fill=%22%23bbb%22 font-size=%2220%22>No photo</text></svg>'">
+
+            <div class="listing-grid">
+                <div class="listing-main">
+                    ${l.badge ? `<span class="listing-badge">${l.badge}</span>` : ''}
+                    <h1 class="listing-title">${l.title}</h1>
+                    <p class="listing-location">${l.distance}</p>
+
+                    <div class="listing-meta-row">
+                        <div class="meta-item"><span>🏠</span> ${l.details}</div>
+                        <div class="meta-item"><span>⭐</span> ${Number(l.rating).toFixed(1)} rating</div>
+                        <div class="meta-item"><span>${cat[l.category]?.split(' ')[0] || '📍'}</span> ${cat[l.category]?.split(' ').slice(1).join(' ') || l.category}</div>
+                    </div>
+
+                    <div class="listing-section">
+                        <h3>About this place</h3>
+                        <p>${l.title} is located ${l.distance.toLowerCase()} and features ${l.details.toLowerCase()}. 
+                        This condo is categorized as ${cat[l.category] || l.category} from ABAC Bangna campus, 
+                        making it an ideal option for students looking for convenient housing near the university.</p>
+                    </div>
+
+                    <div class="listing-section">
+                        <h3>📍 Distance from ABAC</h3>
+                        <img class="listing-map" src="${staticMap}" alt="Map showing distance from ABAC"
+                            onerror="this.style.display='none'">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="contact-card">
+                        <div class="contact-price">฿${Number(l.price).toLocaleString()} <span>/month</span></div>
+                        <div class="contact-rating">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            ${Number(l.rating).toFixed(1)}
+                        </div>
+                        <div class="contact-divider"></div>
+                        <div class="contact-row">
+                            <span class="contact-label">Category</span>
+                            <span class="contact-value">${cat[l.category] || l.category}</span>
+                        </div>
+                        <div class="contact-row">
+                            <span class="contact-label">Distance</span>
+                            <span class="contact-value">${l.distance}</span>
+                        </div>
+                        <div class="contact-row">
+                            <span class="contact-label">Details</span>
+                            <span class="contact-value">${l.details}</span>
+                        </div>
+                        <div class="contact-divider"></div>
+
+                        <div class="phone-section">
+                            ${phone ? `
+                                <div class="phone-number">
+                                    <span class="phone-icon">📞</span>
+                                    <div>
+                                        <div class="phone-label">Contact Number</div>
+                                        <div class="phone-text">${phone}</div>
+                                    </div>
+                                </div>
+                                <a class="btn-call" href="tel:${phone}">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                                    Call Now
+                                </a>
+                            ` : `
+                                <div class="no-phone">📱 No phone number listed for this property</div>
+                            `}
+                        </div>
+
+                        <a class="btn-directions" href="https://www.google.com/maps/dir/?api=1&origin=${ABAC_LAT},${ABAC_LNG}&destination=${l.lat},${l.lng}" target="_blank">
+                            📍 Get Directions from ABAC
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    boot();
+    </script>
+</body>
+</html>

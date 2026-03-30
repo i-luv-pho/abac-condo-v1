@@ -441,15 +441,71 @@
             .grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
         }
         @media (max-width: 600px) {
-            .header-inner { height: 56px; }
-            .search-hero { padding: 20px 16px; }
-            .search-hero h1 { font-size: 20px; }
-            .search-bar input { padding: 11px 14px; font-size: 14px; }
-            .grid-section { padding: 16px; }
-            .grid { grid-template-columns: 1fr; gap: 16px; }
-            .card-img { height: 200px; }
-            .modal { margin: 12px; padding: 24px; border-radius: 14px; }
-            .post-btn { bottom: 12px; right: 12px; }
+            .header { padding: 0 12px; }
+            .header-inner { height: 52px; gap: 12px; }
+            .logo svg { width: 22px; height: 22px; }
+            .logo-text { font-size: 17px; }
+            .header-auth-btn { padding: 6px 14px; font-size: 12px; }
+            .header-logout { padding: 5px 10px; font-size: 11px; }
+            .header-user-avatar { width: 28px; height: 28px; }
+            .header-user-avatar svg { width: 14px; height: 14px; }
+
+            .search-hero { padding: 16px 14px; }
+            .search-hero h1 { font-size: 19px; margin-bottom: 2px; }
+            .search-hero p { font-size: 13px; margin-bottom: 14px; }
+            .search-bar input { padding: 10px 12px; font-size: 14px; border-radius: 8px; }
+            .filter-pills { gap: 6px; margin-top: 12px; }
+            .filter-pill { padding: 6px 12px; font-size: 12px; border-radius: 16px; }
+
+            .grid-section { padding: 12px 14px; }
+            .grid-meta { margin-bottom: 14px; }
+            .grid-meta h2 { font-size: 16px; }
+            .grid-meta span { font-size: 12px; }
+            .grid { grid-template-columns: 1fr; gap: 14px; }
+            .card { border-radius: 12px; }
+            .card-img { height: 180px; }
+            .card-body { padding: 12px 14px 14px; }
+            .card-title { font-size: 15px; }
+            .card-distance { font-size: 13px; }
+            .card-details { font-size: 12px; }
+            .card-price { font-size: 15px; }
+            .card-price span { font-size: 13px; }
+            .card-badge { font-size: 11px; padding: 4px 8px; top: 10px; left: 10px; }
+
+            .modal { margin: 8px; padding: 20px; border-radius: 14px; }
+            .modal-title { font-size: 18px; }
+            .form-group label { font-size: 12px; }
+            .form-group input, .form-group select { padding: 10px 12px; font-size: 13px; }
+            .btn-submit { padding: 12px; font-size: 14px; }
+            .btn-google { padding: 10px; font-size: 13px; }
+
+            .post-btn { bottom: 14px; right: 14px; padding: 12px 18px; font-size: 13px; border-radius: 24px; }
+            .post-btn svg { width: 16px; height: 16px; }
+
+            .toast { font-size: 13px; padding: 10px 20px; bottom: 60px; }
+
+            /* Detail modal — full-width bottom sheet on mobile */
+            .detail-overlay { align-items: flex-end; }
+            .detail-modal {
+                max-width: 100%; border-radius: 16px 16px 0 0;
+                max-height: 88vh; animation: detailSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+            @keyframes detailSlideUp {
+                from { opacity: 0; transform: translateY(100%); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .detail-img { height: 200px; border-radius: 16px 16px 0 0; }
+            .detail-close { top: 10px; right: 10px; width: 32px; height: 32px; font-size: 16px; }
+            .detail-body { padding: 16px; }
+            .detail-title { font-size: 18px; }
+            .detail-location { font-size: 13px; margin-bottom: 8px; }
+            .detail-price-big { font-size: 22px; margin: 10px 0 2px; }
+            .detail-price-big span { font-size: 13px; }
+            .detail-row { padding: 10px 0; }
+            .detail-label { font-size: 13px; }
+            .detail-value { font-size: 13px; }
+            .detail-actions { flex-direction: column; gap: 8px; margin-top: 12px; }
+            .detail-btn { padding: 12px; font-size: 14px; border-radius: 10px; }
         }
     </style>
 </head>
@@ -609,10 +665,7 @@
     <!-- TOAST -->
     <div class="toast" id="toast"></div>
 
-    <!-- FOOTER -->
-    <div class="footer">
-        <p>© 2026 UniCondo · <a href="explore.html">Map View</a> · <a href="about.html">About</a> · Made with ❤️ near ABAC</p>
-    </div>
+
 
     <script>
     const SUPA_URL = 'https://pekqhcxbhtgfsqtiunic.supabase.co';
@@ -799,12 +852,12 @@
                 <span class="detail-value">${cat[l.category] || l.category}</span>
             </div>
             <div class="detail-actions">
-                <a class="detail-btn detail-btn-primary" href="https://www.google.com/maps/dir/?api=1&destination=${l.lat},${l.lng}" target="_blank">
-                    📍 Get Directions
+                <a class="detail-btn detail-btn-primary" href="listing.html?id=${l.id}">
+                    🔍 View Full Page
                 </a>
-                <button class="detail-btn detail-btn-secondary" onclick="closeDetail()">
-                    Close
-                </button>
+                <a class="detail-btn detail-btn-secondary" href="https://www.google.com/maps/dir/?api=1&destination=${l.lat},${l.lng}" target="_blank" style="text-decoration:none;">
+                    📍 Directions
+                </a>
             </div>
         `;
         document.getElementById('detailOverlay').classList.add('show');
