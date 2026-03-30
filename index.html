@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABACcribs | Student Housing Near ABAC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #FFFFFF;
+            --text-primary: #222222;
+            --text-secondary: #717171;
+            --accent: #FF385C;
+            --accent-hover: #E31C5F;
+            --border: #DDDDDD;
+            --border-light: #EBEBEB;
+            --card-hover: #F7F7F7;
+            --shadow: 0 6px 16px rgba(0,0,0,0.12);
+            --radius: 12px;
+            --radius-lg: 16px;
+        }
+
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        .header {
+            border-bottom: 1px solid var(--border-light);
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 100;
+        }
+
+        .header-inner {
+            max-width: 1760px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: var(--accent);
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo-text {
+            font-weight: 800;
+            font-size: 22px;
+            letter-spacing: -0.5px;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            padding: 7px 7px 7px 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+            transition: box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .search-bar:hover {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 6px 16px rgba(0,0,0,0.08);
+        }
+
+        .search-section {
+            padding: 0 16px;
+            border-right: 1px solid var(--border-light);
+        }
+
+        .search-section:last-of-type {
+            border-right: none;
+        }
+
+        .search-label {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .search-value {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .search-btn {
+            background: var(--accent);
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .search-btn svg {
+            width: 16px;
+            height: 16px;
+            color: white;
+        }
+
+        /* Header Right */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .help-link {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 22px;
+            transition: background 0.2s;
+        }
+
+        .help-link:hover {
+            background: var(--card-hover);
+        }
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 5px 5px 5px 12px;
+            background: white;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }
+
+        .profile-btn:hover {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .profile-btn svg {
+            width: 16px;
+            height: 16px;
+            color: var(--text-primary);
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-avatar svg {
+            width: 20px;
+            height: 20px;
+            color: white;
+        }
+
+        /* Main Content */
+        .main {
+            max-width: 1760px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 48px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .section-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--text-primary);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .nav-btn svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        /* Cards Grid */
+        .cards-scroll {
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 8px;
+        }
+
+        .cards-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .card {
+            flex: 0 0 calc(25% - 18px);
+            min-width: 280px;
+            scroll-snap-align: start;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1200px) {
+            .card {
+                flex: 0 0 calc(33.333% - 16px);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .card {
+                flex: 0 0 calc(50% - 12px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                flex: 0 0 85%;
+            }
+        }
+
+        .card-image-wrapper {
+            position: relative;
+            aspect-ratio: 1/1;
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .card:hover .card-image {
+            transform: scale(1.03);
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .card-favorite {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .card-favorite svg {
+            width: 24px;
+            height: 24px;
+            fill: rgba(0,0,0,0.5);
+            stroke: white;
+            stroke-width: 2;
+            transition: transform 0.2s;
+        }
+
+        .card-favorite:hover svg {
+            transform: scale(1.1);
+        }
+
+        .card-favorite.active svg {
+            fill: var(--accent);
+            stroke: var(--accent);
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .card-rating svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .card-distance {
+            font-size: 15px;
+            color: var(--text-secondary);
+        }
+
+        .card-details {
+            font-size: 15px;
+            color: var(--text-secondary);
+        }
+
+        .card-price {
+            font-size: 15px;
+            margin-top: 6px;
+        }
+
+        .card-price strong {
+            font-weight: 700;
+        }
+
+        /* CTA Banner */
+        .cta-banner {
+            background: linear-gradient(135deg, #BD1E59 0%, #92174D 100%);
+            color: white;
+            padding: 48px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 48px;
+        }
+
+        .cta-content h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .cta-content p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .cta-btn {
+            background: white;
+            color: var(--text-primary);
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+        .cta-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Footer note */
+        .footer-note {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .header-inner {
+                height: 64px;
+            }
+
+            .search-bar {
+                display: none;
+            }
+
+            .help-link {
+                display: none;
+            }
+
+            .logo-text {
+                font-size: 20px;
+            }
+
+            .section-title {
+                font-size: 18px;
+            }
+
+            .cta-banner {
+                flex-direction: column;
+                text-align: center;
+                padding: 32px 24px;
+                gap: 24px;
+            }
+
+            .cta-content h2 {
+                font-size: 24px;
+            }
+
+            .cta-content p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="#" class="logo">
+                <svg viewBox="0 0 32 32" fill="currentColor">
+                    <path d="M16 2C8.268 2 2 8.268 2 16s6.268 14 14 14 14-6.268 14-14S23.732 2 16 2zm0 4a4 4 0 110 8 4 4 0 010-8zm0 18c-3.312 0-6.234-1.656-8-4.18C8.016 17.168 13.328 16 16 16s7.984 1.168 8 4.82c-1.766 2.524-4.688 4.18-8 4.18z"/>
+                </svg>
+                <span class="logo-text">ABACcribs</span>
+            </a>
+
+            <div class="search-bar">
+                <div class="search-section">
+                    <div class="search-label">Where</div>
+                    <div class="search-value">Near ABAC</div>
+                </div>
+                <div class="search-section">
+                    <div class="search-label">Budget</div>
+                    <div class="search-value">Any price</div>
+                </div>
+                <div class="search-section">
+                    <div class="search-label">Room</div>
+                    <div class="search-value">Any type</div>
+                </div>
+                <button class="search-btn">
+                    <svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="header-right">
+                <a href="#" class="help-link">Help me find</a>
+                <button class="profile-btn">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                    <div class="profile-avatar">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-3.866 0-7 2.239-7 5v1h14v-1c0-2.761-3.134-5-7-5z"/>
+                        </svg>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- CTA Banner -->
+        <div class="cta-banner">
+            <div class="cta-content">
+                <h2>Can't find what you need?</h2>
+                <p>Tell us your budget and we'll find the perfect room — free.</p>
+            </div>
+            <button class="cta-btn">Message Us</button>
+        </div>
+
+        <!-- Walking Distance Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    Walking distance to ABAC
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </h2>
+                <div class="section-nav">
+                    <button class="nav-btn" disabled>
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <button class="nav-btn">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="cards-scroll">
+                <!-- Card 1 -->
+                <article class="card">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=600&fit=crop" alt="Condo" class="card-image">
+                        <span class="card-badge">Student pick</span>
+                        <button class="card-favorite">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <span class="card-title">Lumpini Ville Bang Na</span>
+                            <span class="card-rating">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                5.0
+                            </span>
+                        </div>
+                        <span class="card-distance">5 min walk to campus</span>
+                        <span class="card-details">1 bed · 26 sqm · Furnished</span>
+                        <div class="card-price"><strong>฿6,500</strong> /month</div>
+                    </div>
+                </article>
+
+                <!-- Card 2 -->
+                <article class="card">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=600&fit=crop" alt="Condo" class="card-image">
+                        <span class="card-badge">Student pick</span>
+                        <button class="card-favorite">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <span class="card-title">Dorm Behind ABAC</span>
+                            <span class="card-rating">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4.9
+                            </span>
+                        </div>
+                        <span class="card-distance">3 min walk to campus</span>
+                        <span class="card-details">Studio · 22 sqm · AC + Fridge</span>
+                        <div class="card-price"><strong>฿5,500</strong> /month</div>
+                    </div>
+                </article>
+
+                <!-- Card 3 -->
+                <article class="card">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&h=600&fit=crop" alt="Condo" class="card-image">
+                        <button class="card-favorite">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <span class="card-title">The Cube Premium</span>
+                            <span class="card-rating">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4.85
+                            </span>
+                        </div>
+                        <span class="card-distance">7 min walk to campus</span>
+                        <span class="card-details">1 bed · 28 sqm · Gym</span>
+                        <div class="card-price"><strong>฿7,000</strong> /month</div>
+                    </div>
+                </article>
+
+                <!-- Card 4 -->
+                <article class="card">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=600&fit=crop" alt="Condo" class="card-image">
+                        <span class="card-badge">Student pick</span>
+                        <button class="card-favorite">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <span class="card-title">D Condo Campus Resort</span>
+                            <span class="card-rating">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4.95
+                            </span>
+                        </div>
+                        <span class="card-distance">8 min walk to campus</span>
+                        <span class="card-details">1 bed · 30 sqm · Pool</span>
+                        <div class="card-price"><strong>฿8,000</strong> /month</div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Short Ride Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    Short motorbike ride
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </h2>
+                <div class="section-nav">
+                    <button class="nav-btn" disabled>
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <button class="nav-btn">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="cards-scroll">
+                <!-- Card 5 -->
+                <article class="card">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=600&fit=crop" alt="Condo" class="card-image">
+                        <button class="card-favorite">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <span class="card-title">Ideo Mobi Eastpoint</span>
+                            <span class="card-rating">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4.92
+                            </span>
+                        </div>
+                        <span class="card-distance">10 min ride · Near BTS</span>
+                        <span class="card-details">1 bed · 35 sqm · Furnished</span>
+                        <div class="card-price"><strong>฿12,000</strong> /month</div>
+                    </div>
+                </article>
+
+                <!-- Card 6 -->
+                <article class="card">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=600&fit=crop" alt="Condo" class="card-image">
+                        <span class="card-badge">Student pick</span>
+                        <button class="card-favorite">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <span class="card-title">Aspire Erawan</span>
+                            <span class="card-rating">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                5.0
+                            </span>
+                        </div>
+                        <span class="card-distance">5 min ride</span>
+                        <span class="card-details">1 bed · 32 sqm · Great view</span>
+                        <div class="card-price"><strong>฿9,500</strong> /month</div>
+                    </div>
+                </article>
+
+                <!-- Card 7 -->
+                <article class="card">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=600&h=600&fit=crop" alt="Condo" class="card-image">
+                        <button class="card-favorite">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <span class="card-title">Knightsbridge Bearing</span>
+                            <span class="card-rating">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4.88
+                            </span>
+                        </div>
+                        <span class="card-distance">12 min ride · BTS Bearing</span>
+                        <span class="card-details">1 bed · 28 sqm · Modern</span>
+                        <div class="card-price"><strong>฿10,500</strong> /month</div>
+                    </div>
+                </article>
+
+                <!-- Card 8 -->
+                <article class="card">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=600&h=600&fit=crop" alt="Condo" class="card-image">
+                        <button class="card-favorite">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <span class="card-title">Lumpini Mega City</span>
+                            <span class="card-rating">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4.78
+                            </span>
+                        </div>
+                        <span class="card-distance">8 min ride</span>
+                        <span class="card-details">Studio · 24 sqm · Pool + Gym</span>
+                        <div class="card-price"><strong>฿5,800</strong> /month</div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Budget Friendly Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    Under ฿6,000/month
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </h2>
+                <div class="section-nav">
+                    <button class="nav-btn" disabled>
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <button class="nav-btn">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="cards-scroll">
+                <!-- Budget Card 1 -->
+                <article class="card">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=600&fit=crop" alt="Condo" class="card-image">
+                        <span class="card-badge">Best value</span>
+                        <button class="card-favorite">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <span class="card-title">Dorm Behind ABAC</span>
+                            <span class="card-rating">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4.9
+                            </span>
+                        </div>
+                        <span class="card-distance">3 min walk to campus</span>
+                        <span class="card-details">Studio · 22 sqm · AC + Fridge</span>
+                        <div class="card-price"><strong>฿5,500</strong> /month</div>
+                    </div>
+                </article>
+
+                <!-- Budget Card 2 -->
+                <article class="card">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=600&h=600&fit=crop" alt="Condo" class="card-image">
+                        <button class="card-favorite">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <span class="card-title">Lumpini Mega City</span>
+                            <span class="card-rating">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4.78
+                            </span>
+                        </div>
+                        <span class="card-distance">8 min ride</span>
+                        <span class="card-details">Studio · 24 sqm · Pool + Gym</span>
+                        <div class="card-price"><strong>฿5,800</strong> /month</div>
+                    </div>
+                </article>
+
+                <!-- Budget Card 3 -->
+                <article class="card">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1554995207-c18c203602cb?w=600&h=600&fit=crop" alt="Condo" class="card-image">
+                        <button class="card-favorite">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <span class="card-title">Happy Condo Bangna</span>
+                            <span class="card-rating">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4.65
+                            </span>
+                        </div>
+                        <span class="card-distance">15 min ride</span>
+                        <span class="card-details">Studio · 23 sqm · Furnished</span>
+                        <div class="card-price"><strong>฿4,500</strong> /month</div>
+                    </div>
+                </article>
+
+                <!-- Budget Card 4 -->
+                <article class="card">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&h=600&fit=crop" alt="Condo" class="card-image">
+                        <button class="card-favorite">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <span class="card-title">Apartment Soi 17</span>
+                            <span class="card-rating">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4.72
+                            </span>
+                        </div>
+                        <span class="card-distance">10 min walk</span>
+                        <span class="card-details">Studio · 20 sqm · Basic</span>
+                        <div class="card-price"><strong>฿4,000</strong> /month</div>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer-note">
+        ABACcribs — Helping ABAC students find homes since 2026
+    </footer>
+
+    <script>
+        // Favorite toggle
+        document.querySelectorAll('.card-favorite').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                btn.classList.toggle('active');
+            });
+        });
+
+        // Horizontal scroll buttons
+        document.querySelectorAll('.section').forEach(section => {
+            const scroll = section.querySelector('.cards-scroll');
+            const [prevBtn, nextBtn] = section.querySelectorAll('.nav-btn');
+            
+            if (scroll && nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    scroll.scrollBy({ left: 300, behavior: 'smooth' });
+                });
+            }
+            
+            if (scroll && prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    scroll.scrollBy({ left: -300, behavior: 'smooth' });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
