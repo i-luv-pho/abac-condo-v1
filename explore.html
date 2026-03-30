@@ -101,9 +101,13 @@
         .search-bar input {
             flex: 1; padding: 13px 18px; border: 1.5px solid var(--border);
             border-radius: 10px; font-size: 15px; font-family: inherit;
-            outline: none; transition: border-color 0.2s;
+            outline: none; transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
         }
-        .search-bar input:focus { border-color: var(--coral); }
+        .search-bar input:focus {
+            border-color: var(--coral);
+            box-shadow: 0 0 0 4px rgba(255,90,95,0.12);
+            transform: scale(1.01);
+        }
         .filter-pills {
             display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap;
         }
@@ -112,10 +116,19 @@
             border: 1.5px solid var(--border); background: white;
             font-size: 13px; font-weight: 600; cursor: pointer;
             font-family: inherit; color: var(--text);
-            transition: all 0.2s;
+            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
-        .filter-pill:hover { border-color: var(--text); }
-        .filter-pill.active { background: var(--text); color: white; border-color: var(--text); }
+        .filter-pill:hover { border-color: var(--text); transform: translateY(-1px); }
+        .filter-pill:active { transform: scale(0.95); }
+        .filter-pill.active {
+            background: var(--text); color: white; border-color: var(--text);
+            animation: pillBounce 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes pillBounce {
+            0% { transform: scale(0.9); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
 
         /* ─── GRID ─── */
         .grid-section {
@@ -138,14 +151,18 @@
         .card {
             background: var(--white); border-radius: 14px;
             overflow: hidden; cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
             position: relative;
         }
-        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.15); }
+        .card:active { transform: translateY(-2px) scale(0.98); }
+        .card-img-wrap { overflow: hidden; }
         .card-img {
             width: 100%; height: 200px; object-fit: cover;
             background: #E8E8E8;
+            transition: transform 0.4s ease;
         }
+        .card:hover .card-img { transform: scale(1.06); }
         .card-body { padding: 14px 16px 16px; }
         .card-top {
             display: flex; justify-content: space-between; align-items: flex-start;
@@ -296,6 +313,61 @@
             border-top: 1px solid var(--border-light); margin-top: 40px;
         }
         .footer a { color: var(--coral); text-decoration: none; font-weight: 600; }
+
+        /* ─── SCROLL ANIMATIONS ─── */
+        .fade-up {
+            opacity: 0; transform: translateY(24px);
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+        /* ─── SKELETON LOADING ─── */
+        .skeleton-card {
+            background: var(--white); border-radius: 14px; overflow: hidden;
+        }
+        .skeleton-img {
+            width: 100%; height: 200px; background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s infinite;
+        }
+        .skeleton-body { padding: 14px 16px 16px; }
+        .skeleton-line {
+            height: 12px; border-radius: 6px; margin-bottom: 8px;
+            background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s infinite;
+        }
+        .skeleton-line.w60 { width: 60%; }
+        .skeleton-line.w80 { width: 80%; }
+        .skeleton-line.w40 { width: 40%; height: 16px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* ─── FORM FEEDBACK ─── */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .shake { animation: shake 0.4s ease; }
+        .success-check {
+            display: inline-block; width: 40px; height: 40px; border-radius: 50%;
+            background: #00C853; margin: 8px auto; position: relative;
+        }
+        .success-check::after {
+            content: ''; position: absolute; left: 14px; top: 8px;
+            width: 10px; height: 18px; border: 3px solid white;
+            border-top: none; border-left: none;
+            transform: rotate(45deg); animation: checkDraw 0.3s ease-out 0.1s both;
+        }
+        @keyframes checkDraw {
+            0% { height: 0; width: 0; opacity: 0; }
+            50% { height: 0; width: 10px; opacity: 1; }
+            100% { height: 18px; width: 10px; opacity: 1; }
+        }
+
+        /* ─── BUTTON PRESS ─── */
+        .btn-submit { transition: transform 0.15s, opacity 0.2s; }
+        .btn-submit:active { transform: scale(0.97); }
+        .header-auth-btn, .header-logout, .post-btn { transition: transform 0.15s, box-shadow 0.2s; }
+        .header-auth-btn:active, .header-logout:active, .post-btn:active { transform: scale(0.95); }
 
         /* ─── RESPONSIVE ─── */
         @media (max-width: 900px) {
@@ -551,6 +623,20 @@
 
     async function handleLogout() { await sb.auth.signOut(); showToast('Logged out'); }
 
+    // ── SKELETON ──
+    function showSkeleton() {
+        const c = document.getElementById('gridContainer');
+        c.innerHTML = Array(6).fill(`
+            <div class="skeleton-card">
+                <div class="skeleton-img"></div>
+                <div class="skeleton-body">
+                    <div class="skeleton-line w80"></div>
+                    <div class="skeleton-line w60"></div>
+                    <div class="skeleton-line w40"></div>
+                </div>
+            </div>`).join('');
+    }
+
     // ── LISTINGS ──
     async function loadListings() {
         try {
@@ -585,13 +671,15 @@
             container.innerHTML = '<div class="empty-state"><p>No listings match your search.</p></div>';
             return;
         }
-        container.innerHTML = listings.map(l => `
-            <div class="card" data-id="${l.id}">
+        container.innerHTML = listings.map((l, i) => `
+            <div class="card fade-up" data-id="${l.id}" style="transition-delay: ${i * 50}ms;">
                 ${l.badge ? `<span class="card-badge">${l.badge}</span>` : ''}
                 <button class="card-delete ${currentUser && currentUser.id === l.user_id ? 'show' : ''}"
                     onclick="event.stopPropagation(); deleteListing('${l.id}')">Delete</button>
-                <img class="card-img" src="${l.image_url || ''}" alt="${l.title}"
-                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 200%22><rect fill=%22%23e8e8e8%22 width=%22300%22 height=%22200%22/><text x=%22150%22 y=%22105%22 text-anchor=%22middle%22 fill=%22%23bbb%22 font-size=%2216%22>No photo</text></svg>'">
+                <div class="card-img-wrap">
+                    <img class="card-img" src="${l.image_url || ''}" alt="${l.title}"
+                        onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 200%22><rect fill=%22%23e8e8e8%22 width=%22300%22 height=%22200%22/><text x=%22150%22 y=%22105%22 text-anchor=%22middle%22 fill=%22%23bbb%22 font-size=%2216%22>No photo</text></svg>'">
+                </div>
                 <div class="card-body">
                     <div class="card-top">
                         <span class="card-title">${l.title}</span>
@@ -606,6 +694,7 @@
                 </div>
             </div>
         `).join('');
+        observeFadeIn();
     }
 
     function handleSearch() { renderGrid(getFiltered()); }
@@ -630,6 +719,7 @@
     async function handleCreateListing(e) {
         e.preventDefault();
         const btn = document.getElementById('listingBtn');
+        const form = document.getElementById('listingForm');
         btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; clearMsg('listingMsg');
         try {
             const listing = {
@@ -647,9 +737,14 @@
             };
             const { error } = await sb.from('listings').insert([listing]);
             if (error) throw error;
-            closeModals(); document.getElementById('listingForm').reset();
-            showToast('Listing posted!'); loadListings();
-        } catch (err) { showMsg('listingMsg', err.message, 'error'); }
+            // Success checkmark
+            btn.innerHTML = '<div class="success-check"></div>';
+            setTimeout(() => { closeModals(); form.reset(); showToast('Listing posted!'); loadListings(); }, 800);
+        } catch (err) {
+            showMsg('listingMsg', err.message, 'error');
+            form.classList.add('shake');
+            setTimeout(() => form.classList.remove('shake'), 400);
+        }
         btn.disabled = false; btn.textContent = 'Post listing';
     }
 
@@ -679,8 +774,17 @@
     function showMsg(id, text, type) { const el = document.getElementById(id); el.textContent = text; el.className = 'form-msg ' + type; }
     function clearMsg(id) { const el = document.getElementById(id); el.textContent = ''; el.className = 'form-msg'; }
 
+    // ── SCROLL OBSERVER ──
+    function observeFadeIn() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    }
+
     // ── BOOT ──
     async function boot() {
+        showSkeleton();
         await initAuth();
         await loadListings();
     }
