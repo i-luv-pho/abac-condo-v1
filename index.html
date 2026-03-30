@@ -7,468 +7,390 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg: #FFFFFF;
-            --text-primary: #222222;
-            --text-secondary: #717171;
-            --accent: #FF385C;
-            --accent-hover: #E31C5F;
+            --coral: #FF5A5F;
+            --coral-dark: #E04E53;
+            --gradient: linear-gradient(135deg, #FF5A5F 0%, #FF8A6C 100%);
+            --bg: #F7F7F7;
+            --white: #FFFFFF;
+            --text: #222222;
+            --text-light: #717171;
             --border: #DDDDDD;
             --border-light: #EBEBEB;
-            --card-hover: #F7F7F7;
-            --shadow: 0 6px 16px rgba(0,0,0,0.12);
             --radius: 12px;
-            --radius-lg: 16px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-lg: 0 6px 20px rgba(0,0,0,0.15);
         }
+        html, body { height: 100%; overflow: hidden; }
         body {
             font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--text-primary);
-            line-height: 1.5;
+            background: var(--bg); color: var(--text);
+            display: flex; flex-direction: column;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Header */
+        /* ─── HEADER ─── */
         .header {
-            border-bottom: 1px solid var(--border-light);
+            background: var(--gradient);
             padding: 0 24px;
-            position: sticky;
-            top: 0;
-            background: white;
+            flex-shrink: 0;
             z-index: 100;
         }
         .header-inner {
-            max-width: 1760px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 80px;
+            max-width: 1400px; margin: 0 auto;
+            display: flex; align-items: center;
+            height: 64px; gap: 32px;
         }
         .logo {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            text-decoration: none;
-            color: var(--accent);
+            display: flex; align-items: center; gap: 8px;
+            text-decoration: none; color: white; flex-shrink: 0;
         }
-        .logo svg { width: 32px; height: 32px; }
-        .logo-text { font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
-
-        /* Search Bar */
-        .search-bar {
-            display: flex;
-            align-items: center;
-            border: 1px solid var(--border);
-            border-radius: 40px;
-            padding: 7px 7px 7px 24px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
-            transition: box-shadow 0.2s;
-            cursor: pointer;
+        .logo svg { width: 28px; height: 28px; }
+        .logo-text { font-weight: 800; font-size: 20px; letter-spacing: -0.3px; }
+        .nav { display: flex; gap: 4px; }
+        .nav a {
+            color: rgba(255,255,255,0.85); text-decoration: none;
+            font-size: 14px; font-weight: 600; padding: 8px 14px;
+            border-radius: 8px; transition: all 0.2s;
         }
-        .search-bar:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 6px 16px rgba(0,0,0,0.08); }
-        .search-section { padding: 0 16px; border-right: 1px solid var(--border-light); }
-        .search-section:last-of-type { border-right: none; }
-        .search-label { font-size: 12px; font-weight: 700; }
-        .search-value { font-size: 14px; color: var(--text-secondary); }
-        .search-btn {
-            background: var(--accent); border: none; width: 48px; height: 48px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: background 0.2s;
-        }
-        .search-btn:hover { background: var(--accent-hover); }
-        .search-btn svg { width: 16px; height: 16px; color: white; }
-
-        /* Header Right */
-        .header-right { display: flex; align-items: center; gap: 16px; }
-        .help-link {
-            font-size: 14px; font-weight: 600; color: var(--text-primary);
-            text-decoration: none; padding: 12px; border-radius: 22px;
-            transition: background 0.2s; cursor: pointer; background: none; border: none;
-            font-family: inherit;
-        }
-        .help-link:hover { background: var(--card-hover); }
-        .profile-btn {
-            display: flex; align-items: center; gap: 12px;
-            border: 1px solid var(--border); border-radius: 22px;
-            padding: 5px 5px 5px 12px; background: white; cursor: pointer;
-            transition: box-shadow 0.2s;
-        }
-        .profile-btn:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .profile-btn svg { width: 16px; height: 16px; color: var(--text-primary); }
-        .profile-avatar {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: var(--text-secondary); display: flex;
-            align-items: center; justify-content: center;
-        }
-        .profile-avatar svg { width: 20px; height: 20px; color: white; }
-        .profile-avatar.logged-in { background: var(--accent); }
-
-        /* Profile Dropdown */
-        .profile-dropdown {
-            position: absolute; top: 70px; right: 24px;
-            background: white; border-radius: var(--radius);
-            box-shadow: var(--shadow); border: 1px solid var(--border-light);
-            min-width: 200px; z-index: 200; display: none;
-            overflow: hidden;
-        }
-        .profile-dropdown.show { display: block; }
-        .dropdown-item {
-            padding: 12px 16px; cursor: pointer; font-size: 14px;
-            font-weight: 500; transition: background 0.15s; display: block;
-            width: 100%; text-align: left; border: none; background: none;
-            font-family: inherit; color: var(--text-primary);
-        }
-        .dropdown-item:hover { background: var(--card-hover); }
-        .dropdown-item.bold { font-weight: 700; }
-        .dropdown-divider { height: 1px; background: var(--border-light); }
-
-        /* Main Content */
-        .main { max-width: 1760px; margin: 0 auto; padding: 24px; }
-
-        /* Section */
-        .section { margin-bottom: 48px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .section-title { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .section-title svg { width: 20px; height: 20px; }
-        .section-nav { display: flex; gap: 8px; }
-        .nav-btn {
-            width: 32px; height: 32px; border-radius: 50%;
-            border: 1px solid var(--border); background: white; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+        .nav a:hover { background: rgba(255,255,255,0.15); color: white; }
+        .header-search {
+            flex: 1; max-width: 420px;
+            display: flex; align-items: center;
+            background: rgba(255,255,255,0.2); border-radius: 24px;
+            padding: 6px 6px 6px 16px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.25);
             transition: all 0.2s;
         }
-        .nav-btn:hover { border-color: var(--text-primary); }
-        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .nav-btn svg { width: 12px; height: 12px; }
-
-        /* Cards Grid */
-        .cards-scroll {
-            display: flex; gap: 24px; overflow-x: auto;
-            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-            padding-bottom: 8px;
+        .header-search:focus-within {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.4);
         }
-        .cards-scroll::-webkit-scrollbar { display: none; }
-        .card {
-            flex: 0 0 calc(25% - 18px); min-width: 280px;
-            scroll-snap-align: start; cursor: pointer;
+        .header-search input {
+            flex: 1; background: none; border: none; outline: none;
+            color: white; font-size: 14px; font-family: inherit;
+        }
+        .header-search input::placeholder { color: rgba(255,255,255,0.7); }
+        .header-search button {
+            background: white; border: none; width: 32px; height: 32px;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; flex-shrink: 0;
+        }
+        .header-search button svg { width: 14px; height: 14px; color: var(--coral); }
+        .header-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+        .header-auth-btn {
+            background: white; color: var(--coral); border: none;
+            padding: 8px 18px; border-radius: 20px; font-size: 13px;
+            font-weight: 700; cursor: pointer; font-family: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .header-auth-btn:hover { transform: scale(1.03); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .header-user {
+            display: flex; align-items: center; gap: 8px;
+            color: white; font-size: 13px; font-weight: 600;
+        }
+        .header-user-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255,255,255,0.3); display: flex;
+            align-items: center; justify-content: center;
+            border: 2px solid white;
+        }
+        .header-user-avatar svg { width: 16px; height: 16px; color: white; }
+        .header-logout {
+            background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+            color: white; padding: 6px 14px; border-radius: 16px; font-size: 12px;
+            font-weight: 600; cursor: pointer; font-family: inherit;
+            transition: background 0.2s;
+        }
+        .header-logout:hover { background: rgba(255,255,255,0.3); }
+
+        /* ─── MAIN LAYOUT ─── */
+        .main {
+            flex: 1; display: flex; overflow: hidden;
+        }
+
+        /* ─── MAP PANEL ─── */
+        .map-panel {
+            width: 45%; position: relative;
+        }
+        #map { width: 100%; height: 100%; }
+        .leaflet-popup-content { font-family: 'Nunito', sans-serif; }
+        .price-marker {
+            background: var(--white); color: var(--text);
+            font-weight: 700; font-size: 13px; padding: 4px 10px;
+            border-radius: 20px; box-shadow: var(--shadow);
+            border: 2px solid var(--white); white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .price-marker:hover, .price-marker.active {
+            background: var(--text); color: white;
+            border-color: var(--text); transform: scale(1.1);
+            z-index: 999 !important;
+        }
+
+        /* ─── LISTINGS PANEL ─── */
+        .listings-panel {
+            width: 55%; display: flex; flex-direction: column;
+            border-left: 1px solid var(--border-light);
+            background: var(--white);
+        }
+        .listings-header {
+            padding: 16px 24px; border-bottom: 1px solid var(--border-light);
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--white); flex-shrink: 0;
+        }
+        .listings-header h2 { font-size: 18px; font-weight: 800; }
+        .listings-header span { font-size: 13px; color: var(--text-light); font-weight: 600; }
+        .listings-scroll {
+            flex: 1; overflow-y: auto; padding: 16px 24px;
+        }
+        .listings-scroll::-webkit-scrollbar { width: 6px; }
+        .listings-scroll::-webkit-scrollbar-thumb {
+            background: var(--border); border-radius: 3px;
+        }
+
+        /* ─── LISTING CARD ─── */
+        .listing-card {
+            display: flex; gap: 16px; padding: 16px 0;
+            border-bottom: 1px solid var(--border-light);
+            cursor: pointer; transition: background 0.15s;
             position: relative;
         }
-        .card-image-wrapper {
-            position: relative; aspect-ratio: 1/1;
-            border-radius: var(--radius); overflow: hidden; margin-bottom: 12px;
+        .listing-card:hover { background: #FAFAFA; margin: 0 -24px; padding: 16px 24px; }
+        .listing-card:last-child { border-bottom: none; }
+        .listing-img {
+            width: 200px; height: 140px; border-radius: 10px;
+            object-fit: cover; flex-shrink: 0;
+            background: #E8E8E8;
         }
-        .card-image {
-            width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;
+        .listing-info { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+        .listing-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .listing-title { font-size: 16px; font-weight: 700; color: var(--text); }
+        .listing-rating {
+            display: flex; align-items: center; gap: 4px;
+            font-size: 14px; font-weight: 600; flex-shrink: 0;
         }
-        .card:hover .card-image { transform: scale(1.03); }
-        .card-badge {
-            position: absolute; top: 12px; left: 12px; background: white;
-            padding: 6px 10px; border-radius: 6px; font-size: 12px;
-            font-weight: 700; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .listing-rating svg { width: 14px; height: 14px; color: var(--coral); }
+        .listing-distance { font-size: 14px; color: var(--text-light); }
+        .listing-details { font-size: 14px; color: var(--text-light); }
+        .listing-price { font-size: 16px; font-weight: 800; margin-top: 4px; }
+        .listing-price span { font-weight: 500; font-size: 14px; color: var(--text-light); }
+        .listing-badge {
+            display: inline-block; background: var(--coral);
+            color: white; font-size: 11px; font-weight: 700;
+            padding: 3px 8px; border-radius: 4px; margin-bottom: 4px;
         }
-        .card-favorite {
-            position: absolute; top: 12px; right: 12px;
-            background: none; border: none; cursor: pointer; padding: 4px;
-        }
-        .card-favorite svg {
-            width: 24px; height: 24px; fill: rgba(0,0,0,0.5);
-            stroke: white; stroke-width: 2; transition: transform 0.2s;
-        }
-        .card-favorite:hover svg { transform: scale(1.1); }
-        .card-favorite.active svg { fill: var(--accent); stroke: var(--accent); }
-        .card-body { display: flex; flex-direction: column; gap: 2px; }
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
-        .card-rating { display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 500; }
-        .card-rating svg { width: 12px; height: 12px; }
-        .card-distance { font-size: 15px; color: var(--text-secondary); }
-        .card-details { font-size: 15px; color: var(--text-secondary); }
-        .card-price { font-size: 15px; margin-top: 6px; }
-        .card-price strong { font-weight: 700; }
-
-        /* Delete button on cards */
-        .card-delete {
-            position: absolute; bottom: 8px; right: 0;
+        .listing-delete {
+            position: absolute; top: 16px; right: 0;
             background: white; border: 1px solid var(--border);
-            border-radius: 8px; padding: 6px 12px; font-size: 12px;
-            font-weight: 600; cursor: pointer; color: var(--accent);
-            transition: all 0.2s; font-family: inherit; display: none;
+            color: var(--coral); font-size: 12px; font-weight: 600;
+            padding: 4px 10px; border-radius: 6px; cursor: pointer;
+            font-family: inherit; display: none; transition: all 0.2s;
         }
-        .card-delete:hover { background: var(--accent); color: white; border-color: var(--accent); }
-        .card-delete.visible { display: block; }
+        .listing-delete.show { display: block; }
+        .listing-delete:hover { background: var(--coral); color: white; border-color: var(--coral); }
 
-        /* CTA Banner */
-        .cta-banner {
-            background: linear-gradient(135deg, #BD1E59 0%, #92174D 100%);
-            color: white; padding: 48px; border-radius: var(--radius-lg);
-            display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 48px;
+        /* ─── POST LISTING BUTTON ─── */
+        .post-btn {
+            position: fixed; bottom: 24px; right: 24px;
+            background: var(--gradient); color: white; border: none;
+            padding: 14px 24px; border-radius: 28px; font-size: 15px;
+            font-weight: 700; cursor: pointer; font-family: inherit;
+            box-shadow: var(--shadow-lg); transition: transform 0.2s;
+            z-index: 50; display: none;
         }
-        .cta-content h2 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
-        .cta-content p { font-size: 18px; opacity: 0.9; }
-        .cta-btn {
-            background: white; color: var(--text-primary); border: none;
-            padding: 14px 24px; border-radius: 8px; font-size: 16px;
-            font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-            font-family: inherit; white-space: nowrap;
-        }
-        .cta-btn:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .post-btn:hover { transform: scale(1.05); }
+        .post-btn.show { display: flex; align-items: center; gap: 8px; }
+        .post-btn svg { width: 18px; height: 18px; }
 
-        /* Footer */
-        .footer-note {
-            text-align: center; padding: 24px; color: var(--text-secondary);
-            font-size: 14px; border-top: 1px solid var(--border-light);
-        }
-
-        /* Modal */
+        /* ─── MODAL ─── */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 500; display: none;
-            align-items: center; justify-content: center;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            z-index: 500; display: none; align-items: center; justify-content: center;
             backdrop-filter: blur(4px);
         }
         .modal-overlay.show { display: flex; }
         .modal {
-            background: white; border-radius: var(--radius-lg);
-            padding: 32px; width: 100%; max-width: 480px;
-            box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+            background: white; border-radius: 16px; padding: 32px;
+            width: 100%; max-width: 440px; box-shadow: 0 16px 48px rgba(0,0,0,0.2);
             animation: modalIn 0.25s ease-out;
             max-height: 90vh; overflow-y: auto;
         }
         @keyframes modalIn {
-            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            from { opacity: 0; transform: translateY(16px) scale(0.97); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .modal-close {
-            background: none; border: none; font-size: 20px;
-            cursor: pointer; padding: 4px 8px; border-radius: 50%;
-            transition: background 0.2s; color: var(--text-primary);
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px;
         }
-        .modal-close:hover { background: var(--card-hover); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .modal-title { font-size: 22px; font-weight: 800; }
-        .modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; text-align: center; }
-        .form-group { margin-bottom: 16px; }
+        .modal-title { font-size: 20px; font-weight: 800; }
+        .modal-close {
+            background: none; border: none; font-size: 22px; cursor: pointer;
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s; color: var(--text);
+        }
+        .modal-close:hover { background: var(--bg); }
+        .form-group { margin-bottom: 14px; }
         .form-group label {
             display: block; font-size: 13px; font-weight: 700;
-            margin-bottom: 6px; color: var(--text-primary);
+            margin-bottom: 5px; color: var(--text);
         }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 12px 14px; border: 1px solid var(--border);
-            border-radius: 8px; font-size: 15px; font-family: inherit;
-            transition: border-color 0.2s; outline: none; background: white;
+        .form-group input, .form-group select {
+            width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+            border-radius: 8px; font-size: 14px; font-family: inherit;
+            transition: border-color 0.2s; outline: none;
         }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            border-color: var(--text-primary);
-        }
-        .form-group textarea { resize: vertical; min-height: 60px; }
-        .form-row { display: flex; gap: 12px; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--coral); }
+        .form-row { display: flex; gap: 10px; }
         .form-row .form-group { flex: 1; }
-        .btn-primary {
-            width: 100%; padding: 14px; background: var(--accent);
+        .btn-submit {
+            width: 100%; padding: 13px; background: var(--gradient);
             color: white; border: none; border-radius: 8px;
-            font-size: 16px; font-weight: 700; cursor: pointer;
-            font-family: inherit; transition: background 0.2s;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            font-family: inherit; transition: opacity 0.2s; margin-top: 4px;
         }
-        .btn-primary:hover { background: var(--accent-hover); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-secondary {
-            width: 100%; padding: 14px; background: white;
-            color: var(--text-primary); border: 1px solid var(--border);
-            border-radius: 8px; font-size: 16px; font-weight: 700;
-            cursor: pointer; font-family: inherit; transition: all 0.2s;
-            margin-top: 8px;
+        .btn-submit:hover { opacity: 0.9; }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .form-msg {
+            font-size: 13px; margin-top: 8px; font-weight: 600;
+            display: none; text-align: center;
         }
-        .btn-secondary:hover { background: var(--card-hover); }
-        .form-error {
-            color: var(--accent); font-size: 13px; margin-top: 8px;
-            display: none; font-weight: 600;
-        }
-        .form-error.show { display: block; }
-        .form-success {
-            color: #008A05; font-size: 13px; margin-top: 8px;
-            display: none; font-weight: 600;
-        }
-        .form-success.show { display: block; }
+        .form-msg.error { display: block; color: var(--coral); }
+        .form-msg.success { display: block; color: #008A05; }
         .auth-switch {
             text-align: center; margin-top: 16px; font-size: 14px;
-            color: var(--text-secondary);
+            color: var(--text-light);
         }
         .auth-switch a {
-            color: var(--accent); font-weight: 700;
+            color: var(--coral); font-weight: 700;
             text-decoration: none; cursor: pointer;
         }
         .auth-switch a:hover { text-decoration: underline; }
-
-        /* Empty state */
-        .empty-state {
-            text-align: center; padding: 48px 24px; color: var(--text-secondary);
+        .spinner {
+            display: inline-block; width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+            border-radius: 50%; animation: spin 0.6s linear infinite;
         }
-        .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.3; }
-        .empty-state p { font-size: 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Toast */
+        /* ─── TOAST ─── */
         .toast {
-            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-            background: var(--text-primary); color: white; padding: 14px 24px;
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: var(--text); color: white; padding: 12px 24px;
             border-radius: 8px; font-size: 14px; font-weight: 600;
             z-index: 999; opacity: 0; transition: opacity 0.3s;
             pointer-events: none;
         }
         .toast.show { opacity: 1; }
 
-        /* Loading spinner */
-        .spinner {
-            display: inline-block; width: 20px; height: 20px;
-            border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
-            border-radius: 50%; animation: spin 0.6s linear infinite;
+        /* ─── EMPTY STATE ─── */
+        .empty-state {
+            text-align: center; padding: 48px 24px; color: var(--text-light);
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .empty-state p { font-size: 15px; margin-top: 8px; }
 
-        /* Responsive */
-        @media (max-width: 1200px) { .card { flex: 0 0 calc(33.333% - 16px); } }
-        @media (max-width: 900px) { .card { flex: 0 0 calc(50% - 12px); } }
-        @media (max-width: 600px) { .card { flex: 0 0 85%; } }
-        @media (max-width: 768px) {
-            .header-inner { height: 64px; }
-            .search-bar { display: none; }
-            .help-link { display: none; }
-            .logo-text { font-size: 20px; }
-            .section-title { font-size: 18px; }
-            .cta-banner {
-                flex-direction: column; text-align: center;
-                padding: 32px 24px; gap: 24px;
-            }
-            .cta-content h2 { font-size: 24px; }
-            .cta-content p { font-size: 16px; }
-            .modal { margin: 16px; }
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 900px) {
+            .main { flex-direction: column; }
+            .map-panel { width: 100%; height: 40vh; }
+            .listings-panel { width: 100%; }
+            .nav { display: none; }
+            .header-search { max-width: 280px; }
+            .listing-img { width: 140px; height: 100px; }
+        }
+        @media (max-width: 600px) {
+            .header-search { display: none; }
+            .listing-card { flex-direction: column; }
+            .listing-img { width: 100%; height: 180px; }
         }
     </style>
 </head>
 <body>
+    <!-- HEADER -->
     <header class="header">
         <div class="header-inner">
             <a href="#" class="logo" onclick="location.reload(); return false;">
                 <svg viewBox="0 0 32 32" fill="currentColor">
-                    <path d="M16 2C8.268 2 2 8.268 2 16s6.268 14 14 14 14-6.268 14-14S23.732 2 16 2zm0 4a4 4 0 110 8 4 4 0 010-8zm0 18c-3.312 0-6.234-1.656-8-4.18C8.016 17.168 13.328 16 16 16s7.984 1.168 8 4.82c-1.766 2.524-4.688 4.18-8 4.18z"/>
+                    <path d="M16 2L3 14h4v14h7v-9h4v9h7V14h4L16 2z"/>
                 </svg>
                 <span class="logo-text">UniCondo</span>
             </a>
-
-            <div class="search-bar">
-                <div class="search-section">
-                    <div class="search-label">Where</div>
-                    <div class="search-value">Near campus</div>
-                </div>
-                <div class="search-section">
-                    <div class="search-label">Budget</div>
-                    <div class="search-value">Any price</div>
-                </div>
-                <div class="search-section">
-                    <div class="search-label">Room</div>
-                    <div class="search-value">Any type</div>
-                </div>
-                <button class="search-btn">
+            <nav class="nav">
+                <a href="#">Explore</a>
+                <a href="#">Find Roommates</a>
+                <a href="#">About</a>
+                <a href="#">Help</a>
+            </nav>
+            <div class="header-search">
+                <input type="text" placeholder="Search by university, area, or condo name..." id="searchInput">
+                <button>
                     <svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                 </button>
             </div>
-
-            <div class="header-right">
-                <button class="help-link" id="postListingBtn" style="display:none;" onclick="openModal('listing')">+ Post listing</button>
-                <button class="profile-btn" id="profileBtn" onclick="toggleDropdown()">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                    <div class="profile-avatar" id="profileAvatar">
-                        <svg fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-3.866 0-7 2.239-7 5v1h14v-1c0-2.761-3.134-5-7-5z"/>
-                        </svg>
-                    </div>
-                </button>
-                <div class="profile-dropdown" id="profileDropdown">
-                    <!-- Filled dynamically -->
-                </div>
+            <div class="header-right" id="headerRight">
+                <!-- Filled by JS -->
             </div>
         </div>
     </header>
 
-    <main class="main">
-        <div class="cta-banner">
-            <div class="cta-content">
-                <h2>Can't find what you need?</h2>
-                <p>Tell us your budget and we'll find the perfect room — free.</p>
-            </div>
-            <button class="cta-btn">Message Us</button>
+    <!-- MAIN LAYOUT -->
+    <div class="main">
+        <!-- MAP -->
+        <div class="map-panel">
+            <div id="map"></div>
         </div>
-
-        <!-- Walking Distance Section -->
-        <section class="section" id="section-walking">
-            <div class="section-header">
-                <h2 class="section-title">
-                    Walking distance to campus
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </h2>
+        <!-- LISTINGS -->
+        <div class="listings-panel">
+            <div class="listings-header">
+                <h2>Condos near ABAC</h2>
+                <span id="listingCount">Loading...</span>
             </div>
-            <div class="cards-scroll" id="cards-walking"></div>
-        </section>
-
-        <!-- Short Ride Section -->
-        <section class="section" id="section-ride">
-            <div class="section-header">
-                <h2 class="section-title">
-                    Short motorbike ride
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </h2>
+            <div class="listings-scroll" id="listingsContainer">
+                <!-- Filled by JS -->
             </div>
-            <div class="cards-scroll" id="cards-ride"></div>
-        </section>
+        </div>
+    </div>
 
-        <!-- Budget Section -->
-        <section class="section" id="section-budget">
-            <div class="section-header">
-                <h2 class="section-title">
-                    Under ฿6,000/month
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </h2>
-            </div>
-            <div class="cards-scroll" id="cards-budget"></div>
-        </section>
-    </main>
+    <!-- POST LISTING FAB -->
+    <button class="post-btn" id="postBtn" onclick="openModal('listing')">
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" d="M12 5v14m-7-7h14"/>
+        </svg>
+        Post Listing
+    </button>
 
-    <footer class="footer-note">
-        UniCondo — Helping university students find homes since 2026
-    </footer>
-
-    <!-- Auth Modal -->
+    <!-- AUTH MODAL -->
     <div class="modal-overlay" id="authModal">
         <div class="modal">
             <div class="modal-header">
-                <span class="modal-title" id="authModalTitle">Log in</span>
-                <button class="modal-close" onclick="closeModals()">&times;</button>
+                <span class="modal-title" id="authTitle">Log in</span>
+                <button class="modal-close" onclick="closeModals()">×</button>
             </div>
-            <h3 id="authModalSubtitle">Welcome to UniCondo</h3>
             <form id="authForm" onsubmit="handleAuth(event)">
                 <div class="form-group" id="nameGroup" style="display:none;">
-                    <label for="authName">Name</label>
+                    <label>Name</label>
                     <input type="text" id="authName" placeholder="Your name">
                 </div>
                 <div class="form-group">
-                    <label for="authEmail">Email</label>
+                    <label>Email</label>
                     <input type="email" id="authEmail" placeholder="you@example.com" required>
                 </div>
                 <div class="form-group">
-                    <label for="authPassword">Password</label>
+                    <label>Password</label>
                     <input type="password" id="authPassword" placeholder="••••••••" required minlength="6">
                 </div>
-                <div class="form-error" id="authError"></div>
-                <div class="form-success" id="authSuccess"></div>
-                <button type="submit" class="btn-primary" id="authSubmitBtn">Log in</button>
+                <div class="form-msg" id="authMsg"></div>
+                <button type="submit" class="btn-submit" id="authBtn">Log in</button>
             </form>
             <div class="auth-switch" id="authSwitch">
                 Don't have an account? <a onclick="toggleAuthMode()">Sign up</a>
@@ -476,39 +398,39 @@
         </div>
     </div>
 
-    <!-- Listing Modal -->
+    <!-- LISTING MODAL -->
     <div class="modal-overlay" id="listingModal">
         <div class="modal">
             <div class="modal-header">
                 <span class="modal-title">Post a listing</span>
-                <button class="modal-close" onclick="closeModals()">&times;</button>
+                <button class="modal-close" onclick="closeModals()">×</button>
             </div>
             <form id="listingForm" onsubmit="handleCreateListing(event)">
                 <div class="form-group">
-                    <label for="listTitle">Title</label>
+                    <label>Title</label>
                     <input type="text" id="listTitle" placeholder="e.g. Lumpini Ville Bang Na" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="listPrice">Price (฿/month)</label>
+                        <label>Price (฿/month)</label>
                         <input type="number" id="listPrice" placeholder="6500" required min="0">
                     </div>
                     <div class="form-group">
-                        <label for="listRating">Rating</label>
+                        <label>Rating</label>
                         <input type="number" id="listRating" placeholder="4.9" step="0.01" min="0" max="5" value="5.0">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="listDistance">Distance</label>
+                    <label>Distance</label>
                     <input type="text" id="listDistance" placeholder="e.g. 5 min walk to campus" required>
                 </div>
                 <div class="form-group">
-                    <label for="listDetails">Details</label>
+                    <label>Details</label>
                     <input type="text" id="listDetails" placeholder="e.g. 1 bed · 26 sqm · Furnished" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="listCategory">Category</label>
+                        <label>Category</label>
                         <select id="listCategory" required>
                             <option value="walking">Walking distance</option>
                             <option value="ride">Short ride</option>
@@ -516,209 +438,244 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="listBadge">Badge (optional)</label>
+                        <label>Badge (optional)</label>
                         <input type="text" id="listBadge" placeholder="e.g. Student pick">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="listImage">Image URL</label>
-                    <input type="url" id="listImage" placeholder="https://images.unsplash.com/..." required>
+                    <label>Image URL (optional)</label>
+                    <input type="url" id="listImage" placeholder="https://images.unsplash.com/...">
                 </div>
-                <div class="form-error" id="listingError"></div>
-                <button type="submit" class="btn-primary" id="listingSubmitBtn">Post listing</button>
+                <div class="form-msg" id="listingMsg"></div>
+                <button type="submit" class="btn-submit" id="listingBtn">Post listing</button>
             </form>
         </div>
     </div>
 
-    <!-- Toast -->
+    <!-- TOAST -->
     <div class="toast" id="toast"></div>
 
     <script>
-        // ── Supabase Init ──
-        const SUPABASE_URL = 'https://pekqhcxbhtgfsqtiunic.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBla3FoY3hiaHRnZnNxdGl1bmljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkxMjMsImV4cCI6MjA5MDQzNTEyM30.YlEBAX2Oh5CKsSeVCS-UZq93np58xUUP0RlddISLgFY';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // ══════════════════════════════════════
+    // SUPABASE INIT
+    // ══════════════════════════════════════
+    const SUPA_URL = 'https://pekqhcxbhtgfsqtiunic.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBla3FoY3hiaHRnZnNxdGl1bmljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkxMjMsImV4cCI6MjA5MDQzNTEyM30.YlEBAX2Oh5CKsSeVCS-UZq93np58xUUP0RlddISLgFY';
 
-        let currentUser = null;
-        let isSignUp = false;
+    let sb, currentUser = null, isSignUp = false, map, markers = [];
 
-        // ── Auth State ──
-        supabase.auth.onAuthStateChange((event, session) => {
-            currentUser = session?.user || null;
-            updateUI();
-            loadListings();
+    try {
+        sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+        console.log('✅ Supabase connected');
+    } catch (e) {
+        console.error('❌ Supabase init failed:', e);
+    }
+
+    // ══════════════════════════════════════
+    // MAP INIT
+    // ══════════════════════════════════════
+    function initMap() {
+        map = L.map('map').setView([13.6116, 100.8370], 14);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap',
+            maxZoom: 19
+        }).addTo(map);
+        console.log('✅ Map initialized');
+    }
+
+    function updateMapMarkers(listings) {
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+        listings.forEach(l => {
+            if (!l.lat || !l.lng) return;
+            const icon = L.divIcon({
+                className: '',
+                html: `<div class="price-marker" data-id="${l.id}">฿${Number(l.price).toLocaleString()}</div>`,
+                iconSize: [80, 30],
+                iconAnchor: [40, 15]
+            });
+            const marker = L.marker([l.lat, l.lng], { icon }).addTo(map);
+            marker.bindPopup(`
+                <strong>${l.title}</strong><br>
+                ${l.distance}<br>
+                <strong>฿${Number(l.price).toLocaleString()}</strong>/month
+            `);
+            marker.on('click', () => {
+                const card = document.querySelector(`.listing-card[data-id="${l.id}"]`);
+                if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+            markers.push(marker);
         });
+    }
 
-        // ── Init ──
-        async function init() {
-            const { data: { session } } = await supabase.auth.getSession();
+    // ══════════════════════════════════════
+    // AUTH
+    // ══════════════════════════════════════
+    async function initAuth() {
+        try {
+            const { data: { session } } = await sb.auth.getSession();
             currentUser = session?.user || null;
-            updateUI();
-            loadListings();
+            updateHeaderUI();
+
+            sb.auth.onAuthStateChange((_, session) => {
+                currentUser = session?.user || null;
+                updateHeaderUI();
+                loadListings();
+            });
+            console.log('✅ Auth ready', currentUser ? currentUser.email : '(not logged in)');
+        } catch (e) {
+            console.error('❌ Auth init failed:', e);
         }
+    }
 
-        // ── Update UI based on auth ──
-        function updateUI() {
-            const postBtn = document.getElementById('postListingBtn');
-            const avatar = document.getElementById('profileAvatar');
-            const dropdown = document.getElementById('profileDropdown');
+    function updateHeaderUI() {
+        const el = document.getElementById('headerRight');
+        const postBtn = document.getElementById('postBtn');
 
-            if (currentUser) {
-                postBtn.style.display = 'block';
-                avatar.classList.add('logged-in');
-                dropdown.innerHTML = `
-                    <div class="dropdown-item" style="font-size:13px; color:var(--text-secondary); cursor:default;">
-                        ${currentUser.email}
+        if (currentUser) {
+            el.innerHTML = `
+                <div class="header-user">
+                    <div class="header-user-avatar">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.87 0-7 2.24-7 5v1h14v-1c0-2.76-3.13-5-7-5z"/>
+                        </svg>
                     </div>
-                    <div class="dropdown-divider"></div>
-                    <button class="dropdown-item" onclick="openModal('listing'); closeDropdown();">Post a listing</button>
-                    <div class="dropdown-divider"></div>
-                    <button class="dropdown-item" onclick="handleLogout()">Log out</button>
-                `;
+                    <span>${currentUser.email.split('@')[0]}</span>
+                </div>
+                <button class="header-logout" onclick="handleLogout()">Log out</button>
+            `;
+            postBtn.classList.add('show');
+        } else {
+            el.innerHTML = `
+                <button class="header-auth-btn" onclick="openModal('auth')">Log in / Sign up</button>
+            `;
+            postBtn.classList.remove('show');
+        }
+    }
+
+    function toggleAuthMode() {
+        isSignUp = !isSignUp;
+        document.getElementById('authTitle').textContent = isSignUp ? 'Sign up' : 'Log in';
+        document.getElementById('authBtn').textContent = isSignUp ? 'Create account' : 'Log in';
+        document.getElementById('nameGroup').style.display = isSignUp ? 'block' : 'none';
+        document.getElementById('authSwitch').innerHTML = isSignUp
+            ? 'Already have an account? <a onclick="toggleAuthMode()">Log in</a>'
+            : "Don't have an account? <a onclick=\"toggleAuthMode()\">Sign up</a>";
+        clearMsg('authMsg');
+    }
+
+    async function handleAuth(e) {
+        e.preventDefault();
+        const btn = document.getElementById('authBtn');
+        const email = document.getElementById('authEmail').value;
+        const password = document.getElementById('authPassword').value;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>';
+        clearMsg('authMsg');
+
+        try {
+            if (isSignUp) {
+                const name = document.getElementById('authName').value;
+                const { error } = await sb.auth.signUp({
+                    email, password,
+                    options: { data: { name } }
+                });
+                if (error) throw error;
+                showMsg('authMsg', 'Account created! You can now log in.', 'success');
+                setTimeout(() => { isSignUp = true; toggleAuthMode(); }, 1500);
             } else {
-                postBtn.style.display = 'none';
-                avatar.classList.remove('logged-in');
-                dropdown.innerHTML = `
-                    <button class="dropdown-item bold" onclick="openModal('auth'); closeDropdown();">Log in</button>
-                    <button class="dropdown-item" onclick="isSignUp=true; openModal('auth'); closeDropdown();">Sign up</button>
-                `;
+                const { error } = await sb.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                closeModals();
+                showToast('Welcome back!');
             }
+        } catch (err) {
+            showMsg('authMsg', err.message, 'error');
         }
 
-        // ── Load Listings ──
-        async function loadListings() {
-            const { data, error } = await supabase
+        btn.disabled = false;
+        btn.textContent = isSignUp ? 'Create account' : 'Log in';
+    }
+
+    async function handleLogout() {
+        await sb.auth.signOut();
+        showToast('Logged out');
+    }
+
+    // ══════════════════════════════════════
+    // LISTINGS
+    // ══════════════════════════════════════
+    async function loadListings() {
+        try {
+            const { data, error } = await sb
                 .from('listings')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (error) { console.error(error); return; }
+            if (error) throw error;
 
-            const categories = { walking: [], ride: [], budget: [] };
-            data.forEach(l => {
-                if (categories[l.category]) categories[l.category].push(l);
-            });
+            document.getElementById('listingCount').textContent = `${data.length} listings`;
+            renderListings(data);
+            updateMapMarkers(data);
+            console.log(`✅ Loaded ${data.length} listings`);
+        } catch (e) {
+            console.error('❌ Load listings failed:', e);
+            document.getElementById('listingsContainer').innerHTML =
+                '<div class="empty-state"><p>Failed to load listings. Check console.</p></div>';
+        }
+    }
 
-            renderCards('cards-walking', categories.walking);
-            renderCards('cards-ride', categories.ride);
-            renderCards('cards-budget', categories.budget);
+    function renderListings(listings) {
+        const container = document.getElementById('listingsContainer');
+        if (!listings.length) {
+            container.innerHTML = '<div class="empty-state"><p>No listings yet. Be the first to post!</p></div>';
+            return;
         }
 
-        // ── Render Cards ──
-        function renderCards(containerId, listings) {
-            const container = document.getElementById(containerId);
-            if (!listings.length) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
-                        </svg>
-                        <p>No listings yet in this category</p>
-                    </div>`;
-                return;
-            }
-
-            container.innerHTML = listings.map(l => `
-                <article class="card" data-id="${l.id}">
-                    <div class="card-image-wrapper">
-                        <img src="${l.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=600&fit=crop'}" alt="${l.title}" class="card-image" loading="lazy">
-                        ${l.badge ? `<span class="card-badge">${l.badge}</span>` : ''}
-                        <button class="card-favorite" onclick="event.stopPropagation(); this.classList.toggle('active')">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
+        container.innerHTML = listings.map(l => `
+            <div class="listing-card" data-id="${l.id}"
+                onmouseenter="highlightMarker('${l.id}', true)"
+                onmouseleave="highlightMarker('${l.id}', false)">
+                <img class="listing-img"
+                    src="${l.image_url || ''}"
+                    alt="${l.title}"
+                    onerror="this.style.background='linear-gradient(135deg,#f0f0f0,#e0e0e0)'; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 140%22><rect fill=%22%23e8e8e8%22 width=%22200%22 height=%22140%22/><text x=%22100%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23bbb%22 font-size=%2214%22>No photo</text></svg>'">
+                <div class="listing-info">
+                    ${l.badge ? `<span class="listing-badge">${l.badge}</span>` : ''}
+                    <div class="listing-top">
+                        <span class="listing-title">${l.title}</span>
+                        <span class="listing-rating">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            ${Number(l.rating).toFixed(1)}
+                        </span>
                     </div>
-                    <div class="card-body">
-                        <div class="card-header">
-                            <span class="card-title">${l.title}</span>
-                            <span class="card-rating">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                ${Number(l.rating).toFixed(l.rating % 1 === 0 ? 1 : 2)}
-                            </span>
-                        </div>
-                        <span class="card-distance">${l.distance}</span>
-                        <span class="card-details">${l.details}</span>
-                        <div class="card-price"><strong>฿${Number(l.price).toLocaleString()}</strong> /month</div>
-                    </div>
-                    <button class="card-delete ${currentUser && currentUser.id === l.user_id ? 'visible' : ''}" onclick="event.stopPropagation(); deleteListing('${l.id}')">Delete</button>
-                </article>
-            `).join('');
-        }
+                    <span class="listing-distance">${l.distance}</span>
+                    <span class="listing-details">${l.details}</span>
+                    <div class="listing-price">฿${Number(l.price).toLocaleString()} <span>/month</span></div>
+                </div>
+                <button class="listing-delete ${currentUser && currentUser.id === l.user_id ? 'show' : ''}"
+                    onclick="event.stopPropagation(); deleteListing('${l.id}')">Delete</button>
+            </div>
+        `).join('');
+    }
 
-        // ── Auth ──
-        function toggleAuthMode() {
-            isSignUp = !isSignUp;
-            document.getElementById('authModalTitle').textContent = isSignUp ? 'Sign up' : 'Log in';
-            document.getElementById('authModalSubtitle').textContent = isSignUp ? 'Create your account' : 'Welcome to UniCondo';
-            document.getElementById('authSubmitBtn').textContent = isSignUp ? 'Sign up' : 'Log in';
-            document.getElementById('nameGroup').style.display = isSignUp ? 'block' : 'none';
-            document.getElementById('authSwitch').innerHTML = isSignUp
-                ? 'Already have an account? <a onclick="toggleAuthMode()">Log in</a>'
-                : 'Don\'t have an account? <a onclick="toggleAuthMode()">Sign up</a>';
-            document.getElementById('authError').classList.remove('show');
-            document.getElementById('authSuccess').classList.remove('show');
-        }
+    function highlightMarker(id, active) {
+        const el = document.querySelector(`.price-marker[data-id="${id}"]`);
+        if (el) el.classList.toggle('active', active);
+    }
 
-        async function handleAuth(e) {
-            e.preventDefault();
-            const btn = document.getElementById('authSubmitBtn');
-            const errEl = document.getElementById('authError');
-            const successEl = document.getElementById('authSuccess');
-            const email = document.getElementById('authEmail').value;
-            const password = document.getElementById('authPassword').value;
+    // ══════════════════════════════════════
+    // CREATE / DELETE
+    // ══════════════════════════════════════
+    async function handleCreateListing(e) {
+        e.preventDefault();
+        const btn = document.getElementById('listingBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>';
+        clearMsg('listingMsg');
 
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span>';
-            errEl.classList.remove('show');
-            successEl.classList.remove('show');
-
-            if (isSignUp) {
-                const name = document.getElementById('authName').value;
-                const { error } = await supabase.auth.signUp({
-                    email, password,
-                    options: { data: { name } }
-                });
-                if (error) {
-                    errEl.textContent = error.message;
-                    errEl.classList.add('show');
-                } else {
-                    successEl.textContent = 'Account created! Check your email to confirm, or try logging in.';
-                    successEl.classList.add('show');
-                    setTimeout(() => {
-                        isSignUp = false;
-                        toggleAuthMode();
-                    }, 2000);
-                }
-            } else {
-                const { error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) {
-                    errEl.textContent = error.message;
-                    errEl.classList.add('show');
-                } else {
-                    closeModals();
-                    showToast('Welcome back!');
-                }
-            }
-
-            btn.disabled = false;
-            btn.textContent = isSignUp ? 'Sign up' : 'Log in';
-        }
-
-        async function handleLogout() {
-            closeDropdown();
-            await supabase.auth.signOut();
-            showToast('Logged out');
-        }
-
-        // ── Create Listing ──
-        async function handleCreateListing(e) {
-            e.preventDefault();
-            const btn = document.getElementById('listingSubmitBtn');
-            const errEl = document.getElementById('listingError');
-
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span>';
-            errEl.classList.remove('show');
-
+        try {
             const listing = {
                 user_id: currentUser.id,
                 title: document.getElementById('listTitle').value,
@@ -728,84 +685,92 @@
                 details: document.getElementById('listDetails').value,
                 category: document.getElementById('listCategory').value,
                 badge: document.getElementById('listBadge').value || null,
-                image_url: document.getElementById('listImage').value,
+                image_url: document.getElementById('listImage').value || null,
+                lat: 13.6116 + (Math.random() - 0.5) * 0.02,
+                lng: 100.8370 + (Math.random() - 0.5) * 0.02,
             };
 
-            const { error } = await supabase.from('listings').insert([listing]);
-            if (error) {
-                errEl.textContent = error.message;
-                errEl.classList.add('show');
-            } else {
-                closeModals();
-                document.getElementById('listingForm').reset();
-                showToast('Listing posted!');
-                loadListings();
-            }
+            const { error } = await sb.from('listings').insert([listing]);
+            if (error) throw error;
 
-            btn.disabled = false;
-            btn.textContent = 'Post listing';
-        }
-
-        // ── Delete Listing ──
-        async function deleteListing(id) {
-            if (!confirm('Delete this listing?')) return;
-            const { error } = await supabase.from('listings').delete().eq('id', id);
-            if (error) {
-                showToast('Error: ' + error.message);
-            } else {
-                showToast('Listing deleted');
-                loadListings();
-            }
-        }
-
-        // ── Modals ──
-        function openModal(type) {
             closeModals();
-            if (type === 'auth') {
-                document.getElementById('authModal').classList.add('show');
-                if (isSignUp) toggleAuthMode(); else toggleAuthMode(); toggleAuthMode();
-            } else if (type === 'listing') {
-                if (!currentUser) { openModal('auth'); return; }
-                document.getElementById('listingModal').classList.add('show');
-            }
+            document.getElementById('listingForm').reset();
+            showToast('Listing posted!');
+            loadListings();
+        } catch (err) {
+            showMsg('listingMsg', err.message, 'error');
         }
 
-        function closeModals() {
-            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
-            document.getElementById('authError').classList.remove('show');
-            document.getElementById('authSuccess').classList.remove('show');
-        }
+        btn.disabled = false;
+        btn.textContent = 'Post listing';
+    }
 
-        // Close modal on overlay click
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) closeModals();
-            });
-        });
-
-        // ── Dropdown ──
-        function toggleDropdown() {
-            document.getElementById('profileDropdown').classList.toggle('show');
+    async function deleteListing(id) {
+        if (!confirm('Delete this listing?')) return;
+        try {
+            const { error } = await sb.from('listings').delete().eq('id', id);
+            if (error) throw error;
+            showToast('Listing deleted');
+            loadListings();
+        } catch (err) {
+            showToast('Error: ' + err.message);
         }
-        function closeDropdown() {
-            document.getElementById('profileDropdown').classList.remove('show');
-        }
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.profile-btn') && !e.target.closest('.profile-dropdown')) {
-                closeDropdown();
-            }
-        });
+    }
 
-        // ── Toast ──
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2500);
+    // ══════════════════════════════════════
+    // MODALS & UTILS
+    // ══════════════════════════════════════
+    function openModal(type) {
+        closeModals();
+        if (type === 'auth') {
+            isSignUp = false;
+            toggleAuthMode(); toggleAuthMode();
+            document.getElementById('authModal').classList.add('show');
+        } else if (type === 'listing') {
+            if (!currentUser) { openModal('auth'); return; }
+            document.getElementById('listingModal').classList.add('show');
         }
+    }
 
-        // ── Init ──
-        init();
+    function closeModals() {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeModals(); });
+    });
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function showMsg(id, text, type) {
+        const el = document.getElementById(id);
+        el.textContent = text;
+        el.className = 'form-msg ' + type;
+    }
+
+    function clearMsg(id) {
+        const el = document.getElementById(id);
+        el.textContent = '';
+        el.className = 'form-msg';
+    }
+
+    // ══════════════════════════════════════
+    // BOOT
+    // ══════════════════════════════════════
+    async function boot() {
+        console.log('🚀 UniCondo booting...');
+        initMap();
+        await initAuth();
+        await loadListings();
+        console.log('✅ UniCondo ready!');
+    }
+
+    boot();
     </script>
 </body>
 </html>
