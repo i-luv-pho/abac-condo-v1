@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABACcribs | Student Housing Near ABAC</title>
+    <title>UniCondo | Student Housing Near Your University</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg: #FFFFFF;
             --text-primary: #222222;
@@ -27,7 +23,6 @@
             --radius: 12px;
             --radius-lg: 16px;
         }
-
         body {
             font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg);
@@ -45,7 +40,6 @@
             background: white;
             z-index: 100;
         }
-
         .header-inner {
             max-width: 1760px;
             margin: 0 auto;
@@ -54,7 +48,6 @@
             align-items: center;
             height: 80px;
         }
-
         .logo {
             display: flex;
             align-items: center;
@@ -62,17 +55,8 @@
             text-decoration: none;
             color: var(--accent);
         }
-
-        .logo svg {
-            width: 32px;
-            height: 32px;
-        }
-
-        .logo-text {
-            font-weight: 800;
-            font-size: 22px;
-            letter-spacing: -0.5px;
-        }
+        .logo svg { width: 32px; height: 32px; }
+        .logo-text { font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
 
         /* Search Bar */
         .search-bar {
@@ -85,427 +69,300 @@
             transition: box-shadow 0.2s;
             cursor: pointer;
         }
-
-        .search-bar:hover {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 6px 16px rgba(0,0,0,0.08);
-        }
-
-        .search-section {
-            padding: 0 16px;
-            border-right: 1px solid var(--border-light);
-        }
-
-        .search-section:last-of-type {
-            border-right: none;
-        }
-
-        .search-label {
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .search-value {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
+        .search-bar:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 6px 16px rgba(0,0,0,0.08); }
+        .search-section { padding: 0 16px; border-right: 1px solid var(--border-light); }
+        .search-section:last-of-type { border-right: none; }
+        .search-label { font-size: 12px; font-weight: 700; }
+        .search-value { font-size: 14px; color: var(--text-secondary); }
         .search-btn {
-            background: var(--accent);
-            border: none;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 0.2s;
+            background: var(--accent); border: none; width: 48px; height: 48px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: background 0.2s;
         }
-
-        .search-btn:hover {
-            background: var(--accent-hover);
-        }
-
-        .search-btn svg {
-            width: 16px;
-            height: 16px;
-            color: white;
-        }
+        .search-btn:hover { background: var(--accent-hover); }
+        .search-btn svg { width: 16px; height: 16px; color: white; }
 
         /* Header Right */
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
+        .header-right { display: flex; align-items: center; gap: 16px; }
         .help-link {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-            text-decoration: none;
-            padding: 12px;
-            border-radius: 22px;
-            transition: background 0.2s;
+            font-size: 14px; font-weight: 600; color: var(--text-primary);
+            text-decoration: none; padding: 12px; border-radius: 22px;
+            transition: background 0.2s; cursor: pointer; background: none; border: none;
+            font-family: inherit;
         }
-
-        .help-link:hover {
-            background: var(--card-hover);
-        }
-
+        .help-link:hover { background: var(--card-hover); }
         .profile-btn {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid var(--border);
-            border-radius: 22px;
-            padding: 5px 5px 5px 12px;
-            background: white;
-            cursor: pointer;
+            display: flex; align-items: center; gap: 12px;
+            border: 1px solid var(--border); border-radius: 22px;
+            padding: 5px 5px 5px 12px; background: white; cursor: pointer;
             transition: box-shadow 0.2s;
         }
-
-        .profile-btn:hover {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .profile-btn svg {
-            width: 16px;
-            height: 16px;
-            color: var(--text-primary);
-        }
-
+        .profile-btn:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .profile-btn svg { width: 16px; height: 16px; color: var(--text-primary); }
         .profile-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--text-secondary); display: flex;
+            align-items: center; justify-content: center;
         }
+        .profile-avatar svg { width: 20px; height: 20px; color: white; }
+        .profile-avatar.logged-in { background: var(--accent); }
 
-        .profile-avatar svg {
-            width: 20px;
-            height: 20px;
-            color: white;
+        /* Profile Dropdown */
+        .profile-dropdown {
+            position: absolute; top: 70px; right: 24px;
+            background: white; border-radius: var(--radius);
+            box-shadow: var(--shadow); border: 1px solid var(--border-light);
+            min-width: 200px; z-index: 200; display: none;
+            overflow: hidden;
         }
+        .profile-dropdown.show { display: block; }
+        .dropdown-item {
+            padding: 12px 16px; cursor: pointer; font-size: 14px;
+            font-weight: 500; transition: background 0.15s; display: block;
+            width: 100%; text-align: left; border: none; background: none;
+            font-family: inherit; color: var(--text-primary);
+        }
+        .dropdown-item:hover { background: var(--card-hover); }
+        .dropdown-item.bold { font-weight: 700; }
+        .dropdown-divider { height: 1px; background: var(--border-light); }
 
         /* Main Content */
-        .main {
-            max-width: 1760px;
-            margin: 0 auto;
-            padding: 24px;
-        }
+        .main { max-width: 1760px; margin: 0 auto; padding: 24px; }
 
         /* Section */
-        .section {
-            margin-bottom: 48px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .section-title {
-            font-size: 22px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .section-title svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .section-nav {
-            display: flex;
-            gap: 8px;
-        }
-
+        .section { margin-bottom: 48px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .section-title { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .section-title svg { width: 20px; height: 20px; }
+        .section-nav { display: flex; gap: 8px; }
         .nav-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            background: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 1px solid var(--border); background: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
             transition: all 0.2s;
         }
-
-        .nav-btn:hover {
-            border-color: var(--text-primary);
-        }
-
-        .nav-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        .nav-btn svg {
-            width: 12px;
-            height: 12px;
-        }
+        .nav-btn:hover { border-color: var(--text-primary); }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .nav-btn svg { width: 12px; height: 12px; }
 
         /* Cards Grid */
         .cards-scroll {
-            display: flex;
-            gap: 24px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
+            display: flex; gap: 24px; overflow-x: auto;
+            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
             padding-bottom: 8px;
         }
-
-        .cards-scroll::-webkit-scrollbar {
-            display: none;
-        }
-
+        .cards-scroll::-webkit-scrollbar { display: none; }
         .card {
-            flex: 0 0 calc(25% - 18px);
-            min-width: 280px;
-            scroll-snap-align: start;
-            cursor: pointer;
-        }
-
-        @media (max-width: 1200px) {
-            .card {
-                flex: 0 0 calc(33.333% - 16px);
-            }
-        }
-
-        @media (max-width: 900px) {
-            .card {
-                flex: 0 0 calc(50% - 12px);
-            }
-        }
-
-        @media (max-width: 600px) {
-            .card {
-                flex: 0 0 85%;
-            }
-        }
-
-        .card-image-wrapper {
+            flex: 0 0 calc(25% - 18px); min-width: 280px;
+            scroll-snap-align: start; cursor: pointer;
             position: relative;
-            aspect-ratio: 1/1;
-            border-radius: var(--radius);
-            overflow: hidden;
-            margin-bottom: 12px;
         }
-
+        .card-image-wrapper {
+            position: relative; aspect-ratio: 1/1;
+            border-radius: var(--radius); overflow: hidden; margin-bottom: 12px;
+        }
         .card-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s;
+            width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;
         }
-
-        .card:hover .card-image {
-            transform: scale(1.03);
-        }
-
+        .card:hover .card-image { transform: scale(1.03); }
         .card-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: white;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 700;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: absolute; top: 12px; left: 12px; background: white;
+            padding: 6px 10px; border-radius: 6px; font-size: 12px;
+            font-weight: 700; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
         .card-favorite {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
+            position: absolute; top: 12px; right: 12px;
+            background: none; border: none; cursor: pointer; padding: 4px;
         }
-
         .card-favorite svg {
-            width: 24px;
-            height: 24px;
-            fill: rgba(0,0,0,0.5);
-            stroke: white;
-            stroke-width: 2;
-            transition: transform 0.2s;
+            width: 24px; height: 24px; fill: rgba(0,0,0,0.5);
+            stroke: white; stroke-width: 2; transition: transform 0.2s;
         }
+        .card-favorite:hover svg { transform: scale(1.1); }
+        .card-favorite.active svg { fill: var(--accent); stroke: var(--accent); }
+        .card-body { display: flex; flex-direction: column; gap: 2px; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+        .card-rating { display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 500; }
+        .card-rating svg { width: 12px; height: 12px; }
+        .card-distance { font-size: 15px; color: var(--text-secondary); }
+        .card-details { font-size: 15px; color: var(--text-secondary); }
+        .card-price { font-size: 15px; margin-top: 6px; }
+        .card-price strong { font-weight: 700; }
 
-        .card-favorite:hover svg {
-            transform: scale(1.1);
+        /* Delete button on cards */
+        .card-delete {
+            position: absolute; bottom: 8px; right: 0;
+            background: white; border: 1px solid var(--border);
+            border-radius: 8px; padding: 6px 12px; font-size: 12px;
+            font-weight: 600; cursor: pointer; color: var(--accent);
+            transition: all 0.2s; font-family: inherit; display: none;
         }
-
-        .card-favorite.active svg {
-            fill: var(--accent);
-            stroke: var(--accent);
-        }
-
-        .card-body {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .card-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .card-rating {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 15px;
-            font-weight: 500;
-        }
-
-        .card-rating svg {
-            width: 12px;
-            height: 12px;
-        }
-
-        .card-distance {
-            font-size: 15px;
-            color: var(--text-secondary);
-        }
-
-        .card-details {
-            font-size: 15px;
-            color: var(--text-secondary);
-        }
-
-        .card-price {
-            font-size: 15px;
-            margin-top: 6px;
-        }
-
-        .card-price strong {
-            font-weight: 700;
-        }
+        .card-delete:hover { background: var(--accent); color: white; border-color: var(--accent); }
+        .card-delete.visible { display: block; }
 
         /* CTA Banner */
         .cta-banner {
             background: linear-gradient(135deg, #BD1E59 0%, #92174D 100%);
-            color: white;
-            padding: 48px;
-            border-radius: var(--radius-lg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 48px;
+            color: white; padding: 48px; border-radius: var(--radius-lg);
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 48px;
         }
-
-        .cta-content h2 {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
-
-        .cta-content p {
-            font-size: 18px;
-            opacity: 0.9;
-        }
-
+        .cta-content h2 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+        .cta-content p { font-size: 18px; opacity: 0.9; }
         .cta-btn {
-            background: white;
-            color: var(--text-primary);
-            border: none;
-            padding: 14px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            font-family: inherit;
+            background: white; color: var(--text-primary); border: none;
+            padding: 14px 24px; border-radius: 8px; font-size: 16px;
+            font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+            font-family: inherit; white-space: nowrap;
         }
+        .cta-btn:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 
-        .cta-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        /* Footer note */
+        /* Footer */
         .footer-note {
-            text-align: center;
-            padding: 24px;
-            color: var(--text-secondary);
-            font-size: 14px;
-            border-top: 1px solid var(--border-light);
+            text-align: center; padding: 24px; color: var(--text-secondary);
+            font-size: 14px; border-top: 1px solid var(--border-light);
         }
 
-        /* Mobile adjustments */
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 500; display: none;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: white; border-radius: var(--radius-lg);
+            padding: 32px; width: 100%; max-width: 480px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+            animation: modalIn 0.25s ease-out;
+            max-height: 90vh; overflow-y: auto;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-close {
+            background: none; border: none; font-size: 20px;
+            cursor: pointer; padding: 4px 8px; border-radius: 50%;
+            transition: background 0.2s; color: var(--text-primary);
+        }
+        .modal-close:hover { background: var(--card-hover); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-title { font-size: 22px; font-weight: 800; }
+        .modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block; font-size: 13px; font-weight: 700;
+            margin-bottom: 6px; color: var(--text-primary);
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 12px 14px; border: 1px solid var(--border);
+            border-radius: 8px; font-size: 15px; font-family: inherit;
+            transition: border-color 0.2s; outline: none; background: white;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--text-primary);
+        }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+        .form-row { display: flex; gap: 12px; }
+        .form-row .form-group { flex: 1; }
+        .btn-primary {
+            width: 100%; padding: 14px; background: var(--accent);
+            color: white; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: 700; cursor: pointer;
+            font-family: inherit; transition: background 0.2s;
+        }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary {
+            width: 100%; padding: 14px; background: white;
+            color: var(--text-primary); border: 1px solid var(--border);
+            border-radius: 8px; font-size: 16px; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: all 0.2s;
+            margin-top: 8px;
+        }
+        .btn-secondary:hover { background: var(--card-hover); }
+        .form-error {
+            color: var(--accent); font-size: 13px; margin-top: 8px;
+            display: none; font-weight: 600;
+        }
+        .form-error.show { display: block; }
+        .form-success {
+            color: #008A05; font-size: 13px; margin-top: 8px;
+            display: none; font-weight: 600;
+        }
+        .form-success.show { display: block; }
+        .auth-switch {
+            text-align: center; margin-top: 16px; font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .auth-switch a {
+            color: var(--accent); font-weight: 700;
+            text-decoration: none; cursor: pointer;
+        }
+        .auth-switch a:hover { text-decoration: underline; }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center; padding: 48px 24px; color: var(--text-secondary);
+        }
+        .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.3; }
+        .empty-state p { font-size: 15px; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            background: var(--text-primary); color: white; padding: 14px 24px;
+            border-radius: 8px; font-size: 14px; font-weight: 600;
+            z-index: 999; opacity: 0; transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block; width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+            border-radius: 50%; animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Responsive */
+        @media (max-width: 1200px) { .card { flex: 0 0 calc(33.333% - 16px); } }
+        @media (max-width: 900px) { .card { flex: 0 0 calc(50% - 12px); } }
+        @media (max-width: 600px) { .card { flex: 0 0 85%; } }
         @media (max-width: 768px) {
-            .header-inner {
-                height: 64px;
-            }
-
-            .search-bar {
-                display: none;
-            }
-
-            .help-link {
-                display: none;
-            }
-
-            .logo-text {
-                font-size: 20px;
-            }
-
-            .section-title {
-                font-size: 18px;
-            }
-
+            .header-inner { height: 64px; }
+            .search-bar { display: none; }
+            .help-link { display: none; }
+            .logo-text { font-size: 20px; }
+            .section-title { font-size: 18px; }
             .cta-banner {
-                flex-direction: column;
-                text-align: center;
-                padding: 32px 24px;
-                gap: 24px;
+                flex-direction: column; text-align: center;
+                padding: 32px 24px; gap: 24px;
             }
-
-            .cta-content h2 {
-                font-size: 24px;
-            }
-
-            .cta-content p {
-                font-size: 16px;
-            }
+            .cta-content h2 { font-size: 24px; }
+            .cta-content p { font-size: 16px; }
+            .modal { margin: 16px; }
         }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="header-inner">
-            <a href="#" class="logo">
+            <a href="#" class="logo" onclick="location.reload(); return false;">
                 <svg viewBox="0 0 32 32" fill="currentColor">
                     <path d="M16 2C8.268 2 2 8.268 2 16s6.268 14 14 14 14-6.268 14-14S23.732 2 16 2zm0 4a4 4 0 110 8 4 4 0 010-8zm0 18c-3.312 0-6.234-1.656-8-4.18C8.016 17.168 13.328 16 16 16s7.984 1.168 8 4.82c-1.766 2.524-4.688 4.18-8 4.18z"/>
                 </svg>
-                <span class="logo-text">ABACcribs</span>
+                <span class="logo-text">UniCondo</span>
             </a>
 
             <div class="search-bar">
                 <div class="search-section">
                     <div class="search-label">Where</div>
-                    <div class="search-value">Near ABAC</div>
+                    <div class="search-value">Near campus</div>
                 </div>
                 <div class="search-section">
                     <div class="search-label">Budget</div>
@@ -523,23 +380,25 @@
             </div>
 
             <div class="header-right">
-                <a href="#" class="help-link">Help me find</a>
-                <button class="profile-btn">
+                <button class="help-link" id="postListingBtn" style="display:none;" onclick="openModal('listing')">+ Post listing</button>
+                <button class="profile-btn" id="profileBtn" onclick="toggleDropdown()">
                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
-                    <div class="profile-avatar">
+                    <div class="profile-avatar" id="profileAvatar">
                         <svg fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-3.866 0-7 2.239-7 5v1h14v-1c0-2.761-3.134-5-7-5z"/>
                         </svg>
                     </div>
                 </button>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <!-- Filled dynamically -->
+                </div>
             </div>
         </div>
     </header>
 
     <main class="main">
-        <!-- CTA Banner -->
         <div class="cta-banner">
             <div class="cta-content">
                 <h2>Can't find what you need?</h2>
@@ -549,380 +408,404 @@
         </div>
 
         <!-- Walking Distance Section -->
-        <section class="section">
+        <section class="section" id="section-walking">
             <div class="section-header">
                 <h2 class="section-title">
-                    Walking distance to ABAC
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                    </svg>
+                    Walking distance to campus
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                 </h2>
-                <div class="section-nav">
-                    <button class="nav-btn" disabled>
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                    </button>
-                    <button class="nav-btn">
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </button>
-                </div>
             </div>
-            <div class="cards-scroll">
-                <!-- Card 1 -->
-                <article class="card">
-                    <div class="card-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=600&fit=crop" alt="Condo" class="card-image">
-                        <span class="card-badge">Student pick</span>
-                        <button class="card-favorite">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header">
-                            <span class="card-title">Lumpini Ville Bang Na</span>
-                            <span class="card-rating">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                5.0
-                            </span>
-                        </div>
-                        <span class="card-distance">5 min walk to campus</span>
-                        <span class="card-details">1 bed · 26 sqm · Furnished</span>
-                        <div class="card-price"><strong>฿6,500</strong> /month</div>
-                    </div>
-                </article>
-
-                <!-- Card 2 -->
-                <article class="card">
-                    <div class="card-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=600&fit=crop" alt="Condo" class="card-image">
-                        <span class="card-badge">Student pick</span>
-                        <button class="card-favorite">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header">
-                            <span class="card-title">Dorm Behind ABAC</span>
-                            <span class="card-rating">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                4.9
-                            </span>
-                        </div>
-                        <span class="card-distance">3 min walk to campus</span>
-                        <span class="card-details">Studio · 22 sqm · AC + Fridge</span>
-                        <div class="card-price"><strong>฿5,500</strong> /month</div>
-                    </div>
-                </article>
-
-                <!-- Card 3 -->
-                <article class="card">
-                    <div class="card-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&h=600&fit=crop" alt="Condo" class="card-image">
-                        <button class="card-favorite">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header">
-                            <span class="card-title">The Cube Premium</span>
-                            <span class="card-rating">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                4.85
-                            </span>
-                        </div>
-                        <span class="card-distance">7 min walk to campus</span>
-                        <span class="card-details">1 bed · 28 sqm · Gym</span>
-                        <div class="card-price"><strong>฿7,000</strong> /month</div>
-                    </div>
-                </article>
-
-                <!-- Card 4 -->
-                <article class="card">
-                    <div class="card-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=600&fit=crop" alt="Condo" class="card-image">
-                        <span class="card-badge">Student pick</span>
-                        <button class="card-favorite">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header">
-                            <span class="card-title">D Condo Campus Resort</span>
-                            <span class="card-rating">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                4.95
-                            </span>
-                        </div>
-                        <span class="card-distance">8 min walk to campus</span>
-                        <span class="card-details">1 bed · 30 sqm · Pool</span>
-                        <div class="card-price"><strong>฿8,000</strong> /month</div>
-                    </div>
-                </article>
-            </div>
+            <div class="cards-scroll" id="cards-walking"></div>
         </section>
 
         <!-- Short Ride Section -->
-        <section class="section">
+        <section class="section" id="section-ride">
             <div class="section-header">
                 <h2 class="section-title">
                     Short motorbike ride
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                    </svg>
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                 </h2>
-                <div class="section-nav">
-                    <button class="nav-btn" disabled>
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                    </button>
-                    <button class="nav-btn">
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </button>
-                </div>
             </div>
-            <div class="cards-scroll">
-                <!-- Card 5 -->
-                <article class="card">
-                    <div class="card-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=600&fit=crop" alt="Condo" class="card-image">
-                        <button class="card-favorite">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header">
-                            <span class="card-title">Ideo Mobi Eastpoint</span>
-                            <span class="card-rating">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                4.92
-                            </span>
-                        </div>
-                        <span class="card-distance">10 min ride · Near BTS</span>
-                        <span class="card-details">1 bed · 35 sqm · Furnished</span>
-                        <div class="card-price"><strong>฿12,000</strong> /month</div>
-                    </div>
-                </article>
-
-                <!-- Card 6 -->
-                <article class="card">
-                    <div class="card-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=600&fit=crop" alt="Condo" class="card-image">
-                        <span class="card-badge">Student pick</span>
-                        <button class="card-favorite">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header">
-                            <span class="card-title">Aspire Erawan</span>
-                            <span class="card-rating">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                5.0
-                            </span>
-                        </div>
-                        <span class="card-distance">5 min ride</span>
-                        <span class="card-details">1 bed · 32 sqm · Great view</span>
-                        <div class="card-price"><strong>฿9,500</strong> /month</div>
-                    </div>
-                </article>
-
-                <!-- Card 7 -->
-                <article class="card">
-                    <div class="card-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=600&h=600&fit=crop" alt="Condo" class="card-image">
-                        <button class="card-favorite">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header">
-                            <span class="card-title">Knightsbridge Bearing</span>
-                            <span class="card-rating">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                4.88
-                            </span>
-                        </div>
-                        <span class="card-distance">12 min ride · BTS Bearing</span>
-                        <span class="card-details">1 bed · 28 sqm · Modern</span>
-                        <div class="card-price"><strong>฿10,500</strong> /month</div>
-                    </div>
-                </article>
-
-                <!-- Card 8 -->
-                <article class="card">
-                    <div class="card-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=600&h=600&fit=crop" alt="Condo" class="card-image">
-                        <button class="card-favorite">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header">
-                            <span class="card-title">Lumpini Mega City</span>
-                            <span class="card-rating">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                4.78
-                            </span>
-                        </div>
-                        <span class="card-distance">8 min ride</span>
-                        <span class="card-details">Studio · 24 sqm · Pool + Gym</span>
-                        <div class="card-price"><strong>฿5,800</strong> /month</div>
-                    </div>
-                </article>
-            </div>
+            <div class="cards-scroll" id="cards-ride"></div>
         </section>
 
-        <!-- Budget Friendly Section -->
-        <section class="section">
+        <!-- Budget Section -->
+        <section class="section" id="section-budget">
             <div class="section-header">
                 <h2 class="section-title">
                     Under ฿6,000/month
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                    </svg>
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                 </h2>
-                <div class="section-nav">
-                    <button class="nav-btn" disabled>
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                    </button>
-                    <button class="nav-btn">
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </button>
-                </div>
             </div>
-            <div class="cards-scroll">
-                <!-- Budget Card 1 -->
-                <article class="card">
-                    <div class="card-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=600&fit=crop" alt="Condo" class="card-image">
-                        <span class="card-badge">Best value</span>
-                        <button class="card-favorite">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header">
-                            <span class="card-title">Dorm Behind ABAC</span>
-                            <span class="card-rating">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                4.9
-                            </span>
-                        </div>
-                        <span class="card-distance">3 min walk to campus</span>
-                        <span class="card-details">Studio · 22 sqm · AC + Fridge</span>
-                        <div class="card-price"><strong>฿5,500</strong> /month</div>
-                    </div>
-                </article>
-
-                <!-- Budget Card 2 -->
-                <article class="card">
-                    <div class="card-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=600&h=600&fit=crop" alt="Condo" class="card-image">
-                        <button class="card-favorite">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header">
-                            <span class="card-title">Lumpini Mega City</span>
-                            <span class="card-rating">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                4.78
-                            </span>
-                        </div>
-                        <span class="card-distance">8 min ride</span>
-                        <span class="card-details">Studio · 24 sqm · Pool + Gym</span>
-                        <div class="card-price"><strong>฿5,800</strong> /month</div>
-                    </div>
-                </article>
-
-                <!-- Budget Card 3 -->
-                <article class="card">
-                    <div class="card-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1554995207-c18c203602cb?w=600&h=600&fit=crop" alt="Condo" class="card-image">
-                        <button class="card-favorite">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header">
-                            <span class="card-title">Happy Condo Bangna</span>
-                            <span class="card-rating">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                4.65
-                            </span>
-                        </div>
-                        <span class="card-distance">15 min ride</span>
-                        <span class="card-details">Studio · 23 sqm · Furnished</span>
-                        <div class="card-price"><strong>฿4,500</strong> /month</div>
-                    </div>
-                </article>
-
-                <!-- Budget Card 4 -->
-                <article class="card">
-                    <div class="card-image-wrapper">
-                        <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&h=600&fit=crop" alt="Condo" class="card-image">
-                        <button class="card-favorite">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-header">
-                            <span class="card-title">Apartment Soi 17</span>
-                            <span class="card-rating">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                4.72
-                            </span>
-                        </div>
-                        <span class="card-distance">10 min walk</span>
-                        <span class="card-details">Studio · 20 sqm · Basic</span>
-                        <div class="card-price"><strong>฿4,000</strong> /month</div>
-                    </div>
-                </article>
-            </div>
+            <div class="cards-scroll" id="cards-budget"></div>
         </section>
     </main>
 
     <footer class="footer-note">
-        ABACcribs — Helping ABAC students find homes since 2026
+        UniCondo — Helping university students find homes since 2026
     </footer>
 
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title" id="authModalTitle">Log in</span>
+                <button class="modal-close" onclick="closeModals()">&times;</button>
+            </div>
+            <h3 id="authModalSubtitle">Welcome to UniCondo</h3>
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div class="form-group" id="nameGroup" style="display:none;">
+                    <label for="authName">Name</label>
+                    <input type="text" id="authName" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label for="authEmail">Email</label>
+                    <input type="email" id="authEmail" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="authPassword">Password</label>
+                    <input type="password" id="authPassword" placeholder="••••••••" required minlength="6">
+                </div>
+                <div class="form-error" id="authError"></div>
+                <div class="form-success" id="authSuccess"></div>
+                <button type="submit" class="btn-primary" id="authSubmitBtn">Log in</button>
+            </form>
+            <div class="auth-switch" id="authSwitch">
+                Don't have an account? <a onclick="toggleAuthMode()">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listing Modal -->
+    <div class="modal-overlay" id="listingModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">Post a listing</span>
+                <button class="modal-close" onclick="closeModals()">&times;</button>
+            </div>
+            <form id="listingForm" onsubmit="handleCreateListing(event)">
+                <div class="form-group">
+                    <label for="listTitle">Title</label>
+                    <input type="text" id="listTitle" placeholder="e.g. Lumpini Ville Bang Na" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="listPrice">Price (฿/month)</label>
+                        <input type="number" id="listPrice" placeholder="6500" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="listRating">Rating</label>
+                        <input type="number" id="listRating" placeholder="4.9" step="0.01" min="0" max="5" value="5.0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="listDistance">Distance</label>
+                    <input type="text" id="listDistance" placeholder="e.g. 5 min walk to campus" required>
+                </div>
+                <div class="form-group">
+                    <label for="listDetails">Details</label>
+                    <input type="text" id="listDetails" placeholder="e.g. 1 bed · 26 sqm · Furnished" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="listCategory">Category</label>
+                        <select id="listCategory" required>
+                            <option value="walking">Walking distance</option>
+                            <option value="ride">Short ride</option>
+                            <option value="budget">Budget</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="listBadge">Badge (optional)</label>
+                        <input type="text" id="listBadge" placeholder="e.g. Student pick">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="listImage">Image URL</label>
+                    <input type="url" id="listImage" placeholder="https://images.unsplash.com/..." required>
+                </div>
+                <div class="form-error" id="listingError"></div>
+                <button type="submit" class="btn-primary" id="listingSubmitBtn">Post listing</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
     <script>
-        // Favorite toggle
-        document.querySelectorAll('.card-favorite').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                btn.classList.toggle('active');
+        // ── Supabase Init ──
+        const SUPABASE_URL = 'https://pekqhcxbhtgfsqtiunic.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBla3FoY3hiaHRnZnNxdGl1bmljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkxMjMsImV4cCI6MjA5MDQzNTEyM30.YlEBAX2Oh5CKsSeVCS-UZq93np58xUUP0RlddISLgFY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentUser = null;
+        let isSignUp = false;
+
+        // ── Auth State ──
+        supabase.auth.onAuthStateChange((event, session) => {
+            currentUser = session?.user || null;
+            updateUI();
+            loadListings();
+        });
+
+        // ── Init ──
+        async function init() {
+            const { data: { session } } = await supabase.auth.getSession();
+            currentUser = session?.user || null;
+            updateUI();
+            loadListings();
+        }
+
+        // ── Update UI based on auth ──
+        function updateUI() {
+            const postBtn = document.getElementById('postListingBtn');
+            const avatar = document.getElementById('profileAvatar');
+            const dropdown = document.getElementById('profileDropdown');
+
+            if (currentUser) {
+                postBtn.style.display = 'block';
+                avatar.classList.add('logged-in');
+                dropdown.innerHTML = `
+                    <div class="dropdown-item" style="font-size:13px; color:var(--text-secondary); cursor:default;">
+                        ${currentUser.email}
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" onclick="openModal('listing'); closeDropdown();">Post a listing</button>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" onclick="handleLogout()">Log out</button>
+                `;
+            } else {
+                postBtn.style.display = 'none';
+                avatar.classList.remove('logged-in');
+                dropdown.innerHTML = `
+                    <button class="dropdown-item bold" onclick="openModal('auth'); closeDropdown();">Log in</button>
+                    <button class="dropdown-item" onclick="isSignUp=true; openModal('auth'); closeDropdown();">Sign up</button>
+                `;
+            }
+        }
+
+        // ── Load Listings ──
+        async function loadListings() {
+            const { data, error } = await supabase
+                .from('listings')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) { console.error(error); return; }
+
+            const categories = { walking: [], ride: [], budget: [] };
+            data.forEach(l => {
+                if (categories[l.category]) categories[l.category].push(l);
+            });
+
+            renderCards('cards-walking', categories.walking);
+            renderCards('cards-ride', categories.ride);
+            renderCards('cards-budget', categories.budget);
+        }
+
+        // ── Render Cards ──
+        function renderCards(containerId, listings) {
+            const container = document.getElementById(containerId);
+            if (!listings.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
+                        </svg>
+                        <p>No listings yet in this category</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = listings.map(l => `
+                <article class="card" data-id="${l.id}">
+                    <div class="card-image-wrapper">
+                        <img src="${l.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=600&fit=crop'}" alt="${l.title}" class="card-image" loading="lazy">
+                        ${l.badge ? `<span class="card-badge">${l.badge}</span>` : ''}
+                        <button class="card-favorite" onclick="event.stopPropagation(); this.classList.toggle('active')">
+                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <span class="card-title">${l.title}</span>
+                            <span class="card-rating">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                ${Number(l.rating).toFixed(l.rating % 1 === 0 ? 1 : 2)}
+                            </span>
+                        </div>
+                        <span class="card-distance">${l.distance}</span>
+                        <span class="card-details">${l.details}</span>
+                        <div class="card-price"><strong>฿${Number(l.price).toLocaleString()}</strong> /month</div>
+                    </div>
+                    <button class="card-delete ${currentUser && currentUser.id === l.user_id ? 'visible' : ''}" onclick="event.stopPropagation(); deleteListing('${l.id}')">Delete</button>
+                </article>
+            `).join('');
+        }
+
+        // ── Auth ──
+        function toggleAuthMode() {
+            isSignUp = !isSignUp;
+            document.getElementById('authModalTitle').textContent = isSignUp ? 'Sign up' : 'Log in';
+            document.getElementById('authModalSubtitle').textContent = isSignUp ? 'Create your account' : 'Welcome to UniCondo';
+            document.getElementById('authSubmitBtn').textContent = isSignUp ? 'Sign up' : 'Log in';
+            document.getElementById('nameGroup').style.display = isSignUp ? 'block' : 'none';
+            document.getElementById('authSwitch').innerHTML = isSignUp
+                ? 'Already have an account? <a onclick="toggleAuthMode()">Log in</a>'
+                : 'Don\'t have an account? <a onclick="toggleAuthMode()">Sign up</a>';
+            document.getElementById('authError').classList.remove('show');
+            document.getElementById('authSuccess').classList.remove('show');
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            const btn = document.getElementById('authSubmitBtn');
+            const errEl = document.getElementById('authError');
+            const successEl = document.getElementById('authSuccess');
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>';
+            errEl.classList.remove('show');
+            successEl.classList.remove('show');
+
+            if (isSignUp) {
+                const name = document.getElementById('authName').value;
+                const { error } = await supabase.auth.signUp({
+                    email, password,
+                    options: { data: { name } }
+                });
+                if (error) {
+                    errEl.textContent = error.message;
+                    errEl.classList.add('show');
+                } else {
+                    successEl.textContent = 'Account created! Check your email to confirm, or try logging in.';
+                    successEl.classList.add('show');
+                    setTimeout(() => {
+                        isSignUp = false;
+                        toggleAuthMode();
+                    }, 2000);
+                }
+            } else {
+                const { error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) {
+                    errEl.textContent = error.message;
+                    errEl.classList.add('show');
+                } else {
+                    closeModals();
+                    showToast('Welcome back!');
+                }
+            }
+
+            btn.disabled = false;
+            btn.textContent = isSignUp ? 'Sign up' : 'Log in';
+        }
+
+        async function handleLogout() {
+            closeDropdown();
+            await supabase.auth.signOut();
+            showToast('Logged out');
+        }
+
+        // ── Create Listing ──
+        async function handleCreateListing(e) {
+            e.preventDefault();
+            const btn = document.getElementById('listingSubmitBtn');
+            const errEl = document.getElementById('listingError');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>';
+            errEl.classList.remove('show');
+
+            const listing = {
+                user_id: currentUser.id,
+                title: document.getElementById('listTitle').value,
+                price: parseInt(document.getElementById('listPrice').value),
+                rating: parseFloat(document.getElementById('listRating').value) || 5.0,
+                distance: document.getElementById('listDistance').value,
+                details: document.getElementById('listDetails').value,
+                category: document.getElementById('listCategory').value,
+                badge: document.getElementById('listBadge').value || null,
+                image_url: document.getElementById('listImage').value,
+            };
+
+            const { error } = await supabase.from('listings').insert([listing]);
+            if (error) {
+                errEl.textContent = error.message;
+                errEl.classList.add('show');
+            } else {
+                closeModals();
+                document.getElementById('listingForm').reset();
+                showToast('Listing posted!');
+                loadListings();
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Post listing';
+        }
+
+        // ── Delete Listing ──
+        async function deleteListing(id) {
+            if (!confirm('Delete this listing?')) return;
+            const { error } = await supabase.from('listings').delete().eq('id', id);
+            if (error) {
+                showToast('Error: ' + error.message);
+            } else {
+                showToast('Listing deleted');
+                loadListings();
+            }
+        }
+
+        // ── Modals ──
+        function openModal(type) {
+            closeModals();
+            if (type === 'auth') {
+                document.getElementById('authModal').classList.add('show');
+                if (isSignUp) toggleAuthMode(); else toggleAuthMode(); toggleAuthMode();
+            } else if (type === 'listing') {
+                if (!currentUser) { openModal('auth'); return; }
+                document.getElementById('listingModal').classList.add('show');
+            }
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('show'));
+            document.getElementById('authError').classList.remove('show');
+            document.getElementById('authSuccess').classList.remove('show');
+        }
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeModals();
             });
         });
 
-        // Horizontal scroll buttons
-        document.querySelectorAll('.section').forEach(section => {
-            const scroll = section.querySelector('.cards-scroll');
-            const [prevBtn, nextBtn] = section.querySelectorAll('.nav-btn');
-            
-            if (scroll && nextBtn) {
-                nextBtn.addEventListener('click', () => {
-                    scroll.scrollBy({ left: 300, behavior: 'smooth' });
-                });
-            }
-            
-            if (scroll && prevBtn) {
-                prevBtn.addEventListener('click', () => {
-                    scroll.scrollBy({ left: -300, behavior: 'smooth' });
-                });
+        // ── Dropdown ──
+        function toggleDropdown() {
+            document.getElementById('profileDropdown').classList.toggle('show');
+        }
+        function closeDropdown() {
+            document.getElementById('profileDropdown').classList.remove('show');
+        }
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.profile-btn') && !e.target.closest('.profile-dropdown')) {
+                closeDropdown();
             }
         });
+
+        // ── Toast ──
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        // ── Init ──
+        init();
     </script>
 </body>
 </html>
