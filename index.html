@@ -641,13 +641,7 @@
         </div>
     </div>
 
-    <!-- POST FAB -->
-    <button class="post-btn" id="postBtn" onclick="openModal('listing')">
-        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" d="M12 5v14m-7-7h14"/>
-        </svg>
-        Post Listing
-    </button>
+
 
     <!-- AUTH MODAL -->
     <div class="modal-overlay" id="authModal">
@@ -686,59 +680,7 @@
         </div>
     </div>
 
-    <!-- LISTING MODAL -->
-    <div class="modal-overlay" id="listingModal">
-        <div class="modal">
-            <div class="modal-header">
-                <span class="modal-title">Post a listing</span>
-                <button class="modal-close" onclick="closeModals()">×</button>
-            </div>
-            <form id="listingForm" onsubmit="handleCreateListing(event)">
-                <div class="form-group">
-                    <label>Title</label>
-                    <input type="text" id="listTitle" placeholder="e.g. Lumpini Ville Bang Na" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Price (฿/month)</label>
-                        <input type="number" id="listPrice" placeholder="6500" required min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Rating</label>
-                        <input type="number" id="listRating" placeholder="4.9" step="0.01" min="0" max="5" value="5.0">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Distance</label>
-                    <input type="text" id="listDistance" placeholder="e.g. 5 min walk to campus" required>
-                </div>
-                <div class="form-group">
-                    <label>Details</label>
-                    <input type="text" id="listDetails" placeholder="e.g. 1 bed · 26 sqm · Furnished" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Category</label>
-                        <select id="listCategory" required>
-                            <option value="walking">Walking distance</option>
-                            <option value="ride">Short ride</option>
-                            <option value="budget">Budget</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Badge (optional)</label>
-                        <input type="text" id="listBadge" placeholder="e.g. Student pick">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Image URL (optional)</label>
-                    <input type="url" id="listImage" placeholder="https://images.unsplash.com/...">
-                </div>
-                <div class="form-msg" id="listingMsg"></div>
-                <button type="submit" class="btn-submit" id="listingBtn">Post listing</button>
-            </form>
-        </div>
-    </div>
+
 
     <!-- DETAIL MODAL -->
     <div class="detail-overlay" id="detailOverlay">
@@ -778,7 +720,6 @@
 
     function updateHeaderUI() {
         const el = document.getElementById('headerRight');
-        const postBtn = document.getElementById('postBtn');
         if (currentUser) {
             el.innerHTML = `
                 <div class="header-user">
@@ -788,10 +729,8 @@
                     <a href="profile.html" style="color:white; text-decoration:none; font-weight:600;">${currentUser.email.split('@')[0]}</a>
                 </div>
                 <button class="header-logout" onclick="handleLogout()">Log out</button>`;
-            postBtn.classList.add('show');
         } else {
             el.innerHTML = `<button class="header-auth-btn" onclick="openModal('auth')">Log in / Sign up</button>`;
-            postBtn.classList.remove('show');
         }
     }
 
@@ -900,8 +839,7 @@
         container.innerHTML = listings.map((l, i) => `
             <div class="card card-stagger" data-id="${l.id}" style="animation-delay: ${i * 60}ms;" onclick="haptic('light'); window.location.href='listing.html?id=${l.id}'">
                 ${l.badge ? `<span class="card-badge">${l.badge}</span>` : ''}
-                <button class="card-delete ${currentUser && currentUser.id === l.user_id ? 'show' : ''}"
-                    onclick="event.stopPropagation(); deleteListing('${l.id}')">Delete</button>
+
                 <div class="card-img-wrap">
                     <img class="card-img" src="${l.image_url || ''}" alt="${l.title}" loading="lazy"
                         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 200%22><rect fill=%22%23e8e8e8%22 width=%22300%22 height=%22200%22/><text x=%22150%22 y=%22105%22 text-anchor=%22middle%22 fill=%22%23bbb%22 font-size=%2216%22>No photo</text></svg>'">
@@ -981,49 +919,7 @@
         renderGrid(sorted);
     }
 
-    // ── CRUD ──
-    async function handleCreateListing(e) {
-        e.preventDefault();
-        const btn = document.getElementById('listingBtn');
-        const form = document.getElementById('listingForm');
-        btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; clearMsg('listingMsg');
-        try {
-            const listing = {
-                user_id: currentUser.id,
-                title: document.getElementById('listTitle').value,
-                price: parseInt(document.getElementById('listPrice').value),
-                rating: parseFloat(document.getElementById('listRating').value) || 5.0,
-                distance: document.getElementById('listDistance').value,
-                details: document.getElementById('listDetails').value,
-                category: document.getElementById('listCategory').value,
-                badge: document.getElementById('listBadge').value || null,
-                image_url: document.getElementById('listImage').value || null,
-                lat: 13.6116 + (Math.random() - 0.5) * 0.02,
-                lng: 100.8370 + (Math.random() - 0.5) * 0.02,
-            };
-            const { error } = await sb.from('listings').insert([listing]);
-            if (error) throw error;
-            // Success checkmark
-            btn.innerHTML = '<div class="success-check"></div>';
-            haptic('success');
-            setTimeout(() => { closeModals(); form.reset(); showToast('Listing posted!'); loadListings(); }, 800);
-        } catch (err) {
-            showMsg('listingMsg', err.message, 'error');
-            haptic('error');
-            form.classList.add('shake');
-            setTimeout(() => form.classList.remove('shake'), 400);
-        }
-        btn.disabled = false; btn.textContent = 'Post listing';
-    }
 
-    async function deleteListing(id) {
-        if (!confirm('Delete this listing?')) return;
-        try {
-            const { error } = await sb.from('listings').delete().eq('id', id);
-            if (error) throw error;
-            showToast('Deleted'); loadListings();
-        } catch (err) { showToast('Error: ' + err.message); }
-    }
 
     // ── MODALS & UTILS ──
     function openModal(type) {
@@ -1163,7 +1059,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
             Map
         </a>
-        <a href="#" class="bottom-nav-item post-tab" onclick="event.preventDefault(); haptic('medium'); openModal(currentUser ? 'listing' : 'auth')">
+        <a href="explore.html" class="bottom-nav-item post-tab" onclick="haptic('medium')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
         </a>
         <a href="about.html" class="bottom-nav-item" onclick="haptic('light')">

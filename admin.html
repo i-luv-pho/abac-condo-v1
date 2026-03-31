@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Admin | AbacCondo</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=3">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --coral: #FF5A5F; --coral-dark: #E8494E;
+            --gradient: linear-gradient(135deg, #FF5A5F, #FF8A5C);
+            --bg: #f7f8fa; --card: #fff; --text: #1a1a2e; --text-light: #6b7280;
+            --border: #e2e5ea; --border-light: #f0f1f3;
+            --success: #10b981; --danger: #ef4444;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+        /* Header */
+        .admin-header {
+            background: var(--gradient); color: white; padding: 16px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .admin-header h1 { font-size: 20px; font-weight: 800; }
+        .admin-header-right { display: flex; gap: 12px; align-items: center; }
+        .admin-header a { color: white; text-decoration: none; font-weight: 600; font-size: 14px; opacity: 0.85; }
+        .admin-header a:hover { opacity: 1; }
+        .btn-logout {
+            background: rgba(255,255,255,0.2); border: none; color: white;
+            padding: 6px 14px; border-radius: 8px; font-weight: 700; cursor: pointer;
+            font-family: inherit; font-size: 13px;
+        }
+
+        /* Auth Gate */
+        .auth-gate {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; min-height: 80vh; text-align: center; padding: 24px;
+        }
+        .auth-gate h2 { font-size: 24px; margin-bottom: 8px; }
+        .auth-gate p { color: var(--text-light); margin-bottom: 24px; }
+        .btn-google-admin {
+            display: flex; align-items: center; gap: 10px; padding: 12px 24px;
+            border: 1.5px solid var(--border); border-radius: 10px; background: white;
+            font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
+        }
+        .btn-google-admin:hover { border-color: var(--text); }
+        .btn-google-admin svg { width: 20px; height: 20px; }
+        .access-denied { color: var(--danger); font-weight: 700; margin-top: 16px; }
+
+        /* Tabs */
+        .tabs {
+            display: flex; gap: 0; border-bottom: 2px solid var(--border-light);
+            padding: 0 24px; background: white;
+        }
+        .tab {
+            padding: 14px 20px; font-weight: 700; font-size: 14px; cursor: pointer;
+            border: none; background: none; color: var(--text-light); font-family: inherit;
+            border-bottom: 2.5px solid transparent; margin-bottom: -2px; transition: all 0.2s;
+        }
+        .tab.active { color: var(--coral); border-bottom-color: var(--coral); }
+        .tab:hover { color: var(--text); }
+        .tab-badge {
+            background: var(--coral); color: white; font-size: 11px; padding: 1px 7px;
+            border-radius: 10px; margin-left: 6px; font-weight: 800;
+        }
+
+        /* Content */
+        .content { padding: 20px 24px; max-width: 1200px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .section-header h2 { font-size: 18px; }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 18px; border-radius: 10px; font-weight: 700;
+            cursor: pointer; font-family: inherit; font-size: 14px; border: none;
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--gradient); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-secondary { background: white; color: var(--text); border: 1.5px solid var(--border); }
+        .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+
+        /* Table */
+        .table-wrap { background: white; border-radius: 14px; overflow: hidden; border: 1px solid var(--border-light); }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; background: var(--bg); }
+        td { padding: 12px 16px; font-size: 14px; border-top: 1px solid var(--border-light); vertical-align: middle; }
+        tr:hover td { background: #fafbfc; }
+        .listing-img { width: 48px; height: 36px; border-radius: 6px; object-fit: cover; }
+        .status-badge {
+            display: inline-block; padding: 3px 10px; border-radius: 12px;
+            font-size: 11px; font-weight: 700;
+        }
+        .status-available { background: #d1fae5; color: #065f46; }
+        .status-rented { background: #fde68a; color: #92400e; }
+        .status-new { background: #dbeafe; color: #1e40af; }
+        .status-contacted { background: #d1fae5; color: #065f46; }
+
+        /* Modal */
+        .admin-modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200;
+            display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .admin-modal-overlay.show { display: flex; }
+        .admin-modal {
+            background: white; border-radius: 16px; padding: 28px; width: 100%;
+            max-width: 560px; max-height: 90vh; overflow-y: auto;
+        }
+        .admin-modal h3 { font-size: 20px; margin-bottom: 20px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-grid .full { grid-column: 1 / -1; }
+        .form-group { margin-bottom: 0; }
+        .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-light); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+            border-radius: 10px; font-size: 14px; font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--coral);
+        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+            background: var(--text); color: white; padding: 12px 24px; border-radius: 12px;
+            font-weight: 700; font-size: 14px; z-index: 300; opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content { padding: 16px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .table-wrap { overflow-x: auto; }
+            table { min-width: 600px; }
+            .tabs { padding: 0 16px; overflow-x: auto; }
+            .tab { white-space: nowrap; padding: 12px 14px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- AUTH GATE (shown when not logged in or not admin) -->
+    <div id="authGate" class="auth-gate">
+        <h2>🔐 Admin Access</h2>
+        <p>Log in with your admin account to manage AbacCondo.</p>
+        <button class="btn-google-admin" onclick="handleGoogleLogin()">
+            <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continue with Google
+        </button>
+        <div id="accessDenied" class="access-denied" style="display:none;">⛔ Access denied. This account is not an admin.</div>
+    </div>
+
+    <!-- ADMIN PANEL (hidden until auth) -->
+    <div id="adminPanel" style="display:none;">
+        <header class="admin-header">
+            <h1>AbacCondo Admin</h1>
+            <div class="admin-header-right">
+                <a href="index.html">← Back to Site</a>
+                <button class="btn-logout" onclick="handleLogout()">Log out</button>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('listings', this)">Listings</button>
+            <button class="tab" onclick="switchTab('inquiries', this)">Inquiries <span class="tab-badge" id="inquiryCount">0</span></button>
+        </div>
+
+        <div class="content" id="listingsTab">
+            <div class="section-header">
+                <h2>All Listings</h2>
+                <button class="btn btn-primary" onclick="openListingModal()">+ Add Listing</button>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Title</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>Rating</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listingsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content" id="inquiriesTab" style="display:none;">
+            <div class="section-header">
+                <h2>Student Inquiries</h2>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Student</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Listing</th>
+                            <th>Message</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inquiriesTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD/EDIT LISTING MODAL -->
+    <div class="admin-modal-overlay" id="listingModalOverlay">
+        <div class="admin-modal">
+            <h3 id="modalTitle">Add Listing</h3>
+            <input type="hidden" id="editId">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>Title</label>
+                    <input type="text" id="fTitle" placeholder="e.g. Lumpini Ville Bang Na">
+                </div>
+                <div class="form-group">
+                    <label>Price (฿/month)</label>
+                    <input type="number" id="fPrice" placeholder="6500" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Rating</label>
+                    <input type="number" id="fRating" placeholder="4.9" step="0.1" min="0" max="5" value="5.0">
+                </div>
+                <div class="form-group full">
+                    <label>Distance</label>
+                    <input type="text" id="fDistance" placeholder="e.g. 5 min walk to campus">
+                </div>
+                <div class="form-group full">
+                    <label>Details</label>
+                    <input type="text" id="fDetails" placeholder="e.g. 1 bed · 26 sqm · Furnished">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="fCategory">
+                        <option value="walking">Walking distance</option>
+                        <option value="ride">Short ride</option>
+                        <option value="budget">Budget</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Badge (optional)</label>
+                    <input type="text" id="fBadge" placeholder="e.g. Student pick">
+                </div>
+                <div class="form-group full">
+                    <label>Image URL</label>
+                    <input type="url" id="fImage" placeholder="https://images.unsplash.com/...">
+                </div>
+                <div class="form-group full">
+                    <label>Phone (landlord)</label>
+                    <input type="text" id="fPhone" placeholder="e.g. 081-234-5678">
+                </div>
+                <div class="form-group">
+                    <label>Latitude</label>
+                    <input type="number" id="fLat" step="0.0001" placeholder="13.6116">
+                </div>
+                <div class="form-group">
+                    <label>Longitude</label>
+                    <input type="number" id="fLng" step="0.0001" placeholder="100.8370">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeListingModal()">Cancel</button>
+                <button class="btn btn-primary" id="saveBtn" onclick="saveListing()">Save Listing</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+    // ── CONFIG ──
+    const SUPA_URL = 'https://pekqhcxbhtgfsqtiunic.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBla3FoY3hiaHRnZnNxdGl1bmljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkxMjMsImV4cCI6MjA5MDQzNTEyM30.YlEBAX2Oh5CKsSeVCS-UZq93np58xUUP0RlddISLgFY';
+    // Add your admin emails here
+    const ADMIN_EMAILS = ['admin@abaccondo.com']; // ← CHANGE THIS to your actual email
+
+    let sb, currentUser = null;
+    try { sb = window.supabase.createClient(SUPA_URL, SUPA_KEY); } catch(e) {}
+
+    // ── AUTH ──
+    async function initAuth() {
+        const { data: { session } } = await sb.auth.getSession();
+        currentUser = session?.user || null;
+        checkAdmin();
+        sb.auth.onAuthStateChange((_, session) => {
+            currentUser = session?.user || null;
+            checkAdmin();
+        });
+    }
+
+    function checkAdmin() {
+        if (!currentUser) {
+            document.getElementById('authGate').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('accessDenied').style.display = 'none';
+            return;
+        }
+        if (ADMIN_EMAILS.includes(currentUser.email)) {
+            document.getElementById('authGate').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            loadAll();
+        } else {
+            document.getElementById('accessDenied').style.display = 'block';
+        }
+    }
+
+    async function handleGoogleLogin() {
+        await sb.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.href }
+        });
+    }
+
+    async function handleLogout() {
+        await sb.auth.signOut();
+        window.location.reload();
+    }
+
+    // ── TABS ──
+    function switchTab(tab, el) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('listingsTab').style.display = tab === 'listings' ? 'block' : 'none';
+        document.getElementById('inquiriesTab').style.display = tab === 'inquiries' ? 'block' : 'none';
+    }
+
+    // ── LOAD DATA ──
+    async function loadAll() {
+        await Promise.all([loadListings(), loadInquiries()]);
+    }
+
+    async function loadListings() {
+        const { data, error } = await sb.from('listings').select('*').order('created_at', { ascending: false });
+        if (error) { showToast('Error loading listings'); return; }
+        const tbody = document.getElementById('listingsTable');
+        if (!data.length) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-light);">No listings yet. Add your first one!</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.map(l => `
+            <tr>
+                <td><img class="listing-img" src="${l.image_url || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 36%22><rect fill=%22%23e8e8e8%22 width=%2248%22 height=%2236%22/></svg>'}" alt=""></td>
+                <td><strong>${l.title}</strong><br><span style="color:var(--text-light);font-size:12px;">${l.distance}</span></td>
+                <td><strong>฿${Number(l.price).toLocaleString()}</strong></td>
+                <td>${l.category}</td>
+                <td>⭐ ${Number(l.rating).toFixed(1)}</td>
+                <td>
+                    <button class="btn btn-secondary btn-sm" onclick='editListing(${JSON.stringify(l).replace(/'/g, "\\'")})'>Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteListing('${l.id}')">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function loadInquiries() {
+        try {
+            const { data, error } = await sb.from('inquiries').select('*, listings(title)').order('created_at', { ascending: false });
+            if (error) throw error;
+            const tbody = document.getElementById('inquiriesTable');
+            const newCount = (data || []).filter(i => i.status === 'new').length;
+            document.getElementById('inquiryCount').textContent = newCount;
+            if (!data || !data.length) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-light);">No inquiries yet.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(i => `
+                <tr>
+                    <td style="font-size:12px;">${new Date(i.created_at).toLocaleDateString()}</td>
+                    <td><strong>${i.name}</strong></td>
+                    <td>${i.email}</td>
+                    <td>${i.phone || '-'}</td>
+                    <td>${i.listings?.title || '-'}</td>
+                    <td style="max-width:200px;font-size:13px;">${i.message || '-'}</td>
+                    <td><span class="status-badge status-${i.status}">${i.status}</span></td>
+                    <td>
+                        ${i.status === 'new' ? `<button class="btn btn-secondary btn-sm" onclick="markContacted('${i.id}')">✓ Contacted</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        } catch(e) {
+            // inquiries table might not exist yet
+            document.getElementById('inquiriesTable').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-light);">Inquiry table not set up yet. Run the SQL in Supabase.</td></tr>';
+        }
+    }
+
+    // ── LISTING CRUD ──
+    function openListingModal() {
+        document.getElementById('editId').value = '';
+        document.getElementById('modalTitle').textContent = 'Add Listing';
+        document.getElementById('fTitle').value = '';
+        document.getElementById('fPrice').value = '';
+        document.getElementById('fRating').value = '5.0';
+        document.getElementById('fDistance').value = '';
+        document.getElementById('fDetails').value = '';
+        document.getElementById('fCategory').value = 'walking';
+        document.getElementById('fBadge').value = '';
+        document.getElementById('fImage').value = '';
+        document.getElementById('fPhone').value = '';
+        document.getElementById('fLat').value = '13.6116';
+        document.getElementById('fLng').value = '100.8370';
+        document.getElementById('listingModalOverlay').classList.add('show');
+    }
+
+    function editListing(l) {
+        document.getElementById('editId').value = l.id;
+        document.getElementById('modalTitle').textContent = 'Edit Listing';
+        document.getElementById('fTitle').value = l.title || '';
+        document.getElementById('fPrice').value = l.price || '';
+        document.getElementById('fRating').value = l.rating || 5.0;
+        document.getElementById('fDistance').value = l.distance || '';
+        document.getElementById('fDetails').value = l.details || '';
+        document.getElementById('fCategory').value = l.category || 'walking';
+        document.getElementById('fBadge').value = l.badge || '';
+        document.getElementById('fImage').value = l.image_url || '';
+        document.getElementById('fPhone').value = l.phone || '';
+        document.getElementById('fLat').value = l.lat || 13.6116;
+        document.getElementById('fLng').value = l.lng || 100.8370;
+        document.getElementById('listingModalOverlay').classList.add('show');
+    }
+
+    function closeListingModal() {
+        document.getElementById('listingModalOverlay').classList.remove('show');
+    }
+
+    async function saveListing() {
+        const btn = document.getElementById('saveBtn');
+        btn.disabled = true; btn.textContent = 'Saving...';
+
+        const listing = {
+            title: document.getElementById('fTitle').value,
+            price: parseInt(document.getElementById('fPrice').value),
+            rating: parseFloat(document.getElementById('fRating').value) || 5.0,
+            distance: document.getElementById('fDistance').value,
+            details: document.getElementById('fDetails').value,
+            category: document.getElementById('fCategory').value,
+            badge: document.getElementById('fBadge').value || null,
+            image_url: document.getElementById('fImage').value || null,
+            phone: document.getElementById('fPhone').value || null,
+            lat: parseFloat(document.getElementById('fLat').value) || 13.6116,
+            lng: parseFloat(document.getElementById('fLng').value) || 100.8370,
+            user_id: currentUser.id,
+        };
+
+        const editId = document.getElementById('editId').value;
+
+        try {
+            if (editId) {
+                const { error } = await sb.from('listings').update(listing).eq('id', editId);
+                if (error) throw error;
+                showToast('Listing updated!');
+            } else {
+                const { error } = await sb.from('listings').insert([listing]);
+                if (error) throw error;
+                showToast('Listing created!');
+            }
+            closeListingModal();
+            loadListings();
+        } catch (err) {
+            showToast('Error: ' + err.message);
+        }
+
+        btn.disabled = false; btn.textContent = 'Save Listing';
+    }
+
+    async function deleteListing(id) {
+        if (!confirm('Delete this listing permanently?')) return;
+        try {
+            const { error } = await sb.from('listings').delete().eq('id', id);
+            if (error) throw error;
+            showToast('Listing deleted');
+            loadListings();
+        } catch (err) { showToast('Error: ' + err.message); }
+    }
+
+    // ── INQUIRY ACTIONS ──
+    async function markContacted(id) {
+        try {
+            const { error } = await sb.from('inquiries').update({ status: 'contacted' }).eq('id', id);
+            if (error) throw error;
+            showToast('Marked as contacted');
+            loadInquiries();
+        } catch (err) { showToast('Error: ' + err.message); }
+    }
+
+    // ── UTILS ──
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // Close modal on overlay click
+    document.getElementById('listingModalOverlay').addEventListener('click', e => {
+        if (e.target.id === 'listingModalOverlay') closeListingModal();
+    });
+
+    initAuth();
+    </script>
+</body>
+</html>

@@ -418,22 +418,20 @@
                         </div>
                         <div class="contact-divider"></div>
 
-                        <div class="phone-section">
-                            ${phone ? `
-                                <div class="phone-number">
-                                    <span class="phone-icon">📞</span>
-                                    <div>
-                                        <div class="phone-label">Contact Number</div>
-                                        <div class="phone-text">${phone}</div>
-                                    </div>
-                                </div>
-                                <a class="btn-call" href="tel:${phone}">
-                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                                    Call Now
-                                </a>
-                            ` : `
-                                <div class="no-phone">📱 No phone number listed for this property</div>
-                            `}
+                        <div class="inquiry-section">
+                            <h4 style="font-size:15px;margin-bottom:12px;">Interested? Get in touch</h4>
+                            <form onsubmit="submitInquiry(event, '${l.id}')" class="inquiry-form">
+                                <input type="text" placeholder="Your name" id="inqName" required style="width:100%;padding:10px 14px;border:1.5px solid #e2e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
+                                <input type="email" placeholder="Your email" id="inqEmail" required style="width:100%;padding:10px 14px;border:1.5px solid #e2e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
+                                <input type="tel" placeholder="Phone (optional)" id="inqPhone" style="width:100%;padding:10px 14px;border:1.5px solid #e2e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
+                                <textarea placeholder="Message (optional)" id="inqMessage" rows="2" style="width:100%;padding:10px 14px;border:1.5px solid #e2e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:12px;resize:vertical;"></textarea>
+                                <button type="submit" class="btn-call" id="inqBtn" style="width:100%;text-align:center;justify-content:center;">
+                                    📩 Send Inquiry
+                                </button>
+                            </form>
+                            <div id="inqSuccess" style="display:none;text-align:center;padding:16px;color:#065f46;background:#d1fae5;border-radius:10px;font-weight:700;">
+                                ✅ Inquiry sent! We'll get back to you soon.
+                            </div>
                         </div>
 
                         <a class="btn-directions" href="https://www.google.com/maps/dir/?api=1&origin=${ABAC_LAT},${ABAC_LNG}&destination=${l.lat},${l.lng}" target="_blank">
@@ -528,6 +526,33 @@
         el.style.transition = `opacity 0.4s ease ${i * 100 + 200}ms, transform 0.4s ease ${i * 100 + 200}ms`;
         setTimeout(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; }, 50);
     });
+
+    // ── INQUIRY SUBMISSION ──
+    async function submitInquiry(e, listingId) {
+        e.preventDefault();
+        const btn = document.getElementById('inqBtn');
+        btn.disabled = true; btn.textContent = 'Sending...';
+        try {
+            const inquiry = {
+                listing_id: listingId,
+                name: document.getElementById('inqName').value,
+                email: document.getElementById('inqEmail').value,
+                phone: document.getElementById('inqPhone').value || null,
+                message: document.getElementById('inqMessage').value || null,
+                status: 'new',
+            };
+            const { error } = await sb.from('inquiries').insert([inquiry]);
+            if (error) throw error;
+            // Show success, hide form
+            document.querySelector('.inquiry-form').style.display = 'none';
+            document.getElementById('inqSuccess').style.display = 'block';
+            haptic('success');
+        } catch (err) {
+            alert('Error sending inquiry: ' + err.message);
+            haptic('error');
+        }
+        btn.disabled = false; btn.textContent = '📩 Send Inquiry';
+    }
 
     boot();
     </script>
