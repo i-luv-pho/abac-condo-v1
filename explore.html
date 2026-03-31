@@ -692,6 +692,10 @@
                     <label>Image URL (optional)</label>
                     <input type="url" id="listImage" placeholder="https://images.unsplash.com/...">
                 </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="listPhone" placeholder="e.g. 085-870-4317">
+                </div>
                 <div class="form-msg" id="listingMsg"></div>
                 <button type="submit" class="btn-submit" id="listingBtn">Post listing</button>
             </form>
@@ -1136,6 +1140,7 @@
                 category: document.getElementById('listCategory').value,
                 badge: document.getElementById('listBadge').value || null,
                 image_url: document.getElementById('listImage').value || null,
+                phone: document.getElementById('listPhone').value || null,
                 lat: 13.6116 + (Math.random() - 0.5) * 0.02,
                 lng: 100.8370 + (Math.random() - 0.5) * 0.02,
             };
