@@ -18,7 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         html { scroll-behavior: smooth; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --coral: #FF5A5F;
             --coral-dark: #E04E53;
@@ -530,7 +530,7 @@
         /* ─── BOTTOM NAV BAR (MOBILE) ─── */
         .bottom-nav {
             display: none; position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border-top: 1px solid var(--border-light);
             padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
             z-index: 900; justify-content: space-around; align-items: center;

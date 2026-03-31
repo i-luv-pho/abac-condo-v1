@@ -15,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --coral: #FF5A5F; --gradient: linear-gradient(135deg, #FF5A5F 0%, #FF8A6C 100%);
             --bg: #F7F7F7; --white: #FFFFFF; --text: #222222;
@@ -23,8 +23,8 @@
             --shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         html { scroll-behavior: smooth; }
-        body { font-family: 'Nunito', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; overflow-x: hidden; animation: bodyFadeIn 0.4s ease-out; }
-        @keyframes bodyFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body { font-family: 'Nunito', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; overflow-x: hidden;  }
+        
 
         .header { background: white; padding: 0 24px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-light); box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
         .header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; height: 80px; gap: 32px; }
@@ -148,7 +148,7 @@
         /* ─── BOTTOM NAV BAR (MOBILE) ─── */
         .bottom-nav {
             display: none; position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border-top: 1px solid var(--border-light);
             padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
             z-index: 900; justify-content: space-around; align-items: center;
@@ -372,7 +372,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
             Map
         </a>
-        <a href="index.html" class="bottom-nav-item post-tab">
+        <a href="explore.html" class="bottom-nav-item post-tab">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
         </a>
         <a href="about.html" class="bottom-nav-item active">
