@@ -516,13 +516,48 @@
             title: 'ABAC Campus'
         });
 
-        // Line between condo and ABAC
+        // Try to show actual road route, fallback to straight line
+        try {
+            const directionsService = new google.maps.DirectionsService();
+            const directionsRenderer = new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: true, // Keep our custom markers
+                polylineOptions: {
+                    strokeColor: '#FF5A5F',
+                    strokeOpacity: 0.7,
+                    strokeWeight: 4
+                }
+            });
+
+            directionsService.route({
+                origin: ABAC,
+                destination: condoPos,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                } else {
+                    // Fallback: draw a straight dashed line
+                    drawFallbackLine(map, ABAC, condoPos);
+                }
+            });
+        } catch (e) {
+            // Fallback: draw a straight dashed line
+            drawFallbackLine(map, ABAC, condoPos);
+        }
+    }
+
+    function drawFallbackLine(map, from, to) {
         new google.maps.Polyline({
-            path: [ABAC, condoPos],
+            path: [from, to],
             geodesic: true,
             strokeColor: '#FF5A5F',
             strokeOpacity: 0.6,
             strokeWeight: 3,
+            icons: [{
+                icon: { path: 'M 0,-1 0,1', strokeOpacity: 0.6, scale: 3 },
+                offset: '0', repeat: '16px'
+            }],
             map: map
         });
     }
