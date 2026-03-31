@@ -569,6 +569,9 @@
                 <a href="index.html">Home</a>
                 <a href="explore.html" class="active">Map</a>
             </nav>
+            <div class="header-right" id="headerRight">
+                <button class="header-auth-btn" onclick="openModal('auth')">Log in / Sign up</button>
+            </div>
             <button class="hamburger" onclick="toggleDrawer()" aria-label="Menu">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
@@ -932,6 +935,7 @@
 
     function updateHeaderUI() {
         const el = document.getElementById('drawerUser');
+        const hr = document.getElementById('headerRight');
         const postBtn = document.getElementById('postBtn');
 
         if (currentUser) {
@@ -947,9 +951,11 @@
                     </div>
                 </div>
                 <button class="drawer-logout" onclick="handleLogout()">Log out</button>`;
+            if (hr) hr.innerHTML = `<div class="header-user"><div class="header-user-avatar"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.87 0-7 2.24-7 5v1h14v-1c0-2.76-3.13-5-7-5z"/></svg></div></div><button class="header-logout" onclick="handleLogout()">Log out</button>`;
             postBtn.classList.add('show');
         } else {
             el.innerHTML = `<button class="drawer-login" onclick="toggleDrawer(); openModal('auth')">Log in / Sign up</button>`;
+            if (hr) hr.innerHTML = `<button class="header-auth-btn" onclick="openModal('auth')">Log in / Sign up</button>`;
             postBtn.classList.remove('show');
         }
     }
@@ -1294,5 +1300,8 @@
             Profile
         </a>
     </nav>
+            <div class="header-right" id="headerRight">
+                <button class="header-auth-btn" onclick="openModal('auth')">Log in / Sign up</button>
+            </div>
 </body>
 </html>
