@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>About | UniCondo</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="theme-color" content="#FF5A5F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="preconnect" href="https://pekqhcxbhtgfsqtiunic.supabase.co">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,19 +20,21 @@
             --text-light: #717171; --border: #DDDDDD; --border-light: #EBEBEB;
             --shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        body { font-family: 'Nunito', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Nunito', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; overflow-x: hidden; animation: bodyFadeIn 0.4s ease-out; }
+        @keyframes bodyFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .header { background: var(--gradient); padding: 0 24px; position: sticky; top: 0; z-index: 100; }
         .header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; height: 64px; gap: 32px; }
         .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; color: white; }
         .logo svg { width: 28px; height: 28px; }
         .logo-text { font-weight: 800; font-size: 20px; }
-        .nav { display: flex; gap: 4px; }
+        .nav { display: flex; gap: 4px; flex-shrink: 1; min-width: 0; }
         .nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 8px; transition: all 0.2s; }
         .nav a:hover { background: rgba(255,255,255,0.2); color: white; }
         .nav a.active { background: rgba(255,255,255,0.2); color: white; }
 
-        .header-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+        .header-right { display: flex; align-items: center; gap: 12px; margin-left: auto; flex-shrink: 0; }
         .header-auth-btn {
             background: white; color: var(--coral); border: none;
             padding: 8px 18px; border-radius: 20px; font-size: 13px;
@@ -61,7 +68,11 @@
         .card p:last-child { margin-bottom: 0; }
 
         .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
-        .feature { text-align: center; padding: 20px 12px; background: var(--bg); border-radius: 12px; }
+        .feature {
+            text-align: center; padding: 20px 12px; background: var(--bg); border-radius: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .feature:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
         .feature-icon { font-size: 28px; margin-bottom: 8px; }
         .feature-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
         .feature-desc { font-size: 12px; color: var(--text-light); }
@@ -86,14 +97,16 @@
         .footer a { color: var(--coral); text-decoration: none; font-weight: 600; }
 
         @media (max-width: 700px) {
-            .nav { display: none; }
-            .header { padding: 0 12px; }
-            .header-inner { height: 52px; gap: 12px; }
-            .logo svg { width: 22px; height: 22px; }
-            .logo-text { font-size: 17px; }
-            .header-logout { padding: 5px 10px; font-size: 11px; }
-            .header-user-avatar { width: 28px; height: 28px; }
-            .header-auth-btn { padding: 6px 14px; font-size: 12px; }
+            .header { padding: 0 10px; }
+            .header-inner { height: 52px; gap: 8px; }
+            .logo svg { width: 20px; height: 20px; }
+            .logo-text { font-size: 15px; }
+            .nav { gap: 0; }
+            .nav a { font-size: 11px; padding: 5px 6px; border-radius: 6px; white-space: nowrap; }
+            .header-logout { padding: 4px 8px; font-size: 10px; white-space: nowrap; }
+            .header-right { gap: 6px; }
+            .header-user-avatar { width: 26px; height: 26px; }
+            .header-auth-btn { padding: 5px 10px; font-size: 11px; white-space: nowrap; }
 
             .hero { padding: 32px 16px 48px; margin-top: -1px; }
             .hero h1 { font-size: 24px; }
@@ -120,6 +133,35 @@
             .faq-q { font-size: 14px; margin-bottom: 4px; }
             .faq-a { font-size: 13px; }
         }
+
+        /* ─── BOTTOM NAV BAR (MOBILE) ─── */
+        .bottom-nav {
+            display: none; position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-light);
+            padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+            z-index: 900; justify-content: space-around; align-items: center;
+        }
+        .bottom-nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            text-decoration: none; color: var(--text-light); font-size: 10px;
+            font-weight: 600; gap: 2px; padding: 4px 12px;
+            transition: color 0.2s; -webkit-tap-highlight-color: transparent;
+            min-width: 44px; min-height: 44px; justify-content: center;
+        }
+        .bottom-nav-item svg { width: 22px; height: 22px; }
+        .bottom-nav-item.active { color: var(--coral); }
+        .bottom-nav-item.post-tab {
+            background: var(--gradient); color: white; border-radius: 50%;
+            width: 48px; height: 48px; padding: 0; margin-top: -16px;
+            box-shadow: 0 4px 12px rgba(255,90,95,0.35);
+        }
+        .bottom-nav-item.post-tab svg { width: 24px; height: 24px; }
+        @media (max-width: 600px) {
+            .bottom-nav { display: flex; }
+            .nav { display: none; }
+            body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+        }
     </style>
 </head>
 <body>
@@ -130,7 +172,8 @@
                 <span class="logo-text">UniCondo</span>
             </a>
             <nav class="nav">
-                <a href="explore.html">Explore</a>
+                <a href="index.html">Home</a>
+                <a href="explore.html">Map</a>
                 <a href="about.html" class="active">About</a>
             </nav>
             <div class="header-right" id="headerRight"></div>
@@ -277,7 +320,47 @@
 
     async function handleLogout() { await sb.auth.signOut(); window.location.href = 'index.html'; }
 
+    // ── HAPTIC FEEDBACK ──
+    function haptic(type) {
+        if (!navigator.vibrate) return;
+        const patterns = { light: 10, medium: 25, success: [10, 50, 20], error: [30, 50, 30] };
+        try { navigator.vibrate(patterns[type] || 10); } catch(e) {}
+    }
+    document.querySelectorAll('.contact-item, .header-auth-btn, .header-logout').forEach(el => {
+        el.addEventListener('click', () => haptic('light'));
+    });
+
+    // Staggered card entrance
+    document.querySelectorAll('.card').forEach((el, i) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = `opacity 0.4s ease ${i * 120}ms, transform 0.4s ease ${i * 120}ms`;
+        requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+    });
+
     boot();
     </script>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L4 9v12h5v-7h6v7h5V9l-8-6z"/></svg>
+            Home
+        </a>
+        <a href="explore.html" class="bottom-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+            Map
+        </a>
+        <a href="index.html" class="bottom-nav-item post-tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        </a>
+        <a href="about.html" class="bottom-nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            About
+        </a>
+        <a href="profile.html" class="bottom-nav-item">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.87 0-7 2.24-7 5v1h14v-1c0-2.76-3.13-5-7-5z"/></svg>
+            Profile
+        </a>
+    </nav>
 </body>
 </html>

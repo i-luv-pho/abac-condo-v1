@@ -2,14 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UniCondo | Student Housing Near Your University</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>UniCondo — Student Housing Near ABAC</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="theme-color" content="#FF5A5F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="preconnect" href="https://pekqhcxbhtgfsqtiunic.supabase.co">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        html { scroll-behavior: smooth; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { animation: bodyFadeIn 0.4s ease-out; }
+        @keyframes bodyFadeIn { from { opacity: 0; } to { opacity: 1; } }
         :root {
             --coral: #FF5A5F;
             --coral-dark: #E04E53;
@@ -28,6 +36,7 @@
             font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg); color: var(--text);
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
         /* ─── HEADER ─── */
@@ -47,14 +56,14 @@
         }
         .logo svg { width: 28px; height: 28px; }
         .logo-text { font-weight: 800; font-size: 20px; letter-spacing: -0.3px; }
-        .nav { display: flex; gap: 4px; }
+        .nav { display: flex; gap: 4px; flex-shrink: 1; min-width: 0; }
         .nav a {
             color: rgba(255,255,255,0.85); text-decoration: none;
             font-size: 14px; font-weight: 600; padding: 8px 14px;
             border-radius: 8px; transition: all 0.2s;
         }
         .nav a:hover, .nav a.active { background: rgba(255,255,255,0.2); color: white; }
-        .header-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+        .header-right { display: flex; align-items: center; gap: 12px; margin-left: auto; flex-shrink: 0; }
         .header-auth-btn {
             background: white; color: var(--coral); border: none;
             padding: 8px 18px; border-radius: 20px; font-size: 13px;
@@ -156,6 +165,13 @@
         }
         .card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.15); }
         .card:active { transform: translateY(-2px) scale(0.98); }
+        .card-stagger {
+            opacity: 0; transform: translateY(20px);
+            animation: cardIn 0.4s ease-out forwards;
+        }
+        @keyframes cardIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
         .card-img-wrap { overflow: hidden; }
         .card-img {
             width: 100%; height: 200px; object-fit: cover;
@@ -206,7 +222,14 @@
             z-index: 50; display: none;
         }
         .post-btn:hover { transform: scale(1.05); }
-        .post-btn.show { display: flex; align-items: center; gap: 8px; }
+        .post-btn.show {
+            display: flex; align-items: center; gap: 8px;
+            animation: fabIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes fabIn {
+            from { opacity: 0; transform: scale(0.3) rotate(-15deg); }
+            to { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
         .post-btn svg { width: 18px; height: 18px; }
 
         /* ─── MODAL ─── */
@@ -295,13 +318,16 @@
 
         /* ─── TOAST ─── */
         .toast {
-            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            position: fixed; bottom: 80px; left: 50%;
+            transform: translateX(-50%) translateY(20px);
             background: var(--text); color: white; padding: 12px 24px;
-            border-radius: 8px; font-size: 14px; font-weight: 600;
-            z-index: 999; opacity: 0; transition: opacity 0.3s;
+            border-radius: 12px; font-size: 14px; font-weight: 600;
+            z-index: 999; opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             pointer-events: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
         }
-        .toast.show { opacity: 1; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         .empty-state { text-align: center; padding: 60px 24px; color: var(--text-light); }
         .empty-state p { font-size: 15px; margin-top: 8px; }
@@ -436,19 +462,19 @@
 
         /* ─── RESPONSIVE ─── */
         @media (max-width: 900px) {
-            .nav { display: none; }
             .search-hero h1 { font-size: 22px; }
             .grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
         }
         @media (max-width: 600px) {
-            .header { padding: 0 12px; }
-            .header-inner { height: 52px; gap: 12px; }
-            .logo svg { width: 22px; height: 22px; }
-            .logo-text { font-size: 17px; }
-            .header-auth-btn { padding: 6px 14px; font-size: 12px; }
-            .header-logout { padding: 5px 10px; font-size: 11px; }
-            .header-user-avatar { width: 28px; height: 28px; }
-            .header-user-avatar svg { width: 14px; height: 14px; }
+            .header { padding: 0 10px; }
+            .header-inner { height: 52px; gap: 8px; }
+            .logo svg { width: 20px; height: 20px; }
+            .logo-text { font-size: 15px; }
+            .nav { gap: 0px; }
+            .nav a { font-size: 11px; padding: 5px 6px; border-radius: 6px; white-space: nowrap; }
+            .header-auth-btn { padding: 5px 10px; font-size: 11px; white-space: nowrap; }
+            .header-logout { padding: 4px 8px; font-size: 10px; white-space: nowrap; }
+            .header-right { gap: 6px; }
 
             .search-hero { padding: 16px 14px; }
             .search-hero h1 { font-size: 19px; margin-bottom: 2px; }
@@ -507,6 +533,63 @@
             .detail-actions { flex-direction: column; gap: 8px; margin-top: 12px; }
             .detail-btn { padding: 12px; font-size: 14px; border-radius: 10px; }
         }
+
+        /* ─── BOTTOM NAV BAR (MOBILE) ─── */
+        .bottom-nav {
+            display: none; position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-light);
+            padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+            z-index: 900; justify-content: space-around; align-items: center;
+        }
+        .bottom-nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            text-decoration: none; color: var(--text-light); font-size: 10px;
+            font-weight: 600; gap: 2px; padding: 4px 12px;
+            transition: color 0.2s; -webkit-tap-highlight-color: transparent;
+            min-width: 44px; min-height: 44px; justify-content: center;
+        }
+        .bottom-nav-item svg { width: 22px; height: 22px; }
+        .bottom-nav-item.active { color: var(--coral); }
+        .bottom-nav-item.post-tab {
+            background: var(--gradient); color: white; border-radius: 50%;
+            width: 48px; height: 48px; padding: 0; margin-top: -16px;
+            box-shadow: 0 4px 12px rgba(255,90,95,0.35);
+        }
+        .bottom-nav-item.post-tab svg { width: 24px; height: 24px; }
+
+        @media (max-width: 600px) {
+            .bottom-nav { display: flex; }
+            .nav { display: none; }
+            body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+            .post-btn { bottom: calc(70px + env(safe-area-inset-bottom)); }
+            .toast { bottom: calc(80px + env(safe-area-inset-bottom)); }
+        }
+
+        /* ─── PULL TO REFRESH ─── */
+        .ptr-indicator {
+            position: fixed; top: 0; left: 50%;
+            transform: translateX(-50%) translateY(0);
+            z-index: 1000; opacity: 0;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            pointer-events: none;
+        }
+        .ptr-spinner {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 3px solid var(--border-light);
+            border-top-color: var(--coral);
+            margin: 8px;
+        }
+        .ptr-indicator.loading .ptr-spinner {
+            animation: ptrSpin 0.6s linear infinite;
+        }
+        @keyframes ptrSpin { to { transform: rotate(360deg); } }
+
+        /* ─── DRAG HANDLE ─── */
+        .drag-handle {
+            width: 36px; height: 5px; border-radius: 3px;
+            background: var(--border); margin: 8px auto 4px;
+        }
     </style>
 </head>
 <body>
@@ -520,7 +603,8 @@
                 <span class="logo-text">UniCondo</span>
             </a>
             <nav class="nav">
-                <a href="explore.html">Explore</a>
+                <a href="index.html" class="active">Home</a>
+                <a href="explore.html">Map</a>
                 <a href="about.html">About</a>
             </nav>
             <div class="header-right" id="headerRight"></div>
@@ -536,12 +620,10 @@
                 <input type="text" id="searchInput" placeholder="Search by name, area, or price..." oninput="handleSearch()">
             </div>
             <div class="filter-pills">
-                <button class="filter-pill active" onclick="filterCategory('all', this)">All</button>
-                <button class="filter-pill" onclick="filterCategory('walking', this)">🚶 Walking distance</button>
-                <button class="filter-pill" onclick="filterCategory('ride', this)">🛵 Short ride</button>
-                <button class="filter-pill" onclick="filterCategory('budget', this)">💰 Budget</button>
+                <button class="filter-pill active" onclick="sortBy('all', this)">All</button>
                 <button class="filter-pill" onclick="sortBy('price-low', this)">Price ↑</button>
                 <button class="filter-pill" onclick="sortBy('price-high', this)">Price ↓</button>
+                <button class="filter-pill" onclick="sortBy('nearest', this)">Nearest</button>
             </div>
         </div>
     </div>
@@ -589,6 +671,9 @@
                 <div class="form-group">
                     <label>Password</label>
                     <input type="password" id="authPassword" placeholder="••••••••" required minlength="6">
+                </div>
+                <div id="forgotLink" style="text-align:right; margin: -8px 0 10px;">
+                    <a onclick="handleResetPassword()" style="color:var(--coral); font-size:13px; font-weight:600; cursor:pointer; text-decoration:none;">Forgot password?</a>
                 </div>
                 <div class="form-msg" id="authMsg"></div>
                 <button type="submit" class="btn-submit" id="authBtn">Log in</button>
@@ -716,6 +801,7 @@
         document.getElementById('authSwitch').innerHTML = isSignUp
             ? 'Already have an account? <a onclick="toggleAuthMode()">Log in</a>'
             : "Don't have an account? <a onclick=\"toggleAuthMode()\">Sign up</a>";
+        document.getElementById('forgotLink').style.display = isSignUp ? 'none' : 'block';
         clearMsg('authMsg');
     }
 
@@ -745,6 +831,18 @@
         try {
             const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/index.html' } });
             if (error) throw error;
+        } catch (err) { showMsg('authMsg', err.message, 'error'); }
+    }
+
+    async function handleResetPassword() {
+        const email = document.getElementById('authEmail').value;
+        if (!email) { showMsg('authMsg', 'Enter your email first', 'error'); return; }
+        try {
+            const { error } = await sb.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/index.html'
+            });
+            if (error) throw error;
+            showMsg('authMsg', 'Reset link sent! Check your email.', 'success');
         } catch (err) { showMsg('authMsg', err.message, 'error'); }
     }
 
@@ -786,7 +884,6 @@
             l.details.toLowerCase().includes(q) ||
             String(l.price).includes(q)
         );
-        if (activeCategory !== 'all') list = list.filter(l => l.category === activeCategory);
         return list;
     }
 
@@ -799,12 +896,12 @@
             return;
         }
         container.innerHTML = listings.map((l, i) => `
-            <div class="card fade-up" data-id="${l.id}" style="transition-delay: ${i * 50}ms;" onclick="openDetail('${l.id}')">
+            <div class="card card-stagger" data-id="${l.id}" style="animation-delay: ${i * 60}ms;" onclick="haptic('light'); window.location.href='listing.html?id=${l.id}'">
                 ${l.badge ? `<span class="card-badge">${l.badge}</span>` : ''}
                 <button class="card-delete ${currentUser && currentUser.id === l.user_id ? 'show' : ''}"
                     onclick="event.stopPropagation(); deleteListing('${l.id}')">Delete</button>
                 <div class="card-img-wrap">
-                    <img class="card-img" src="${l.image_url || ''}" alt="${l.title}"
+                    <img class="card-img" src="${l.image_url || ''}" alt="${l.title}" loading="lazy"
                         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 200%22><rect fill=%22%23e8e8e8%22 width=%22300%22 height=%22200%22/><text x=%22150%22 y=%22105%22 text-anchor=%22middle%22 fill=%22%23bbb%22 font-size=%2216%22>No photo</text></svg>'">
                 </div>
                 <div class="card-body">
@@ -865,19 +962,20 @@
     function closeDetail() { document.getElementById('detailOverlay').classList.remove('show'); }
     document.getElementById('detailOverlay').addEventListener('click', e => { if (e.target.id === 'detailOverlay') closeDetail(); });
 
-    function filterCategory(cat, el) {
-        activeCategory = cat;
-        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-        el.classList.add('active');
-        renderGrid(getFiltered());
+    const ABAC_LAT = 13.6116, ABAC_LNG = 100.8363;
+    function distToAbac(l) {
+        const dlat = (l.lat || 0) - ABAC_LAT, dlng = (l.lng || 0) - ABAC_LNG;
+        return Math.sqrt(dlat * dlat + dlng * dlng);
     }
 
     function sortBy(mode, el) {
+        haptic('light');
         document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
         el.classList.add('active');
         let sorted = getFiltered();
         if (mode === 'price-low') sorted.sort((a, b) => a.price - b.price);
         else if (mode === 'price-high') sorted.sort((a, b) => b.price - a.price);
+        else if (mode === 'nearest') sorted.sort((a, b) => distToAbac(a) - distToAbac(b));
         renderGrid(sorted);
     }
 
@@ -905,9 +1003,11 @@
             if (error) throw error;
             // Success checkmark
             btn.innerHTML = '<div class="success-check"></div>';
+            haptic('success');
             setTimeout(() => { closeModals(); form.reset(); showToast('Listing posted!'); loadListings(); }, 800);
         } catch (err) {
             showMsg('listingMsg', err.message, 'error');
+            haptic('error');
             form.classList.add('shake');
             setTimeout(() => form.classList.remove('shake'), 400);
         }
@@ -925,6 +1025,7 @@
 
     // ── MODALS & UTILS ──
     function openModal(type) {
+        haptic('medium');
         closeModals();
         if (type === 'auth') { isSignUp = false; toggleAuthMode(); toggleAuthMode(); document.getElementById('authModal').classList.add('show'); }
         else if (type === 'listing') { if (!currentUser) { openModal('auth'); return; } document.getElementById('listingModal').classList.add('show'); }
@@ -933,6 +1034,7 @@
     document.querySelectorAll('.modal-overlay').forEach(o => { o.addEventListener('click', e => { if (e.target === o) closeModals(); }); });
 
     function showToast(msg) {
+        haptic('light');
         const t = document.getElementById('toast');
         t.textContent = msg; t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), 2500);
@@ -948,6 +1050,98 @@
         document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
     }
 
+    // ── HAPTIC FEEDBACK ──
+    function haptic(type) {
+        if (!navigator.vibrate) return;
+        const patterns = { light: 10, medium: 25, success: [10, 50, 20], error: [30, 50, 30] };
+        try { navigator.vibrate(patterns[type] || 10); } catch(e) {}
+    }
+
+    // ── PULL TO REFRESH (MOBILE) ──
+    (function() {
+        let startY = 0, pulling = false;
+        const threshold = 80;
+        let indicator = document.createElement('div');
+        indicator.className = 'ptr-indicator';
+        indicator.innerHTML = '<div class="ptr-spinner"></div>';
+        document.body.prepend(indicator);
+
+        document.addEventListener('touchstart', e => {
+            if (window.scrollY === 0 && !document.querySelector('.modal-overlay.show')) {
+                startY = e.touches[0].clientY; pulling = true;
+            }
+        }, { passive: true });
+        document.addEventListener('touchmove', e => {
+            if (!pulling) return;
+            const dy = e.touches[0].clientY - startY;
+            if (dy > 0 && dy < 150) {
+                indicator.style.transform = `translateX(-50%) translateY(${Math.min(dy, threshold)}px)`;
+                indicator.style.opacity = Math.min(dy / threshold, 1);
+            }
+        }, { passive: true });
+        document.addEventListener('touchend', () => {
+            if (!pulling) return;
+            pulling = false;
+            const op = parseFloat(indicator.style.opacity || 0);
+            if (op >= 1) {
+                haptic('medium');
+                indicator.classList.add('loading');
+                loadListings().then(() => {
+                    indicator.classList.remove('loading');
+                    indicator.style.transform = 'translateX(-50%) translateY(0)';
+                    indicator.style.opacity = 0;
+                    showToast('Refreshed!');
+                });
+            } else {
+                indicator.style.transform = 'translateX(-50%) translateY(0)';
+                indicator.style.opacity = 0;
+            }
+        });
+    })();
+
+    // ── SWIPE TO DISMISS BOTTOM SHEET ──
+    (function() {
+        const overlay = document.querySelector('.detail-overlay');
+        if (!overlay) return;
+        const modal = overlay.querySelector('.detail-modal');
+        if (!modal) return;
+        // Add drag handle
+        const handle = document.createElement('div');
+        handle.className = 'drag-handle';
+        modal.prepend(handle);
+
+        let startY = 0, currentY = 0, dragging = false;
+        modal.addEventListener('touchstart', e => {
+            if (e.target.closest('.detail-actions, a, button')) return;
+            startY = e.touches[0].clientY; dragging = true; currentY = 0;
+            modal.style.transition = 'none';
+        }, { passive: true });
+        modal.addEventListener('touchmove', e => {
+            if (!dragging) return;
+            currentY = e.touches[0].clientY - startY;
+            if (currentY > 0) {
+                modal.style.transform = `translateY(${currentY}px)`;
+                overlay.style.background = `rgba(0,0,0,${0.55 * (1 - currentY / 400)})`;
+            }
+        }, { passive: true });
+        modal.addEventListener('touchend', () => {
+            if (!dragging) return; dragging = false;
+            modal.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
+            if (currentY > modal.offsetHeight * 0.3) {
+                haptic('light');
+                modal.style.transform = 'translateY(100%)';
+                setTimeout(() => {
+                    overlay.classList.remove('show');
+                    modal.style.transform = '';
+                    overlay.style.background = '';
+                }, 300);
+            } else {
+                modal.style.transform = 'translateY(0)';
+                overlay.style.background = '';
+            }
+        });
+    })();
+
     // ── BOOT ──
     async function boot() {
         showSkeleton();
@@ -956,5 +1150,28 @@
     }
     boot();
     </script>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item active" onclick="haptic('light')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L4 9v12h5v-7h6v7h5V9l-8-6z"/></svg>
+            Home
+        </a>
+        <a href="explore.html" class="bottom-nav-item" onclick="haptic('light')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+            Map
+        </a>
+        <a href="#" class="bottom-nav-item post-tab" onclick="event.preventDefault(); haptic('medium'); openModal(currentUser ? 'listing' : 'auth')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        </a>
+        <a href="about.html" class="bottom-nav-item" onclick="haptic('light')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            About
+        </a>
+        <a href="profile.html" class="bottom-nav-item" onclick="haptic('light')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.87 0-7 2.24-7 5v1h14v-1c0-2.76-3.13-5-7-5z"/></svg>
+            Profile
+        </a>
+    </nav>
 </body>
 </html>
