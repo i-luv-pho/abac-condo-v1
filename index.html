@@ -223,16 +223,16 @@
 
         /* ─── CATEGORY FILTERS (Airbnb-style icon row) ─── */
         .category-bar {
-            display: flex; gap: 24px; margin-top: 16px; overflow-x: auto;
+            display: flex; gap: 28px; margin-top: 16px; overflow-x: auto;
             scrollbar-width: none; -ms-overflow-style: none;
-            padding-bottom: 4px;
+            padding-bottom: 2px;
         }
         .category-bar::-webkit-scrollbar { display: none; }
         .category-item {
             display: flex; flex-direction: column; align-items: center;
-            gap: 6px; min-width: 56px; cursor: pointer;
-            padding: 8px 4px; border-bottom: 2px solid transparent;
-            transition: all 0.2s; opacity: 0.65; flex-shrink: 0;
+            gap: 6px; min-width: 50px; cursor: pointer;
+            padding: 10px 4px 12px; border-bottom: 2px solid transparent;
+            transition: all 0.15s; opacity: 0.6; flex-shrink: 0;
             background: none; border-top: none; border-left: none; border-right: none;
             font-family: inherit;
         }
@@ -240,10 +240,14 @@
         .category-item.active {
             opacity: 1; border-bottom-color: var(--text);
         }
-        .category-icon { font-size: 22px; }
+        .category-icon {
+            width: 24px; height: 24px; display: flex;
+            align-items: center; justify-content: center;
+        }
+        .category-icon svg { width: 24px; height: 24px; color: var(--text); }
         .category-label {
-            font-size: 11px; font-weight: 700; color: var(--text);
-            white-space: nowrap;
+            font-size: 11px; font-weight: 600; color: var(--text);
+            white-space: nowrap; letter-spacing: 0.01em;
         }
 
         /* ─── GRID ─── */
@@ -775,31 +779,31 @@
             </div>
             <div class="category-bar">
                 <button class="category-item active" onclick="sortBy('all', this)">
-                    <span class="category-icon">🏠</span>
+                    <span class="category-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M2 22V8.5L12 2l10 6.5V22H15v-6h-6v6H2z"/></svg></span>
                     <span class="category-label">All</span>
                 </button>
                 <button class="category-item" onclick="sortBy('nearest', this)">
-                    <span class="category-icon">📍</span>
+                    <span class="category-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></span>
                     <span class="category-label">Nearest</span>
                 </button>
                 <button class="category-item" onclick="sortBy('price-low', this)">
-                    <span class="category-icon">💰</span>
+                    <span class="category-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>
                     <span class="category-label">Budget</span>
                 </button>
                 <button class="category-item" onclick="sortBy('price-high', this)">
-                    <span class="category-icon">✨</span>
+                    <span class="category-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
                     <span class="category-label">Premium</span>
                 </button>
                 <button class="category-item" onclick="sortBy('walking', this)">
-                    <span class="category-icon">🚶</span>
+                    <span class="category-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M10.5 9l-2 7 4.5 2 1.5 4M13.5 9l2 4-3.5 1"/></svg></span>
                     <span class="category-label">Walking</span>
                 </button>
                 <button class="category-item" onclick="sortBy('ride', this)">
-                    <span class="category-icon">🛵</span>
+                    <span class="category-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="18" r="2.5"/><path d="M9.5 18h5M5 12l2-4h5l3.5 4H5z"/></svg></span>
                     <span class="category-label">Ride</span>
                 </button>
                 <button class="category-item" onclick="sortBy('top-rated', this)">
-                    <span class="category-icon">⭐</span>
+                    <span class="category-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 00-6 0v4M4 12h16l-1.5 9H5.5L4 12z"/></svg></span>
                     <span class="category-label">Top Rated</span>
                 </button>
             </div>
