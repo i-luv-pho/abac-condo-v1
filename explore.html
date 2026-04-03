@@ -1105,60 +1105,63 @@
     // ══════════════════════════════════════
     // GOOGLE MAP INIT
     // ══════════════════════════════════════
-    // Custom overlay class for price markers
-    class PriceMarkerOverlay extends google.maps.OverlayView {
-        constructor(position, price, id, listing) {
-            super();
-            this.position = position;
-            this.price = price;
-            this.id = id;
-            this.listing = listing;
-            this.div = null;
-        }
-        onAdd() {
-            this.div = document.createElement('div');
-            this.div.className = 'price-marker';
-            this.div.dataset.id = this.id;
-            this.div.textContent = this.price;
-
-            this.div.addEventListener('click', (e) => {
-                e.stopPropagation();
-                openInfoWindow(this.listing, this.position);
-                const card = document.querySelector('.listing-card[data-id="' + this.id + '"]');
-                if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            });
-            this.div.addEventListener('mouseenter', () => {
-                this.div.classList.add('active');
-                const el = document.querySelector('.listing-card[data-id="' + this.id + '"]');
-                if (el) el.classList.add('highlighted');
-            });
-            this.div.addEventListener('mouseleave', () => {
-                this.div.classList.remove('active');
-                const el = document.querySelector('.listing-card[data-id="' + this.id + '"]');
-                if (el) el.classList.remove('highlighted');
-            });
-
-            const panes = this.getPanes();
-            panes.overlayMouseTarget.appendChild(this.div);
-        }
-        draw() {
-            const projection = this.getProjection();
-            const pos = projection.fromLatLngToDivPixel(new google.maps.LatLng(this.position.lat, this.position.lng));
-            if (this.div) {
-                this.div.style.position = 'absolute';
-                this.div.style.left = (pos.x - 30) + 'px';
-                this.div.style.top = (pos.y - 15) + 'px';
-            }
-        }
-        onRemove() {
-            if (this.div) { this.div.parentNode.removeChild(this.div); this.div = null; }
-        }
-        setActive(active) {
-            if (this.div) this.div.classList.toggle('active', active);
-        }
-    }
+    // PriceMarkerOverlay is defined inside initMap() because google.maps
+    // is not available until the Maps API script loads (async defer).
+    let PriceMarkerOverlay;
 
     function initMap() {
+        // Define the class now that google.maps is available
+        PriceMarkerOverlay = class extends google.maps.OverlayView {
+            constructor(position, price, id, listing) {
+                super();
+                this.position = position;
+                this.price = price;
+                this.id = id;
+                this.listing = listing;
+                this.div = null;
+            }
+            onAdd() {
+                this.div = document.createElement('div');
+                this.div.className = 'price-marker';
+                this.div.dataset.id = this.id;
+                this.div.textContent = this.price;
+
+                this.div.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openInfoWindow(this.listing, this.position);
+                    const card = document.querySelector('.listing-card[data-id="' + this.id + '"]');
+                    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+                this.div.addEventListener('mouseenter', () => {
+                    this.div.classList.add('active');
+                    const el = document.querySelector('.listing-card[data-id="' + this.id + '"]');
+                    if (el) el.classList.add('highlighted');
+                });
+                this.div.addEventListener('mouseleave', () => {
+                    this.div.classList.remove('active');
+                    const el = document.querySelector('.listing-card[data-id="' + this.id + '"]');
+                    if (el) el.classList.remove('highlighted');
+                });
+
+                const panes = this.getPanes();
+                panes.overlayMouseTarget.appendChild(this.div);
+            }
+            draw() {
+                const projection = this.getProjection();
+                const pos = projection.fromLatLngToDivPixel(new google.maps.LatLng(this.position.lat, this.position.lng));
+                if (this.div) {
+                    this.div.style.position = 'absolute';
+                    this.div.style.left = (pos.x - 30) + 'px';
+                    this.div.style.top = (pos.y - 15) + 'px';
+                }
+            }
+            onRemove() {
+                if (this.div) { this.div.parentNode.removeChild(this.div); this.div = null; }
+            }
+            setActive(active) {
+                if (this.div) this.div.classList.toggle('active', active);
+            }
+        };
         map = new google.maps.Map(document.getElementById('map'), {
             center: ABAC,
             zoom: 14,
@@ -1213,7 +1216,8 @@
         });
 
         console.log('Google Map initialized');
-        if (typeof sb !== 'undefined') { boot(); }
+        // If listings already loaded before map, render markers now
+        if (allListings.length) updateMapMarkers(allListings);
     }
 
     function formatPriceShort(price) {
@@ -1470,7 +1474,7 @@
 
         // Update UI
         renderListings(filtered);
-        updateMapMarkers(filtered);
+        if (map && PriceMarkerOverlay) updateMapMarkers(filtered);
         updateResultsCount(filtered.length, allListings.length);
     }
 
@@ -1843,10 +1847,11 @@
     // BOOT
     // ══════════════════════════════════════
     async function boot() {
-        if (!map) return;
         console.log('AbacCondo booting...');
         await initAuth();
         await loadListings();
+        // If map loaded after listings, update markers now
+        if (map && PriceMarkerOverlay && allListings.length) updateMapMarkers(allListings);
         console.log('AbacCondo ready!');
     }
 
@@ -1857,7 +1862,8 @@
         try { navigator.vibrate(patterns[type] || 10); } catch(e) {}
     }
 
-    // boot() is called by initMap callback from Google Maps script
+    // Boot immediately — don't wait for Google Maps
+    if (typeof sb !== 'undefined') { boot(); }
     </script>
 
     <nav class="bottom-nav">
