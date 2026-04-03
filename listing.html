@@ -13,28 +13,31 @@
     <link rel="preconnect" href="https://pekqhcxbhtgfsqtiunic.supabase.co">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBfbugmOoOnX9f_wL8RzgttgqP76J6g-gY" async defer></script>
     <style>
         html { scroll-behavior: smooth; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
+
         :root {
             --coral: #FF5A5F; --coral-dark: #E04E53;
             --gradient: linear-gradient(135deg, #FF5A5F 0%, #FF8A6C 100%);
-            --bg: #F7F7F7; --white: #FFFFFF; --text: #222222;
-            --text-light: #717171; --border: #DDDDDD;
-            --border-light: #EBEBEB;
-            --shadow: 0 2px 8px rgba(0,0,0,0.1);
-            --shadow-lg: 0 6px 20px rgba(0,0,0,0.15);
+            --navy: #1a1a2e; --navy-light: #2d2d44;
+            --bg: #F7F8FA; --white: #FFFFFF; --text: #1a1a2e;
+            --text-light: #6b7280; --text-muted: #9ca3af;
+            --border: #e5e7eb; --border-light: #f3f4f6;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 30px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 60px rgba(0,0,0,0.12);
+            --radius: 12px; --radius-lg: 16px; --radius-xl: 20px;
         }
         body {
             font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg); color: var(--text);
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
-            
         }
 
         /* ─── HEADER ─── */
@@ -80,146 +83,449 @@
 
         /* ─── BACK BUTTON ─── */
         .back-bar {
-            max-width: 1100px; margin: 0 auto; padding: 16px 24px;
+            max-width: 1200px; margin: 0 auto; padding: 16px 24px;
         }
         .back-btn {
             display: inline-flex; align-items: center; gap: 6px;
-            color: var(--text); font-size: 14px; font-weight: 700;
+            color: var(--text-light); font-size: 14px; font-weight: 700;
             text-decoration: none; padding: 8px 14px; border-radius: 8px;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
-        .back-btn:hover { background: rgba(0,0,0,0.05); }
+        .back-btn:hover { background: white; color: var(--text); box-shadow: var(--shadow-sm); }
         .back-btn svg { width: 18px; height: 18px; }
 
-        /* ─── LISTING LAYOUT ─── */
+        /* ─── HERO IMAGE ─── */
         .listing-page {
-            max-width: 1100px; margin: 0 auto; padding: 0 24px 60px;
+            max-width: 1200px; margin: 0 auto; padding: 0 24px 80px;
+        }
+        .hero-container {
+            position: relative; border-radius: var(--radius-xl); overflow: hidden;
+            background: #e8e8e8; margin-bottom: 0;
         }
         .listing-hero-img {
-            width: 100%; height: 400px; object-fit: cover;
-            border-radius: 16px; background: #e8e8e8;
+            width: 100%; height: 480px; object-fit: cover; display: block;
             animation: heroFadeIn 0.6s ease-out;
         }
+        .hero-gradient {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 50%;
+            background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        .hero-badge {
+            position: absolute; top: 20px; left: 20px;
+            display: inline-flex; align-items: center; gap: 6px;
+            background: white; color: var(--navy);
+            font-size: 13px; font-weight: 800; padding: 8px 16px;
+            border-radius: 100px; box-shadow: var(--shadow-lg);
+        }
+        .hero-badge .badge-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--coral);
+        }
+        .hero-share-btn {
+            position: absolute; top: 20px; right: 20px;
+            background: white; border: none; cursor: pointer;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: var(--shadow-lg); transition: transform 0.2s;
+        }
+        .hero-share-btn:hover { transform: scale(1.1); }
+        .hero-share-btn:active { transform: scale(0.95); }
+        .hero-share-btn svg { width: 18px; height: 18px; color: var(--navy); }
+        .hero-bottom-info {
+            position: absolute; bottom: 20px; left: 24px; right: 24px;
+            display: flex; justify-content: space-between; align-items: flex-end;
+        }
+        .hero-title-area h1 {
+            color: white; font-size: 28px; font-weight: 900; margin-bottom: 4px;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        .hero-title-area p {
+            color: rgba(255,255,255,0.9); font-size: 15px; font-weight: 600;
+        }
+        .hero-price-tag {
+            background: white; padding: 10px 20px; border-radius: 14px;
+            box-shadow: var(--shadow-lg); text-align: right; flex-shrink: 0;
+        }
+        .hero-price-tag .price-amount {
+            font-size: 24px; font-weight: 900; color: var(--navy);
+        }
+        .hero-price-tag .price-period {
+            font-size: 13px; color: var(--text-light); font-weight: 600;
+        }
         @keyframes heroFadeIn {
-            from { opacity: 0; transform: scale(1.02); }
+            from { opacity: 0; transform: scale(1.03); }
             to { opacity: 1; transform: scale(1); }
         }
+
+        /* ─── KEY FACTS BAR ─── */
+        .key-facts-bar {
+            display: flex; gap: 10px; flex-wrap: wrap;
+            padding: 20px 0 8px; margin-top: 4px;
+        }
+        .fact-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: white; border: 1px solid var(--border);
+            padding: 8px 16px; border-radius: 100px;
+            font-size: 13px; font-weight: 700; color: var(--navy);
+            box-shadow: var(--shadow-sm);
+        }
+        .fact-pill .fact-icon { font-size: 15px; }
+        .fact-pill.highlight {
+            background: var(--coral); color: white; border-color: var(--coral);
+        }
+
+        /* ─── LISTING GRID ─── */
         .listing-grid {
-            display: grid; grid-template-columns: 1fr 380px; gap: 40px;
+            display: grid; grid-template-columns: 1fr 380px; gap: 36px;
             margin-top: 24px;
         }
 
         /* ─── LEFT COLUMN ─── */
         .listing-main { min-width: 0; }
-        .listing-badge {
-            display: inline-block; background: var(--coral); color: white;
-            font-size: 12px; font-weight: 700; padding: 4px 12px;
-            border-radius: 6px; margin-bottom: 8px;
-        }
-        .listing-title { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
-        .listing-location { font-size: 16px; color: var(--text-light); margin-bottom: 16px; }
-        .listing-meta-row {
-            display: flex; gap: 24px; padding: 16px 0;
-            border-top: 1px solid var(--border-light);
-            border-bottom: 1px solid var(--border-light);
-        }
-        .meta-item { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; }
-        .meta-item span { font-size: 18px; }
 
-        .listing-section { margin-top: 24px; }
-        .listing-section h3 { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
-        .listing-section p { font-size: 15px; color: var(--text-light); line-height: 1.6; }
+        /* Section cards */
+        .section-card {
+            background: white; border-radius: var(--radius-lg); padding: 28px;
+            border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+            opacity: 0; transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .section-card.visible {
+            opacity: 1; transform: translateY(0);
+        }
+        .section-card h3 {
+            font-size: 18px; font-weight: 800; color: var(--navy);
+            margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+        }
+        .section-card h3 .section-icon {
+            width: 32px; height: 32px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; flex-shrink: 0;
+        }
+        .section-card h3 .icon-blue { background: #EFF6FF; }
+        .section-card h3 .icon-green { background: #F0FDF4; }
+        .section-card h3 .icon-purple { background: #FAF5FF; }
+        .section-card h3 .icon-orange { background: #FFF7ED; }
+        .section-card h3 .icon-coral { background: #FFF1F2; }
 
-        /* Map */
+        /* Quick Facts grid */
+        .features-summary {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 18px; background: var(--bg); border-radius: var(--radius);
+            margin-bottom: 16px;
+        }
+        .features-score {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .features-score-ring {
+            width: 52px; height: 52px; border-radius: 50%; position: relative;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .features-score-ring svg { width: 52px; height: 52px; transform: rotate(-90deg); }
+        .features-score-ring circle {
+            fill: none; stroke-width: 4; cx: 26; cy: 26; r: 22;
+        }
+        .features-score-ring .ring-bg { stroke: #e5e7eb; }
+        .features-score-ring .ring-fill { stroke: var(--coral); stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+        .features-score-number {
+            position: absolute; inset: 0; display: flex; align-items: center;
+            justify-content: center; font-size: 14px; font-weight: 800; color: var(--navy);
+        }
+        .features-score-text { font-size: 14px; font-weight: 700; color: var(--navy); line-height: 1.3; }
+        .features-score-text span { font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; }
+        .features-best {
+            text-align: right; font-size: 12px; color: var(--text-muted); font-weight: 600;
+            padding: 6px 12px; background: white; border-radius: 8px; line-height: 1.4;
+        }
+        .features-best strong { color: var(--coral); font-weight: 800; }
+
+        .quick-facts-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
+        }
+        .quick-fact-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 14px; background: var(--bg); border-radius: var(--radius);
+            transition: all 0.2s;
+        }
+        .quick-fact-item.available {
+            background: #F0FDF4; border: 1.5px solid #bbf7d0;
+        }
+        .quick-fact-item.unavailable {
+            background: #f9fafb; border: 1.5px solid transparent; opacity: 0.5;
+        }
+        .quick-fact-icon {
+            width: 36px; height: 36px; border-radius: 10px; background: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0; box-shadow: var(--shadow-sm);
+        }
+        .quick-fact-item.unavailable .quick-fact-icon { opacity: 0.4; filter: grayscale(1); }
+        .quick-fact-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .quick-fact-value { font-size: 13px; font-weight: 800; color: var(--navy); display: flex; align-items: center; gap: 5px; }
+        .quick-fact-item.unavailable .quick-fact-value { color: #9ca3af; }
+        .check-icon { width: 14px; height: 14px; flex-shrink: 0; }
+        .check-icon.yes { color: #22c55e; }
+        .check-icon.no { color: #d1d5db; }
+
+        /* Cost estimate */
+        .cost-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        }
+        .cost-item {
+            padding: 16px; background: var(--bg); border-radius: var(--radius);
+            text-align: center;
+        }
+        .cost-item.primary {
+            background: linear-gradient(135deg, #FF5A5F08 0%, #FF8A6C12 100%);
+            border: 1.5px solid #FF5A5F20;
+            grid-column: 1 / -1;
+        }
+        .cost-amount { font-size: 28px; font-weight: 900; color: var(--navy); }
+        .cost-item.primary .cost-amount { font-size: 36px; color: var(--coral); }
+        .cost-label { font-size: 12px; color: var(--text-light); font-weight: 600; margin-top: 2px; }
+
+        /* About text */
+        .about-text { font-size: 15px; color: var(--text-light); line-height: 1.75; }
+
+        /* Map section */
         .listing-map {
-            width: 100%; height: 260px; border-radius: 12px;
-            border: 1px solid var(--border-light); margin-top: 12px;
+            width: 100%; height: 280px; border-radius: var(--radius);
+            border: 1px solid var(--border-light); margin-top: 16px;
         }
+        .map-context {
+            display: flex; gap: 16px; margin-top: 12px;
+        }
+        .map-context-item {
+            display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-light);
+        }
+        .map-dot {
+            width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+        }
+        .map-dot.coral { background: var(--coral); }
+        .map-dot.blue { background: #1a73e8; }
+
+        /* ─── SIMILAR LISTINGS ─── */
+        .similar-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+        }
+        .similar-card {
+            background: white; border-radius: var(--radius); overflow: hidden;
+            border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);
+            text-decoration: none; color: var(--text);
+            transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;
+        }
+        .similar-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .similar-card img {
+            width: 100%; height: 130px; object-fit: cover; display: block;
+        }
+        .similar-card-body { padding: 14px; }
+        .similar-card-title { font-size: 14px; font-weight: 800; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .similar-card-price { font-size: 16px; font-weight: 900; color: var(--coral); }
+        .similar-card-price span { font-size: 12px; font-weight: 600; color: var(--text-light); }
+        .similar-card-meta { font-size: 12px; color: var(--text-light); font-weight: 600; margin-top: 4px; }
 
         /* ─── RIGHT COLUMN: CONTACT CARD ─── */
         .contact-card {
-            background: var(--white); border-radius: 16px;
-            padding: 28px; box-shadow: var(--shadow-lg);
-            position: sticky; top: 88px; border: 1px solid var(--border-light);
+            background: var(--white); border-radius: var(--radius-xl);
+            padding: 0; box-shadow: var(--shadow-xl);
+            position: sticky; top: 100px; border: 1px solid var(--border-light);
+            overflow: hidden;
             animation: slideInRight 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         @keyframes slideInRight {
             from { opacity: 0; transform: translateX(24px); }
             to { opacity: 1; transform: translateX(0); }
         }
-        .contact-price {
-            font-size: 28px; font-weight: 800; margin-bottom: 4px;
+        .contact-card-header {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            padding: 24px 28px;
         }
-        .contact-price span { font-size: 16px; font-weight: 500; color: var(--text-light); }
-        .contact-rating {
-            display: flex; align-items: center; gap: 4px;
-            font-size: 14px; font-weight: 600; margin-bottom: 20px;
+        .contact-price-row { display: flex; align-items: baseline; gap: 6px; }
+        .contact-price { font-size: 36px; font-weight: 900; color: white; line-height: 1.1; }
+        .contact-price-period { font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.6); }
+        .contact-rating-row {
+            display: flex; align-items: center; gap: 8px; margin-top: 10px;
         }
-        .contact-rating svg { width: 14px; height: 14px; color: var(--coral); }
-        .contact-divider {
-            height: 1px; background: var(--border-light); margin: 16px 0;
+        .contact-rating-stars {
+            display: flex; align-items: center; gap: 2px;
         }
-        .contact-row {
+        .contact-rating-stars svg { width: 14px; height: 14px; color: #FBBF24; }
+        .contact-rating-text { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9); }
+        .contact-verified-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 100px;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.9);
+        }
+        .contact-verified-badge svg { width: 14px; height: 14px; }
+
+        .contact-card-body { padding: 24px 28px; }
+
+        .contact-trust-text {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; color: var(--text-light); font-weight: 600;
+            margin-bottom: 20px; padding: 10px 14px;
+            background: #F0FDF4; border-radius: 10px;
+        }
+        .contact-trust-text svg { width: 16px; height: 16px; color: #22C55E; flex-shrink: 0; }
+
+        .contact-details-grid { margin-bottom: 20px; }
+        .contact-detail-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 0; font-size: 14px;
+            border-bottom: 1px solid var(--border-light);
         }
-        .contact-label { color: var(--text-light); font-weight: 600; }
-        .contact-value { font-weight: 700; }
+        .contact-detail-row:last-child { border-bottom: none; }
+        .contact-detail-label { color: var(--text-light); font-weight: 600; }
+        .contact-detail-value { font-weight: 700; color: var(--navy); }
 
-        /* Phone */
-        .phone-section { margin-top: 20px; }
-        .phone-number {
-            display: flex; align-items: center; gap: 10px;
-            background: #F0FFF4; border: 1.5px solid #C6F6D5;
-            border-radius: 12px; padding: 14px 16px; margin-bottom: 12px;
+        /* Inquiry form */
+        .inquiry-section { margin-top: 4px; }
+        .inquiry-section h4 {
+            font-size: 15px; font-weight: 800; color: var(--navy);
+            margin-bottom: 14px;
         }
-        .phone-icon { font-size: 22px; }
-        .phone-text { font-size: 18px; font-weight: 800; color: #276749; letter-spacing: 0.5px; }
-        .phone-label { font-size: 12px; color: #38A169; font-weight: 600; }
+        .form-field { position: relative; margin-bottom: 12px; }
+        .form-field input, .form-field textarea {
+            width: 100%; padding: 14px 16px; padding-top: 20px;
+            border: 1.5px solid var(--border); border-radius: var(--radius);
+            font-size: 14px; font-family: inherit; background: var(--bg);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none; color: var(--text);
+        }
+        .form-field input:focus, .form-field textarea:focus {
+            border-color: var(--coral); box-shadow: 0 0 0 3px rgba(255,90,95,0.1);
+            background: white;
+        }
+        .form-field label {
+            position: absolute; top: 6px; left: 16px;
+            font-size: 10px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            pointer-events: none;
+        }
+        .form-field textarea { resize: vertical; min-height: 60px; }
 
-        .btn-call {
+        .btn-inquiry {
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            width: 100%; padding: 14px; border-radius: 10px;
-            background: #38A169; color: white; border: none;
-            font-size: 16px; font-weight: 700; cursor: pointer;
+            width: 100%; padding: 14px; border-radius: var(--radius);
+            background: var(--gradient); color: white; border: none;
+            font-size: 16px; font-weight: 800; cursor: pointer;
             font-family: inherit; transition: all 0.2s;
-            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(255,90,95,0.3);
         }
-        .btn-call:hover { background: #2F855A; }
-        .btn-call:active { transform: scale(0.97); }
-        .btn-call:hover { box-shadow: 0 0 0 4px rgba(56,161,105,0.2); }
-        .btn-call svg { width: 20px; height: 20px; }
+        .btn-inquiry:hover { box-shadow: 0 6px 20px rgba(255,90,95,0.4); transform: translateY(-1px); }
+        .btn-inquiry:active { transform: scale(0.98) translateY(0); }
+        .btn-inquiry svg { width: 18px; height: 18px; }
 
         .btn-directions {
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            width: 100%; padding: 14px; border-radius: 10px;
-            background: var(--gradient); color: white; border: none;
-            font-size: 16px; font-weight: 700; cursor: pointer;
+            width: 100%; padding: 13px; border-radius: var(--radius);
+            background: white; color: var(--navy); border: 1.5px solid var(--border);
+            font-size: 14px; font-weight: 700; cursor: pointer;
             font-family: inherit; transition: all 0.2s;
             text-decoration: none; margin-top: 10px;
         }
-        .btn-directions:hover { opacity: 0.9; box-shadow: 0 0 0 4px rgba(255,90,95,0.2); }
-        .btn-directions:active { transform: scale(0.97); }
+        .btn-directions:hover { border-color: var(--navy); background: var(--bg); }
+        .btn-directions:active { transform: scale(0.98); }
+        .btn-directions svg { width: 16px; height: 16px; }
 
-        .no-phone {
-            text-align: center; padding: 16px;
-            color: var(--text-light); font-size: 13px;
-            background: var(--bg); border-radius: 10px;
+        .btn-share {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 13px; border-radius: var(--radius);
+            background: white; color: var(--text-light); border: 1.5px solid var(--border);
+            font-size: 14px; font-weight: 700; cursor: pointer;
+            font-family: inherit; transition: all 0.2s;
+            margin-top: 8px;
         }
+        .btn-share:hover { border-color: var(--text-light); color: var(--navy); }
+        .btn-share svg { width: 16px; height: 16px; }
 
-        /* ─── LOADING ─── */
+        .inquiry-success {
+            display: none; text-align: center; padding: 20px;
+            color: #065f46; background: #d1fae5; border-radius: var(--radius);
+            font-weight: 700; font-size: 14px;
+        }
+        .inquiry-success svg { width: 32px; height: 32px; color: #22C55E; margin-bottom: 8px; }
+
+        /* ─── TOAST ─── */
+        .toast {
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: var(--navy); color: white; padding: 12px 24px;
+            border-radius: 100px; font-size: 14px; font-weight: 700;
+            box-shadow: var(--shadow-xl); opacity: 0; pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s; z-index: 1000;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ─── LOADING SKELETON ─── */
         .loading-page {
             text-align: center; padding: 80px 24px;
             color: var(--text-light); font-size: 16px;
         }
+        .skeleton {
+            animation: skeletonPulse 1.8s ease-in-out infinite;
+        }
+        .skeleton-hero {
+            width: 100%; height: 480px; border-radius: var(--radius-xl);
+            background: linear-gradient(110deg, #e8e8e8 8%, #f5f5f5 18%, #e8e8e8 33%);
+            background-size: 200% 100%;
+            animation: skeletonShimmer 1.5s linear infinite;
+        }
+        .skeleton-bar {
+            height: 20px; border-radius: 6px; background: #e8e8e8; margin-bottom: 10px;
+        }
+        .skeleton-card {
+            background: white; border-radius: var(--radius-lg); padding: 28px;
+            border: 1px solid var(--border-light); margin-bottom: 20px;
+        }
+        @keyframes skeletonShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ─── MOBILE STICKY CTA ─── */
+        .mobile-cta {
+            display: none; position: fixed; bottom: 0; left: 0; right: 0;
+            background: white; border-top: 1px solid var(--border);
+            padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+            z-index: 800; box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+        .mobile-cta-inner {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        .mobile-cta-price {
+            font-size: 20px; font-weight: 900; color: var(--navy);
+        }
+        .mobile-cta-price span { font-size: 13px; font-weight: 600; color: var(--text-light); }
+        .mobile-cta-btn {
+            background: var(--gradient); color: white; border: none;
+            padding: 12px 24px; border-radius: 100px; font-size: 15px;
+            font-weight: 800; cursor: pointer; font-family: inherit;
+            box-shadow: 0 4px 14px rgba(255,90,95,0.3); flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .mobile-cta-btn:active { transform: scale(0.96); }
+
+        /* ─── COLLAPSIBLE SECTIONS (MOBILE) ─── */
+        .section-toggle {
+            display: none; cursor: pointer; user-select: none;
+        }
+        .section-toggle svg {
+            width: 20px; height: 20px; color: var(--text-light);
+            transition: transform 0.3s;
+        }
+        .section-toggle.collapsed svg { transform: rotate(-90deg); }
+        .section-body { transition: max-height 0.3s ease, opacity 0.3s ease; overflow: hidden; }
+        .section-body.collapsed { max-height: 0 !important; opacity: 0; }
 
         /* ─── RESPONSIVE ─── */
         @media (max-width: 900px) {
             .listing-grid { grid-template-columns: 1fr; gap: 24px; }
-            .listing-hero-img { height: 260px; border-radius: 12px; }
-            .listing-title { font-size: 22px; }
+            .listing-hero-img { height: 320px; }
             .contact-card { position: static; }
             .nav { gap: 2px; }
+            .hero-bottom-info { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .hero-price-tag { align-self: flex-start; }
+            .similar-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 600px) {
             .header { padding: 0 10px; }
@@ -237,34 +543,45 @@
             .back-btn { font-size: 13px; padding: 6px 10px; }
             .back-btn svg { width: 16px; height: 16px; }
 
-            .listing-page { padding: 0 12px 32px; }
-            .listing-hero-img { height: 200px; border-radius: 10px; }
+            .listing-page { padding: 0 12px 120px; }
+            .listing-hero-img { height: 240px; }
+            .hero-container { border-radius: var(--radius); }
             .listing-grid { gap: 16px; margin-top: 16px; }
-            .listing-badge { font-size: 11px; padding: 3px 10px; }
-            .listing-title { font-size: 18px; }
-            .listing-location { font-size: 14px; margin-bottom: 12px; }
-            .listing-meta-row { flex-wrap: wrap; gap: 10px; padding: 12px 0; }
-            .meta-item { font-size: 13px; }
-            .meta-item span { font-size: 16px; }
+            .key-facts-bar { gap: 8px; padding: 14px 0 4px; }
+            .fact-pill { padding: 6px 12px; font-size: 12px; }
 
-            .listing-section { margin-top: 18px; }
-            .listing-section h3 { font-size: 16px; margin-bottom: 8px; }
-            .listing-section p { font-size: 14px; }
+            .section-card { padding: 20px; border-radius: var(--radius); margin-bottom: 14px; }
+            .section-card h3 { font-size: 16px; margin-bottom: 12px; }
+            .quick-facts-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .quick-fact-item { padding: 10px 12px; }
+            .quick-fact-icon { width: 30px; height: 30px; font-size: 15px; }
+            .features-summary { flex-direction: column; gap: 10px; align-items: flex-start; }
+            .features-best { text-align: left; }
+            .cost-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .cost-amount { font-size: 22px; }
+            .cost-item.primary .cost-amount { font-size: 28px; }
+
             .listing-map { height: 200px; border-radius: 10px; }
 
-            .contact-card { padding: 16px; border-radius: 12px; }
-            .contact-price { font-size: 24px; }
-            .contact-price span { font-size: 14px; }
-            .contact-row { padding: 8px 0; font-size: 13px; }
-            .contact-label { font-size: 13px; }
-            .contact-value { font-size: 13px; }
+            .contact-card { border-radius: var(--radius); }
+            .contact-card-header { padding: 20px; }
+            .contact-price { font-size: 28px; }
+            .contact-card-body { padding: 20px; }
+            .form-field input, .form-field textarea { padding: 12px 14px; padding-top: 18px; font-size: 13px; }
 
-            .phone-number { padding: 12px 14px; border-radius: 10px; }
-            .phone-text { font-size: 16px; }
-            .btn-call { padding: 12px; font-size: 15px; border-radius: 10px; }
-            .btn-directions { padding: 12px; font-size: 15px; border-radius: 10px; }
+            .similar-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .similar-card img { height: 100px; }
 
-            .no-phone { font-size: 12px; padding: 14px; }
+            .hero-bottom-info { bottom: 16px; left: 16px; right: 16px; }
+            .hero-title-area h1 { font-size: 20px; }
+            .hero-price-tag { padding: 8px 14px; }
+            .hero-price-tag .price-amount { font-size: 18px; }
+
+            .mobile-cta { display: block; }
+            .section-toggle { display: flex; }
+
+            /* hide desktop contact card on mobile since we have sticky CTA */
+            .contact-card { display: block; }
         }
 
         /* ─── BOTTOM NAV BAR (MOBILE) ─── */
@@ -290,10 +607,11 @@
             box-shadow: 0 4px 12px rgba(255,90,95,0.35);
         }
         .bottom-nav-item.post-tab svg { width: 24px; height: 24px; }
+
         /* ─── SITE FOOTER (DESKTOP) ─── */
         .site-footer {
-            background: var(--bg); border-top: 1px solid var(--border-light);
-            padding: 24px; margin-top: 40px;
+            background: white; border-top: 1px solid var(--border-light);
+            padding: 32px 24px;
         }
         .site-footer-inner {
             max-width: 1400px; margin: 0 auto;
@@ -353,12 +671,38 @@
     <div class="back-bar">
         <a class="back-btn" onclick="history.back(); return false;" href="index.html">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Back
+            Back to listings
         </a>
     </div>
 
     <div class="listing-page" id="listingContent">
-        <div class="loading-page">Loading listing...</div>
+        <!-- Loading skeleton -->
+        <div class="skeleton-hero skeleton"></div>
+        <div style="margin-top:24px; display:grid; grid-template-columns:1fr 380px; gap:36px;">
+            <div>
+                <div class="skeleton-card">
+                    <div class="skeleton-bar" style="width:60%;height:14px;"></div>
+                    <div class="skeleton-bar" style="width:40%;height:14px;"></div>
+                    <div class="skeleton-bar" style="width:80%;height:14px;"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-bar" style="width:50%;height:14px;"></div>
+                    <div class="skeleton-bar" style="width:70%;height:14px;"></div>
+                </div>
+            </div>
+            <div class="skeleton-card" style="height:300px;"></div>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Mobile sticky CTA -->
+    <div class="mobile-cta" id="mobileCta" style="display:none;">
+        <div class="mobile-cta-inner">
+            <div class="mobile-cta-price" id="mobileCTAPrice"></div>
+            <button class="mobile-cta-btn" onclick="scrollToInquiry()">Contact Now</button>
+        </div>
     </div>
 
     <script>
@@ -399,6 +743,58 @@
 
     async function handleLogout() { await sb.auth.signOut(); window.location.href = 'index.html'; }
 
+    // Features students actually care about — matched to real database data
+    const ALL_FEATURES = [
+        { key: 'furnished', icon: '🪑', label: 'Furnished',   pattern: /(fully\s+)?furnished/i,               valueFn: m => m[1] ? 'Fully Furnished' : 'Yes' },
+        { key: 'wifi',      icon: '📶', label: 'WiFi',        pattern: /wifi|wi-fi|internet/i,                valueFn: () => 'Included' },
+        { key: 'pool',      icon: '🏊', label: 'Pool',        pattern: /pool/i,                               valueFn: () => 'Available' },
+        { key: 'gym',       icon: '🏋️', label: 'Gym',        pattern: /gym|fitness/i,                        valueFn: () => 'Available' },
+        { key: 'parking',   icon: '🚗', label: 'Parking',     pattern: /parking/i,                            valueFn: () => 'Available' },
+        { key: 'security',  icon: '🔒', label: 'Security',    pattern: /security|cctv|keycard|key.?card|guard/i, valueFn: () => 'Available' },
+        { key: 'pet',       icon: '🐾', label: 'Pet Friendly', pattern: /pet.?friendly|pet.?ok|pets?\s+allow/i, valueFn: () => 'Allowed' },
+        { key: 'shuttle',   icon: '🚐', label: 'ABAC Shuttle', pattern: /shuttle/i,                           valueFn: () => 'Available' },
+        { key: 'laundry',   icon: '👕', label: 'Laundry',     pattern: /laundry|washing|washer/i,             valueFn: () => 'Available' },
+    ];
+
+    // Parse details and return all features with available/unavailable status
+    function parseAllFeatures(details) {
+        const str = (details || '').toLowerCase();
+        return ALL_FEATURES.map(f => {
+            const match = str.match(f.pattern);
+            return {
+                key: f.key,
+                icon: f.icon,
+                label: f.label,
+                available: !!match,
+                value: match ? f.valueFn(match) : 'Not listed',
+            };
+        });
+    }
+
+    // Count features for a single listing's details string
+    function countFeatures(details) {
+        const str = (details || '').toLowerCase();
+        return ALL_FEATURES.filter(f => f.pattern.test(str)).length;
+    }
+
+    // Fetch the best feature count across all listings
+    async function getBestFeatureCount() {
+        try {
+            const { data } = await sb.from('listings').select('details');
+            if (!data || data.length === 0) return 0;
+            return Math.max(...data.map(l => countFeatures(l.details)));
+        } catch(e) { return 0; }
+    }
+
+    function generateStars(rating) {
+        const full = Math.floor(rating);
+        const half = rating % 1 >= 0.5 ? 1 : 0;
+        let html = '';
+        for (let i = 0; i < full; i++) html += '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+        if (half) html += '<svg viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+        return html;
+    }
+
     async function loadListing() {
         const params = new URLSearchParams(window.location.search);
         const id = params.get('id');
@@ -409,86 +805,400 @@
 
         document.title = `${l.title} | AbacCondo`;
 
-        const cat = { walking: '🚶 Walking', ride: '🛵 Ride', budget: '💰 Budget' };
+        const cat = { walking: 'Walking Distance', ride: 'Short Ride', budget: 'Budget Friendly' };
+        const catIcon = { walking: '\u{1F6B6}', ride: '\u{1F6F5}', budget: '\u{1F4B0}' };
         const phone = l.phone || null;
         const condoPos = { lat: Number(l.lat), lng: Number(l.lng) };
+        const rating = Number(l.rating).toFixed(1);
+        const price = Number(l.price).toLocaleString();
+        const allFeatures = parseAllFeatures(l.details);
+        const availableCount = allFeatures.filter(f => f.available).length;
+        const totalCount = allFeatures.length;
+        const bestCount = await getBestFeatureCount();
+        const scorePercent = Math.round((availableCount / totalCount) * 100);
+        const circumference = 2 * Math.PI * 22;
+        const dashOffset = circumference - (scorePercent / 100) * circumference;
+
+        const checkYes = '<svg class="check-icon yes" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>';
+        const checkNo = '<svg class="check-icon no" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/></svg>';
+
+        // Build features HTML — available first, then unavailable
+        const sortedFeatures = [...allFeatures].sort((a, b) => b.available - a.available);
+        const factsHTML = sortedFeatures.map(f =>
+            `<div class="quick-fact-item ${f.available ? 'available' : 'unavailable'}">
+                <div class="quick-fact-icon">${f.icon}</div>
+                <div>
+                    <div class="quick-fact-label">${f.label}</div>
+                    <div class="quick-fact-value">${f.available ? checkYes : checkNo} ${f.value}</div>
+                </div>
+            </div>`
+        ).join('');
+
+        const featuresSummaryHTML = `
+            <div class="features-summary">
+                <div class="features-score">
+                    <div class="features-score-ring">
+                        <svg viewBox="0 0 52 52">
+                            <circle class="ring-bg" />
+                            <circle class="ring-fill" stroke-dasharray="${circumference}" stroke-dashoffset="${dashOffset}" />
+                        </svg>
+                        <div class="features-score-number">${availableCount}/${totalCount}</div>
+                    </div>
+                    <div class="features-score-text">
+                        ${availableCount} feature${availableCount !== 1 ? 's' : ''} available
+                        <span>out of ${totalCount} total features we track</span>
+                    </div>
+                </div>
+                <div class="features-best">
+                    Best condo has <strong>${bestCount}/${totalCount}</strong>
+                    ${availableCount >= bestCount ? '<br>🏆 This is a top condo!' : ''}
+                </div>
+            </div>`;
 
         document.getElementById('listingContent').innerHTML = `
-            <img class="listing-hero-img" src="${l.image_url || ''}" alt="${l.title}"
-                onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1100 400%22><rect fill=%22%23e8e8e8%22 width=%221100%22 height=%22400%22/><text x=%22550%22 y=%22205%22 text-anchor=%22middle%22 fill=%22%23bbb%22 font-size=%2220%22>No photo</text></svg>'">
+            <!-- HERO -->
+            <div class="hero-container">
+                <img class="listing-hero-img" src="${l.image_url || ''}" alt="${l.title}"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 480%22><rect fill=%22%23e8e8e8%22 width=%221200%22 height=%22480%22/><text x=%22600%22 y=%22245%22 text-anchor=%22middle%22 fill=%22%23bbb%22 font-size=%2220%22>No photo available</text></svg>'">
+                <div class="hero-gradient"></div>
+                ${l.badge ? `<div class="hero-badge"><span class="badge-dot"></span>${l.badge}</div>` : ''}
+                <button class="hero-share-btn" onclick="shareListing()" title="Share this listing">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                </button>
+                <div class="hero-bottom-info">
+                    <div class="hero-title-area">
+                        <h1>${l.title}</h1>
+                        <p>${l.distance}</p>
+                    </div>
+                    <div class="hero-price-tag">
+                        <div class="price-amount">\u{0E3F}${price}</div>
+                        <div class="price-period">per month</div>
+                    </div>
+                </div>
+            </div>
 
+            <!-- KEY FACTS BAR -->
+            <div class="key-facts-bar">
+                <div class="fact-pill highlight">
+                    <span class="fact-icon">\u{0E3F}</span> ${price}/mo
+                </div>
+                <div class="fact-pill">
+                    <span class="fact-icon">\u{1F4CD}</span> ${l.distance}
+                </div>
+                <div class="fact-pill">
+                    <span class="fact-icon">\u{2B50}</span> ${rating}
+                </div>
+                <div class="fact-pill">
+                    <span class="fact-icon">${catIcon[l.category] || '\u{1F3E0}'}</span> ${cat[l.category] || l.category}
+                </div>
+            </div>
+
+            <!-- GRID -->
             <div class="listing-grid">
+                <!-- LEFT COLUMN -->
                 <div class="listing-main">
-                    ${l.badge ? `<span class="listing-badge">${l.badge}</span>` : ''}
-                    <h1 class="listing-title">${l.title}</h1>
-                    <p class="listing-location">${l.distance}</p>
 
-                    <div class="listing-meta-row">
-                        <div class="meta-item"><span>🏠</span> ${l.details}</div>
-                        <div class="meta-item"><span>⭐</span> ${Number(l.rating).toFixed(1)} rating</div>
-                        <div class="meta-item"><span>${cat[l.category]?.split(' ')[0] || '📍'}</span> ${cat[l.category]?.split(' ').slice(1).join(' ') || l.category}</div>
+                    <!-- Quick Facts -->
+                    <div class="section-card" data-animate>
+                        <h3>
+                            <span class="section-icon icon-blue">\u{1F4CB}</span>
+                            Quick Facts
+                            <span class="section-toggle" onclick="toggleSection(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+                        </h3>
+                        <div class="section-body">
+                            ${featuresSummaryHTML}
+                            <div class="quick-facts-grid">
+                                ${factsHTML}
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="listing-section">
-                        <h3>About this place</h3>
-                        <p>${l.title} is located ${l.distance.toLowerCase()} and features ${l.details.toLowerCase()}. 
-                        This condo is categorized as ${cat[l.category] || l.category} from ABAC Bangna campus, 
-                        making it an ideal option for students looking for convenient housing near the university.</p>
+                    <!-- Cost Estimate -->
+                    <div class="section-card" data-animate>
+                        <h3>
+                            <span class="section-icon icon-green">\u{1F4B0}</span>
+                            Cost Estimate
+                            <span class="section-toggle" onclick="toggleSection(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+                        </h3>
+                        <div class="section-body">
+                            <div class="cost-grid">
+                                <div class="cost-item primary">
+                                    <div class="cost-amount">\u{0E3F}${price}</div>
+                                    <div class="cost-label">Monthly Rent</div>
+                                </div>
+                                <div class="cost-item">
+                                    <div class="cost-amount">\u{0E3F}${(Number(l.price) * 2).toLocaleString()}</div>
+                                    <div class="cost-label">Typical Deposit (2 mo)</div>
+                                </div>
+                                <div class="cost-item">
+                                    <div class="cost-amount">\u{0E3F}${Math.round(Number(l.price) / 30).toLocaleString()}</div>
+                                    <div class="cost-label">Approx. Per Day</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="listing-section">
-                        <h3>📍 Distance from ABAC</h3>
-                        <div id="listingMap" class="listing-map"></div>
+                    <!-- About this property -->
+                    <div class="section-card" data-animate>
+                        <h3>
+                            <span class="section-icon icon-purple">\u{1F3E0}</span>
+                            About this Property
+                            <span class="section-toggle" onclick="toggleSection(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+                        </h3>
+                        <div class="section-body">
+                            <p class="about-text">
+                                ${l.title} is situated ${l.distance.toLowerCase()} from ABAC Bangna campus and offers ${l.details.toLowerCase()}.
+                                Categorized as <strong>${cat[l.category] || l.category}</strong>, this property is well-suited for university students
+                                seeking comfortable and accessible accommodation. The area is well-connected and provides easy access to
+                                campus facilities, local amenities, and public transport.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Location & Commute -->
+                    <div class="section-card" data-animate>
+                        <h3>
+                            <span class="section-icon icon-orange">\u{1F4CD}</span>
+                            Location & Commute
+                            <span class="section-toggle" onclick="toggleSection(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+                        </h3>
+                        <div class="section-body">
+                            <p class="about-text" style="margin-bottom:12px;">
+                                This property is ${l.distance.toLowerCase()} from ABAC Bangna campus.
+                                The route below shows the path from campus to this condo.
+                            </p>
+                            <div id="listingMap" class="listing-map"></div>
+                            <div class="map-context">
+                                <div class="map-context-item">
+                                    <span class="map-dot coral"></span> Property
+                                </div>
+                                <div class="map-context-item">
+                                    <span class="map-dot blue"></span> ABAC Campus
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Similar Listings -->
+                    <div class="section-card" data-animate id="similarSection" style="display:none;">
+                        <h3>
+                            <span class="section-icon icon-coral">\u{2728}</span>
+                            Similar Listings
+                        </h3>
+                        <div class="similar-grid" id="similarGrid"></div>
                     </div>
                 </div>
 
+                <!-- RIGHT COLUMN: CONTACT CARD -->
                 <div>
-                    <div class="contact-card">
-                        <div class="contact-price">฿${Number(l.price).toLocaleString()} <span>/month</span></div>
-                        <div class="contact-rating">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                            ${Number(l.rating).toFixed(1)}
-                        </div>
-                        <div class="contact-divider"></div>
-                        <div class="contact-row">
-                            <span class="contact-label">Category</span>
-                            <span class="contact-value">${cat[l.category] || l.category}</span>
-                        </div>
-                        <div class="contact-row">
-                            <span class="contact-label">Distance</span>
-                            <span class="contact-value">${l.distance}</span>
-                        </div>
-                        <div class="contact-row">
-                            <span class="contact-label">Details</span>
-                            <span class="contact-value">${l.details}</span>
-                        </div>
-                        <div class="contact-divider"></div>
-
-                        <div class="inquiry-section">
-                            <h4 style="font-size:15px;margin-bottom:12px;">Interested? Get in touch</h4>
-                            <form onsubmit="submitInquiry(event, '${l.id}')" class="inquiry-form">
-                                <input type="text" placeholder="Your name" id="inqName" required style="width:100%;padding:10px 14px;border:1.5px solid #e2e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
-                                <input type="email" placeholder="Your email" id="inqEmail" required style="width:100%;padding:10px 14px;border:1.5px solid #e2e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
-                                <input type="tel" placeholder="Phone (optional)" id="inqPhone" style="width:100%;padding:10px 14px;border:1.5px solid #e2e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px;">
-                                <textarea placeholder="Message (optional)" id="inqMessage" rows="2" style="width:100%;padding:10px 14px;border:1.5px solid #e2e5ea;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:12px;resize:vertical;"></textarea>
-                                <button type="submit" class="btn-call" id="inqBtn" style="width:100%;text-align:center;justify-content:center;">
-                                    📩 Send Inquiry
-                                </button>
-                            </form>
-                            <div id="inqSuccess" style="display:none;text-align:center;padding:16px;color:#065f46;background:#d1fae5;border-radius:10px;font-weight:700;">
-                                ✅ Inquiry sent! We'll get back to you soon.
+                    <div class="contact-card" id="contactCard">
+                        <div class="contact-card-header">
+                            <div class="contact-price-row">
+                                <span class="contact-price">\u{0E3F}${price}</span>
+                                <span class="contact-price-period">/month</span>
+                            </div>
+                            <div class="contact-rating-row">
+                                <div class="contact-rating-stars">${generateStars(Number(l.rating))}</div>
+                                <span class="contact-rating-text">${rating} rating</span>
+                                ${l.badge ? `<span class="contact-verified-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${l.badge}</span>` : ''}
                             </div>
                         </div>
 
-                        <a class="btn-directions" href="https://www.google.com/maps/dir/?api=1&origin=${ABAC_LAT},${ABAC_LNG}&destination=${l.lat},${l.lng}" target="_blank">
-                            📍 Get Directions from ABAC
-                        </a>
+                        <div class="contact-card-body">
+                            <div class="contact-trust-text">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                                Typically responds within 2 hours
+                            </div>
+
+                            <div class="contact-details-grid">
+                                <div class="contact-detail-row">
+                                    <span class="contact-detail-label">Category</span>
+                                    <span class="contact-detail-value">${catIcon[l.category] || ''} ${cat[l.category] || l.category}</span>
+                                </div>
+                                <div class="contact-detail-row">
+                                    <span class="contact-detail-label">Distance</span>
+                                    <span class="contact-detail-value">${l.distance}</span>
+                                </div>
+                                <div class="contact-detail-row">
+                                    <span class="contact-detail-label">Details</span>
+                                    <span class="contact-detail-value">${l.details}</span>
+                                </div>
+                            </div>
+
+                            <div class="inquiry-section" id="inquirySection">
+                                <h4>Interested? Send an inquiry</h4>
+                                <form onsubmit="submitInquiry(event, '${l.id}')" class="inquiry-form" id="inquiryForm">
+                                    <div class="form-field">
+                                        <label for="inqName">Your Name</label>
+                                        <input type="text" id="inqName" required autocomplete="name">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="inqEmail">Email Address</label>
+                                        <input type="email" id="inqEmail" required autocomplete="email">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="inqPhone">Phone (optional)</label>
+                                        <input type="tel" id="inqPhone" autocomplete="tel">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="inqMessage">Message (optional)</label>
+                                        <textarea id="inqMessage" rows="2"></textarea>
+                                    </div>
+                                    <button type="submit" class="btn-inquiry" id="inqBtn">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                                        Send Inquiry
+                                    </button>
+                                </form>
+                                <div class="inquiry-success" id="inqSuccess">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    <div>Inquiry sent! We'll get back to you soon.</div>
+                                </div>
+                            </div>
+
+                            <a class="btn-directions" href="https://www.google.com/maps/dir/?api=1&origin=${ABAC_LAT},${ABAC_LNG}&destination=${l.lat},${l.lng}" target="_blank">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                                Get Directions from ABAC
+                            </a>
+
+                            <button class="btn-share" onclick="shareListing()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                                Share this Listing
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
-        // Init interactive map
+
+        // Set up mobile CTA
+        const mobileCta = document.getElementById('mobileCta');
+        const mobileCTAPrice = document.getElementById('mobileCTAPrice');
+        if (mobileCTAPrice) {
+            mobileCTAPrice.innerHTML = `\u{0E3F}${price}<span>/mo</span>`;
+        }
+        if (window.innerWidth <= 600 && mobileCta) {
+            mobileCta.style.display = 'block';
+        }
+
+        // Init map
         initListingMap(condoPos, l.title);
+
+        // Trigger scroll animations
+        initScrollAnimations();
+
+        // Load similar listings
+        loadSimilarListings(l.category, l.id);
+
+        // Re-bind haptics
+        bindHaptics();
+    }
+
+    function scrollToInquiry() {
+        const el = document.getElementById('inquirySection');
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Brief highlight effect
+            const card = document.getElementById('contactCard');
+            if (card) {
+                card.style.transition = 'box-shadow 0.3s';
+                card.style.boxShadow = '0 0 0 3px rgba(255,90,95,0.3), 0 8px 30px rgba(0,0,0,0.1)';
+                setTimeout(() => { card.style.boxShadow = ''; }, 2000);
+            }
+        }
+        haptic('light');
+    }
+
+    // Section toggle for mobile collapsible
+    function toggleSection(btn) {
+        const body = btn.closest('.section-card').querySelector('.section-body');
+        btn.classList.toggle('collapsed');
+        if (body.classList.contains('collapsed')) {
+            body.classList.remove('collapsed');
+            body.style.maxHeight = body.scrollHeight + 'px';
+            setTimeout(() => body.style.maxHeight = 'none', 300);
+        } else {
+            body.style.maxHeight = body.scrollHeight + 'px';
+            requestAnimationFrame(() => {
+                body.style.maxHeight = '0';
+                body.classList.add('collapsed');
+            });
+        }
+        haptic('light');
+    }
+
+    // Scroll-triggered fade-in
+    function initScrollAnimations() {
+        const cards = document.querySelectorAll('[data-animate]');
+        if (!cards.length) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        cards.forEach((card, i) => {
+            card.style.transitionDelay = (i * 80) + 'ms';
+            observer.observe(card);
+        });
+    }
+
+    // Share listing
+    function shareListing() {
+        const url = window.location.href;
+        if (navigator.share) {
+            navigator.share({ title: document.title, url: url }).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('Link copied to clipboard!');
+            }).catch(() => {
+                showToast('Could not copy link');
+            });
+        }
+        haptic('success');
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // Load similar listings
+    async function loadSimilarListings(category, currentId) {
+        try {
+            const { data: listings } = await sb.from('listings')
+                .select('id, title, price, distance, image_url, rating')
+                .eq('category', category)
+                .neq('id', currentId)
+                .limit(3);
+
+            if (!listings || listings.length === 0) return;
+
+            const section = document.getElementById('similarSection');
+            const grid = document.getElementById('similarGrid');
+            if (!section || !grid) return;
+
+            grid.innerHTML = listings.map(item => `
+                <a href="listing.html?id=${item.id}" class="similar-card">
+                    <img src="${item.image_url || ''}" alt="${item.title}"
+                        onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 130%22><rect fill=%22%23e8e8e8%22 width=%22400%22 height=%22130%22/><text x=%22200%22 y=%2270%22 text-anchor=%22middle%22 fill=%22%23bbb%22 font-size=%2214%22>No photo</text></svg>'">
+                    <div class="similar-card-body">
+                        <div class="similar-card-title">${item.title}</div>
+                        <div class="similar-card-price">\u{0E3F}${Number(item.price).toLocaleString()} <span>/mo</span></div>
+                        <div class="similar-card-meta">${item.distance}</div>
+                    </div>
+                </a>
+            `).join('');
+
+            section.style.display = 'block';
+        } catch(e) {
+            // Silently fail - similar listings are not critical
+        }
     }
 
     function initListingMap(condoPos, title) {
@@ -535,7 +1245,7 @@
             position: ABAC,
             map: map,
             icon: {
-                url: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#1a73e8" stroke="white" stroke-width="3"/><text x="20" y="24" text-anchor="middle" fill="white" font-size="16" font-weight="bold" font-family="sans-serif">🎓</text></svg>'),
+                url: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#1a73e8" stroke="white" stroke-width="3"/><text x="20" y="24" text-anchor="middle" fill="white" font-size="16" font-weight="bold" font-family="sans-serif">\u{1F393}</text></svg>'),
                 scaledSize: new google.maps.Size(40, 40),
                 anchor: new google.maps.Point(20, 20)
             },
@@ -547,7 +1257,7 @@
             const directionsService = new google.maps.DirectionsService();
             const directionsRenderer = new google.maps.DirectionsRenderer({
                 map: map,
-                suppressMarkers: true, // Keep our custom markers
+                suppressMarkers: true,
                 polylineOptions: {
                     strokeColor: '#FF5A5F',
                     strokeOpacity: 0.7,
@@ -563,12 +1273,10 @@
                 if (status === 'OK') {
                     directionsRenderer.setDirections(result);
                 } else {
-                    // Fallback: draw a straight dashed line
                     drawFallbackLine(map, ABAC, condoPos);
                 }
             });
         } catch (e) {
-            // Fallback: draw a straight dashed line
             drawFallbackLine(map, ABAC, condoPos);
         }
     }
@@ -595,24 +1303,27 @@
         try { navigator.vibrate(patterns[type] || 10); } catch(e) {}
     }
 
-    // Add haptics to action buttons
-    document.querySelectorAll('.btn-call, .btn-directions, .back-btn').forEach(btn => {
-        btn.addEventListener('click', () => haptic('light'));
-    });
-
-    // Stagger section fade-in
-    document.querySelectorAll('.listing-section').forEach((el, i) => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(16px)';
-        el.style.transition = `opacity 0.4s ease ${i * 100 + 200}ms, transform 0.4s ease ${i * 100 + 200}ms`;
-        setTimeout(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; }, 50);
-    });
+    function bindHaptics() {
+        document.querySelectorAll('.btn-inquiry, .btn-directions, .btn-share, .back-btn, .hero-share-btn').forEach(btn => {
+            btn.addEventListener('click', () => haptic('light'));
+        });
+    }
 
     // ── INQUIRY SUBMISSION ──
     async function submitInquiry(e, listingId) {
         e.preventDefault();
         const btn = document.getElementById('inqBtn');
-        btn.disabled = true; btn.textContent = 'Sending...';
+        btn.disabled = true;
+        btn.innerHTML = '<span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;"></span> Sending...';
+
+        // Add spinner keyframes dynamically
+        if (!document.getElementById('spinStyle')) {
+            const style = document.createElement('style');
+            style.id = 'spinStyle';
+            style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+            document.head.appendChild(style);
+        }
+
         try {
             const inquiry = {
                 listing_id: listingId,
@@ -625,15 +1336,25 @@
             const { error } = await sb.from('inquiries').insert([inquiry]);
             if (error) throw error;
             // Show success, hide form
-            document.querySelector('.inquiry-form').style.display = 'none';
+            document.getElementById('inquiryForm').style.display = 'none';
             document.getElementById('inqSuccess').style.display = 'block';
             haptic('success');
+            showToast('Inquiry sent successfully!');
         } catch (err) {
             alert('Error sending inquiry: ' + err.message);
             haptic('error');
         }
-        btn.disabled = false; btn.textContent = '📩 Send Inquiry';
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg> Send Inquiry';
     }
+
+    // Show mobile CTA on resize
+    window.addEventListener('resize', () => {
+        const cta = document.getElementById('mobileCta');
+        if (cta && cta.querySelector('.mobile-cta-price').textContent) {
+            cta.style.display = window.innerWidth <= 600 ? 'block' : 'none';
+        }
+    });
 
     boot();
     </script>
@@ -643,7 +1364,7 @@
         <div class="site-footer-inner">
             <div class="site-footer-left">
                 <img src="favicon-64.png" alt="AC" style="width:20px;height:20px;border-radius:4px;">
-                © 2026 AbacCondo
+                &copy; 2026 AbacCondo
             </div>
             <div class="site-footer-links">
                 <a href="explore.html">Map</a>
@@ -670,8 +1391,5 @@
             Profile
         </a>
     </nav>
-            <div class="header-right" id="headerRight">
-                <button class="header-auth-btn" onclick="openModal('auth')">Log in / Sign up</button>
-            </div>
 </body>
 </html>
